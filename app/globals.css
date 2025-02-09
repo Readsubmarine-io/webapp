@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --power-pump-blue: 216 100% 50%;
+  --radius-sm: 0.125rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-card: 12px;
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --context-menu-background: var(--background);
+  --context-menu-foreground: var(--foreground);
+  --header-menu-background: var(--background);
+  --header-menu-foreground: var(--foreground);
+  --tooltip-background: 0 0% 100%;
+  --tooltip-foreground: 222.2 84% 4.9%;
+}
+
+body {
+  color: #62759d;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.actionable {
+  cursor: pointer;
+}
+
+/* New generic card styles */
+.card {
+  border: 1px solid #eaecf3;
+  margin-bottom: 30px;
+  border-radius: 8px;
+  box-shadow: 0 0 1.25rem rgba(31, 45, 61, 0.05);
+  background: #fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word;
+  background-clip: border-box;
+}
+
+.card .card-body {
+  padding: 30px;
+  flex: 1 1 auto;
+}
+
+@media (max-width: 640px) {
+  .card .card-body {
+    padding: 20px;
+  }
+}
+
