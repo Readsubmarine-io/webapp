@@ -1,6 +1,6 @@
-"use client"
+'use client'
 
-import { LaunchpadCollections } from "@/components/launchpad/launchpad-collections"
+import { LaunchpadCollections } from '@/components/launchpad/launchpad-collections'
 
 interface LaunchpadContentProps {
   collections: any[] // Replace 'any' with the actual type of your collections
@@ -14,7 +14,8 @@ export function LaunchpadContent({ collections }: LaunchpadContentProps) {
           Discover and Support Innovative E-books
         </h2>
         <p className="text-lg text-power-pump-text max-w-2xl mx-auto">
-          Invest in the future of literature. Back groundbreaking e-book projects and be part of the next bestseller.
+          Invest in the future of literature. Back groundbreaking e-book
+          projects and be part of the next bestseller.
         </p>
       </div>
 
@@ -25,4 +26,3 @@ export function LaunchpadContent({ collections }: LaunchpadContentProps) {
     </div>
   )
 }
-

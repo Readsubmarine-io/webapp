@@ -1,14 +1,24 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { cn } from "@/lib/utils"
+import { useState } from 'react'
 
-const genres = ["Non-fiction", "Fiction", "Science Fiction", "Fantasy", "Crime", "Romance", "Mystery", "Other"]
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { cn } from '@/lib/utils'
+
+const genres = [
+  'Non-fiction',
+  'Fiction',
+  'Science Fiction',
+  'Fantasy',
+  'Crime',
+  'Romance',
+  'Mystery',
+  'Other',
+]
 
 interface AdditionalDetailsProps {
   formData: {
@@ -16,44 +26,50 @@ interface AdditionalDetailsProps {
     genres: string[]
     pages: string
   }
-  updateFormData: (data: Partial<AdditionalDetailsProps["formData"]>) => void
+  updateFormData: (data: Partial<AdditionalDetailsProps['formData']>) => void
   onNext: () => void
   onPrev: () => void
 }
 
-export function AdditionalDetails({ formData, updateFormData, onNext, onPrev }: AdditionalDetailsProps) {
+export function AdditionalDetails({
+  formData,
+  updateFormData,
+  onNext,
+  onPrev,
+}: AdditionalDetailsProps) {
   const [errors, setErrors] = useState({
-    longDescription: "",
-    genres: "",
-    pages: "",
+    longDescription: '',
+    genres: '',
+    pages: '',
   })
 
   const validate = () => {
     let isValid = true
     const newErrors = {
-      longDescription: "",
-      genres: "",
-      pages: "",
+      longDescription: '',
+      genres: '',
+      pages: '',
     }
 
     if (!formData.longDescription.trim()) {
-      newErrors.longDescription = "Long Description is required"
+      newErrors.longDescription = 'Long Description is required'
       isValid = false
     } else if (formData.longDescription.length > 1500) {
-      newErrors.longDescription = "Long Description must be 1500 characters or less"
+      newErrors.longDescription =
+        'Long Description must be 1500 characters or less'
       isValid = false
     }
 
     if (formData.genres.length === 0) {
-      newErrors.genres = "Please select at least one genre"
+      newErrors.genres = 'Please select at least one genre'
       isValid = false
     }
 
     if (!formData.pages.trim()) {
-      newErrors.pages = "Number of pages is required"
+      newErrors.pages = 'Number of pages is required'
       isValid = false
     } else if (isNaN(Number(formData.pages)) || Number(formData.pages) <= 0) {
-      newErrors.pages = "Please enter a valid number of pages"
+      newErrors.pages = 'Please enter a valid number of pages'
       isValid = false
     }
 
@@ -86,8 +102,12 @@ export function AdditionalDetails({ formData, updateFormData, onNext, onPrev }: 
           placeholder="Enter a detailed description (max 1500 characters)"
           maxLength={1500}
         />
-        <p className="text-sm text-gray-500 mt-1">{formData.longDescription.length}/1500 characters</p>
-        {errors.longDescription && <p className="text-red-500 text-sm mt-1">{errors.longDescription}</p>}
+        <p className="text-sm text-gray-500 mt-1">
+          {formData.longDescription.length}/1500 characters
+        </p>
+        {errors.longDescription && (
+          <p className="text-red-500 text-sm mt-1">{errors.longDescription}</p>
+        )}
       </div>
       <div>
         <Label>Genres</Label>
@@ -99,8 +119,9 @@ export function AdditionalDetails({ formData, updateFormData, onNext, onPrev }: 
                 checked={formData.genres.includes(genre)}
                 onCheckedChange={() => handleGenreChange(genre)}
                 className={cn(
-                  "border-gray-300 focus:ring-power-pump-button",
-                  formData.genres.includes(genre) && "bg-power-pump-button border-power-pump-button text-white",
+                  'border-gray-300 focus:ring-power-pump-button',
+                  formData.genres.includes(genre) &&
+                    'bg-power-pump-button border-power-pump-button text-white',
                 )}
               />
               <label
@@ -112,7 +133,9 @@ export function AdditionalDetails({ formData, updateFormData, onNext, onPrev }: 
             </div>
           ))}
         </div>
-        {errors.genres && <p className="text-red-500 text-sm mt-1">{errors.genres}</p>}
+        {errors.genres && (
+          <p className="text-red-500 text-sm mt-1">{errors.genres}</p>
+        )}
       </div>
       <div>
         <Label htmlFor="pages">Number of Pages</Label>
@@ -123,7 +146,9 @@ export function AdditionalDetails({ formData, updateFormData, onNext, onPrev }: 
           onChange={(e) => updateFormData({ pages: e.target.value })}
           placeholder="Enter the number of pages"
         />
-        {errors.pages && <p className="text-red-500 text-sm mt-1">{errors.pages}</p>}
+        {errors.pages && (
+          <p className="text-red-500 text-sm mt-1">{errors.pages}</p>
+        )}
       </div>
       <div className="flex justify-between items-center mt-6 space-x-2 sm:space-x-4">
         <Button
@@ -144,4 +169,3 @@ export function AdditionalDetails({ formData, updateFormData, onNext, onPrev }: 
     </form>
   )
 }
-

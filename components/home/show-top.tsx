@@ -1,6 +1,6 @@
-"use client"
+'use client'
 
-import { useState } from "react"
+import { useState } from 'react'
 
 interface ShowTopProps {
   options: number[]
@@ -19,8 +19,8 @@ export function ShowTop({ options }: ShowTopProps) {
             onClick={() => setSelected(option)}
             className={`px-4 py-1.5 min-w-[40px] transition-colors ${
               selected === option
-                ? "bg-power-pump-button text-white"
-                : "bg-transparent text-power-pump-text hover:bg-power-pump-button/10"
+                ? 'bg-power-pump-button text-white'
+                : 'bg-transparent text-power-pump-text hover:bg-power-pump-button/10'
             }`}
           >
             {option}
@@ -30,4 +30,3 @@ export function ShowTop({ options }: ShowTopProps) {
     </div>
   )
 }
-

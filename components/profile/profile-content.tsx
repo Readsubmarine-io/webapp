@@ -1,25 +1,31 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Globe, Facebook, Instagram, Twitter, Copy } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { EditProfileDialog } from "@/components/profile/edit-profile-dialog"
-import { Badge } from "@/components/ui/badge"
-import type { User, Book, Project } from "@/types/profile"
-import { CreatedBooks } from "@/components/profile/created-books"
-import { CollectedBooks } from "@/components/profile/collected-books"
-import { ListedForSaleBooks } from "@/components/profile/listed-for-sale-books"
-import { fetchUserBooks, fetchUserProjects } from "@/app/api/mockApi"
+import { Copy, Facebook, Globe, Instagram, Twitter } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+
+import { fetchUserBooks, fetchUserProjects } from '@/app/api/mockApi'
+import { CollectedBooks } from '@/components/profile/collected-books'
+import { CreatedBooks } from '@/components/profile/created-books'
+import { EditProfileDialog } from '@/components/profile/edit-profile-dialog'
+import { ListedForSaleBooks } from '@/components/profile/listed-for-sale-books'
+import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import type { Book, Project, User } from '@/types/profile'
 
 interface ProfileContentProps {
   user: User
 }
 
 export function ProfileContent({ user }: ProfileContentProps) {
-  const [activeTab, setActiveTab] = useState("created")
+  const [activeTab, setActiveTab] = useState('created')
   const [showTooltip, setShowTooltip] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
@@ -33,18 +39,18 @@ export function ProfileContent({ user }: ProfileContentProps) {
       setIsLoading(true)
       setError(null)
       try {
-        if (activeTab === "created") {
+        if (activeTab === 'created') {
           const fetchedProjects = await fetchUserProjects()
           setProjects(fetchedProjects)
-        } else if (activeTab === "collected") {
-          const fetchedBooks = await fetchUserBooks("collected")
+        } else if (activeTab === 'collected') {
+          const fetchedBooks = await fetchUserBooks('collected')
           setCollectedBooks(fetchedBooks)
-        } else if (activeTab === "sale") {
-          const fetchedBooks = await fetchUserBooks("sale")
+        } else if (activeTab === 'sale') {
+          const fetchedBooks = await fetchUserBooks('sale')
           setListedForSaleBooks(fetchedBooks)
         }
       } catch (err) {
-        setError("Failed to fetch data. Please try again.")
+        setError(`Failed to fetch data. Please try again. ${err}`)
       } finally {
         setIsLoading(false)
       }
@@ -71,17 +77,25 @@ export function ProfileContent({ user }: ProfileContentProps) {
             >
               Edit
             </button>
-            <EditProfileDialog user={user} open={isDialogOpen} onOpenChange={setIsDialogOpen} />
+            <EditProfileDialog
+              user={user}
+              open={isDialogOpen}
+              onOpenChange={setIsDialogOpen}
+            />
             <div className="flex flex-col items-center text-center mb-4 mt-6">
               <Image
-                src={user.avatar || "/placeholder.svg"}
+                src={user.avatar || '/placeholder.svg'}
                 alt={user.name}
                 width={120}
                 height={120}
                 className="rounded-full mb-4"
               />
-              <h2 className="text-xl font-bold text-power-pump-heading">{user.name}</h2>
-              <p className="text-power-pump-text mb-2 text-sm">{user.username}</p>
+              <h2 className="text-xl font-bold text-power-pump-heading">
+                {user.name}
+              </h2>
+              <p className="text-power-pump-text mb-2 text-sm">
+                {user.username}
+              </p>
               <div className="flex items-center justify-center mb-4">
                 <p className="text-power-pump-text mr-2 text-sm">
                   {`${user.walletAddress.slice(0, 4)}...${user.walletAddress.slice(-4)}`}
@@ -106,7 +120,9 @@ export function ProfileContent({ user }: ProfileContentProps) {
                   </Tooltip>
                 </TooltipProvider>
               </div>
-              <p className="text-power-pump-text mb-4 text-sm px-2">{user.bio}</p>
+              <p className="text-power-pump-text mb-4 text-sm px-2">
+                {user.bio}
+              </p>
               <Link
                 href={user.website}
                 className="flex items-center text-power-pump-button hover:text-power-pump-button/80 mb-4 actionable text-sm"
@@ -115,13 +131,22 @@ export function ProfileContent({ user }: ProfileContentProps) {
                 {user.website}
               </Link>
               <div className="flex space-x-4 mb-6">
-                <Link href="#" className="text-power-pump-text hover:text-power-pump-button actionable">
+                <Link
+                  href="#"
+                  className="text-power-pump-text hover:text-power-pump-button actionable"
+                >
                   <Facebook className="w-5 h-5" />
                 </Link>
-                <Link href="#" className="text-power-pump-text hover:text-power-pump-button actionable">
+                <Link
+                  href="#"
+                  className="text-power-pump-text hover:text-power-pump-button actionable"
+                >
                   <Instagram className="w-5 h-5" />
                 </Link>
-                <Link href="#" className="text-power-pump-text hover:text-power-pump-button actionable">
+                <Link
+                  href="#"
+                  className="text-power-pump-text hover:text-power-pump-button actionable"
+                >
                   <Twitter className="w-5 h-5" />
                 </Link>
               </div>
@@ -131,7 +156,11 @@ export function ProfileContent({ user }: ProfileContentProps) {
 
         {/* Main Content */}
         <div className="flex-1 w-full md:w-[65%] lg:w-[70%]">
-          <Tabs defaultValue="created" className="w-full" onValueChange={(value) => setActiveTab(value)}>
+          <Tabs
+            defaultValue="created"
+            className="w-full"
+            onValueChange={(value) => setActiveTab(value)}
+          >
             <TabsList className="w-full justify-start bg-transparent border-b h-auto p-0 space-x-4 sm:space-x-8 overflow-x-auto font-bold">
               <TabsTrigger
                 value="created"
@@ -201,4 +230,3 @@ export function ProfileContent({ user }: ProfileContentProps) {
     </div>
   )
 }
-

@@ -1,12 +1,13 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import type React from "react"
-import { CheckCircle } from "lucide-react"
+import { CheckCircle } from 'lucide-react'
+import type React from 'react'
+import { useState } from 'react'
+
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 
 interface FileUploadsProps {
   formData: {
@@ -15,48 +16,52 @@ interface FileUploadsProps {
     email: string
     acceptTerms: boolean
   }
-  updateFormData: (data: Partial<FileUploadsProps["formData"]>) => void
+  updateFormData: (data: Partial<FileUploadsProps['formData']>) => void
   onPrev: () => void
 }
 
-export function FileUploads({ formData, updateFormData, onPrev }: FileUploadsProps) {
+export function FileUploads({
+  formData,
+  updateFormData,
+  onPrev,
+}: FileUploadsProps) {
   const [isSubmissionSuccessful, setIsSubmissionSuccessful] = useState(false)
   const [errors, setErrors] = useState({
-    coverImage: "",
-    ebookPdf: "",
-    email: "",
-    acceptTerms: "",
+    coverImage: '',
+    ebookPdf: '',
+    email: '',
+    acceptTerms: '',
   })
 
   const validate = () => {
     let isValid = true
     const newErrors = {
-      coverImage: "",
-      ebookPdf: "",
-      email: "",
-      acceptTerms: "",
+      coverImage: '',
+      ebookPdf: '',
+      email: '',
+      acceptTerms: '',
     }
 
     if (!formData.coverImage) {
-      newErrors.coverImage = "Cover image is required"
+      newErrors.coverImage = 'Cover image is required'
       isValid = false
     }
 
     if (!formData.ebookPdf) {
-      newErrors.ebookPdf = "eBook PDF is required"
+      newErrors.ebookPdf = 'eBook PDF is required'
       isValid = false
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required"
+      newErrors.email = 'Email is required'
       isValid = false
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address"
+      newErrors.email = 'Please enter a valid email address'
       isValid = false
     }
 
     if (!formData.acceptTerms) {
-      newErrors.acceptTerms = "You must accept the terms to proceed"
+      newErrors.acceptTerms = 'You must accept the terms to proceed'
       isValid = false
     }
 
@@ -68,7 +73,7 @@ export function FileUploads({ formData, updateFormData, onPrev }: FileUploadsPro
     e.preventDefault()
     if (validate()) {
       // Here you would typically send the form data to your backend
-      console.log("Form submitted:", formData)
+      console.log('Form submitted:', formData)
       // Set submission as successful
       setIsSubmissionSuccessful(true)
       // Reset the form or perform any other necessary actions
@@ -76,7 +81,10 @@ export function FileUploads({ formData, updateFormData, onPrev }: FileUploadsPro
     }
   }
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, field: "coverImage" | "ebookPdf") => {
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: 'coverImage' | 'ebookPdf',
+  ) => {
     if (e.target.files && e.target.files[0]) {
       updateFormData({ [field]: e.target.files[0] })
     }
@@ -94,19 +102,34 @@ export function FileUploads({ formData, updateFormData, onPrev }: FileUploadsPro
             <span className="block sm:inline">Submission Successful!</span>
           </div>
           <p className="text-sm mt-2">
-            Thank you for submitting your eBook. Your application will be reviewed within 3 business days.
+            Thank you for submitting your eBook. Your application will be
+            reviewed within 3 business days.
           </p>
         </div>
       )}
       <div>
         <Label htmlFor="coverImage">Upload eBook Cover (JPEG)</Label>
-        <Input id="coverImage" type="file" accept="image/jpeg" onChange={(e) => handleFileChange(e, "coverImage")} />
-        {errors.coverImage && <p className="text-red-500 text-sm mt-1">{errors.coverImage}</p>}
+        <Input
+          id="coverImage"
+          type="file"
+          accept="image/jpeg"
+          onChange={(e) => handleFileChange(e, 'coverImage')}
+        />
+        {errors.coverImage && (
+          <p className="text-red-500 text-sm mt-1">{errors.coverImage}</p>
+        )}
       </div>
       <div>
         <Label htmlFor="ebookPdf">Upload eBook PDF</Label>
-        <Input id="ebookPdf" type="file" accept="application/pdf" onChange={(e) => handleFileChange(e, "ebookPdf")} />
-        {errors.ebookPdf && <p className="text-red-500 text-sm mt-1">{errors.ebookPdf}</p>}
+        <Input
+          id="ebookPdf"
+          type="file"
+          accept="application/pdf"
+          onChange={(e) => handleFileChange(e, 'ebookPdf')}
+        />
+        {errors.ebookPdf && (
+          <p className="text-red-500 text-sm mt-1">{errors.ebookPdf}</p>
+        )}
       </div>
       <div>
         <Label htmlFor="email">Email Address</Label>
@@ -117,13 +140,17 @@ export function FileUploads({ formData, updateFormData, onPrev }: FileUploadsPro
           onChange={(e) => updateFormData({ email: e.target.value })}
           placeholder="Enter your email address"
         />
-        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+        {errors.email && (
+          <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+        )}
       </div>
       <div className="flex items-center space-x-2">
         <Checkbox
           id="acceptTerms"
           checked={formData.acceptTerms}
-          onCheckedChange={(checked) => updateFormData({ acceptTerms: checked as boolean })}
+          onCheckedChange={(checked) =>
+            updateFormData({ acceptTerms: checked as boolean })
+          }
         />
         <label
           htmlFor="acceptTerms"
@@ -132,16 +159,25 @@ export function FileUploads({ formData, updateFormData, onPrev }: FileUploadsPro
           I accept the platform's terms and confirm a 20% mint fee
         </label>
       </div>
-      {errors.acceptTerms && <p className="text-red-500 text-sm mt-1">{errors.acceptTerms}</p>}
+      {errors.acceptTerms && (
+        <p className="text-red-500 text-sm mt-1">{errors.acceptTerms}</p>
+      )}
       <div className="flex justify-between items-center mt-6">
-        <Button type="button" onClick={onPrev} variant="outline" className="w-[48%]">
+        <Button
+          type="button"
+          onClick={onPrev}
+          variant="outline"
+          className="w-[48%]"
+        >
           Previous
         </Button>
-        <Button type="submit" className="w-[48%] bg-power-pump-button text-white hover:bg-power-pump-button/90">
+        <Button
+          type="submit"
+          className="w-[48%] bg-power-pump-button text-white hover:bg-power-pump-button/90"
+        >
           Submit for Review
         </Button>
       </div>
     </form>
   )
 }
-

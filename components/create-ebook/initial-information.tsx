@@ -1,10 +1,11 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { useState } from 'react'
+
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 
 interface InitialInformationProps {
   formData: {
@@ -12,40 +13,45 @@ interface InitialInformationProps {
     authorName: string
     shortDescription: string
   }
-  updateFormData: (data: Partial<InitialInformationProps["formData"]>) => void
+  updateFormData: (data: Partial<InitialInformationProps['formData']>) => void
   onNext: () => void
 }
 
-export function InitialInformation({ formData, updateFormData, onNext }: InitialInformationProps) {
+export function InitialInformation({
+  formData,
+  updateFormData,
+  onNext,
+}: InitialInformationProps) {
   const [errors, setErrors] = useState({
-    title: "",
-    authorName: "",
-    shortDescription: "",
+    title: '',
+    authorName: '',
+    shortDescription: '',
   })
 
   const validate = () => {
     let isValid = true
     const newErrors = {
-      title: "",
-      authorName: "",
-      shortDescription: "",
+      title: '',
+      authorName: '',
+      shortDescription: '',
     }
 
     if (!formData.title.trim()) {
-      newErrors.title = "eBook Title is required"
+      newErrors.title = 'eBook Title is required'
       isValid = false
     }
 
     if (!formData.authorName.trim()) {
-      newErrors.authorName = "Author Name is required"
+      newErrors.authorName = 'Author Name is required'
       isValid = false
     }
 
     if (!formData.shortDescription.trim()) {
-      newErrors.shortDescription = "Short Description is required"
+      newErrors.shortDescription = 'Short Description is required'
       isValid = false
     } else if (formData.shortDescription.length > 150) {
-      newErrors.shortDescription = "Short Description must be 150 characters or less"
+      newErrors.shortDescription =
+        'Short Description must be 150 characters or less'
       isValid = false
     }
 
@@ -70,7 +76,9 @@ export function InitialInformation({ formData, updateFormData, onNext }: Initial
           onChange={(e) => updateFormData({ title: e.target.value })}
           placeholder="Enter the title of your eBook"
         />
-        {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title}</p>}
+        {errors.title && (
+          <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+        )}
       </div>
       <div>
         <Label htmlFor="authorName">Author Name</Label>
@@ -80,7 +88,9 @@ export function InitialInformation({ formData, updateFormData, onNext }: Initial
           onChange={(e) => updateFormData({ authorName: e.target.value })}
           placeholder="Enter your name"
         />
-        {errors.authorName && <p className="text-red-500 text-sm mt-1">{errors.authorName}</p>}
+        {errors.authorName && (
+          <p className="text-red-500 text-sm mt-1">{errors.authorName}</p>
+        )}
       </div>
       <div>
         <Label htmlFor="shortDescription">Short Description</Label>
@@ -91,13 +101,19 @@ export function InitialInformation({ formData, updateFormData, onNext }: Initial
           placeholder="Enter a short description (max 150 characters)"
           maxLength={150}
         />
-        <p className="text-sm text-gray-500 mt-1">{formData.shortDescription.length}/150 characters</p>
-        {errors.shortDescription && <p className="text-red-500 text-sm mt-1">{errors.shortDescription}</p>}
+        <p className="text-sm text-gray-500 mt-1">
+          {formData.shortDescription.length}/150 characters
+        </p>
+        {errors.shortDescription && (
+          <p className="text-red-500 text-sm mt-1">{errors.shortDescription}</p>
+        )}
       </div>
-      <Button type="submit" className="w-full bg-power-pump-button text-white hover:bg-power-pump-button/90">
+      <Button
+        type="submit"
+        className="w-full bg-power-pump-button text-white hover:bg-power-pump-button/90"
+      >
         Next
       </Button>
     </form>
   )
 }
-

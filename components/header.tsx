@@ -1,21 +1,32 @@
-"use client"
+'use client'
 
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import type React from "react"
-import { useState } from "react"
-import { Menu, Loader2, User, LogOut } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger, SheetDescription } from "@/components/ui/sheet"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { styled } from "@stitches/react"
+import { styled } from '@stitches/react'
+import { Loader2, LogOut, Menu, User } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+import type React from 'react'
+import { useState } from 'react'
+
+import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTrigger,
+} from '@/components/ui/sheet'
 
 const StyledContent = styled(DropdownMenuContent, {
   zIndex: 1000,
-  fontFamily: "var(--font-dm-sans)",
-  fontSize: "1rem",
-  color: "#62759d",
-  backgroundColor: "hsl(var(--background))",
+  fontFamily: 'var(--font-dm-sans)',
+  fontSize: '1rem',
+  color: '#62759d',
+  backgroundColor: 'hsl(var(--background))',
 })
 
 export function Header() {
@@ -41,7 +52,10 @@ export function Header() {
           <div className="flex items-center">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" className="p-2 mr-2 md:hidden actionable">
+                <Button
+                  variant="ghost"
+                  className="p-2 mr-2 md:hidden actionable"
+                >
                   <Menu className="h-6 w-6" />
                   <span className="sr-only">Toggle menu</span>
                 </Button>
@@ -69,7 +83,9 @@ export function Header() {
                 height={40}
                 className="h-8 w-8 sm:h-12 sm:w-12"
               />
-              <span className="ml-2 text-lg sm:text-xl font-bold text-power-pump-button">Power Pump</span>
+              <span className="ml-2 text-lg sm:text-xl font-bold text-power-pump-button">
+                Power Pump
+              </span>
             </Link>
           </div>
 
@@ -83,7 +99,9 @@ export function Header() {
             {isConnected ? (
               <div className="flex items-center space-x-2">
                 {userBalance !== null && (
-                  <span className="text-sm font-medium text-power-pump-text">{userBalance.toFixed(2)} SOL</span>
+                  <span className="text-sm font-medium text-power-pump-text">
+                    {userBalance.toFixed(2)} SOL
+                  </span>
                 )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -98,7 +116,10 @@ export function Header() {
                     </div>
                   </DropdownMenuTrigger>
                   <div className="relative">
-                    <StyledContent className="absolute right-0 mt-2 w-48 actionable" align="end">
+                    <StyledContent
+                      className="absolute right-0 mt-2 w-48 actionable"
+                      align="end"
+                    >
                       <DropdownMenuItem className="text-power-pump-text hover:bg-gray-100 flex items-center actionable">
                         <User className="w-4 h-4 mr-2" />
                         <Link href="/profile" className="w-full">
@@ -130,7 +151,7 @@ export function Header() {
                     <Loader2 className="w-5 h-5 animate-spin" />
                   </div>
                 ) : (
-                  "Connect"
+                  'Connect'
                 )}
               </Button>
             )}
@@ -141,7 +162,15 @@ export function Header() {
   )
 }
 
-function NavLink({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) {
+function NavLink({
+  href,
+  children,
+  onClick,
+}: {
+  href: string
+  children: React.ReactNode
+  onClick?: () => void
+}) {
   return (
     <Link
       href={href}
@@ -152,4 +181,3 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
     </Link>
   )
 }
-

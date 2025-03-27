@@ -1,9 +1,10 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
+import Image from 'next/image'
+import Link from 'next/link'
+import { useEffect, useState } from 'react'
+
+import { Card, CardContent } from '@/components/ui/card'
 
 interface EBookCollection {
   id: string
@@ -11,7 +12,7 @@ interface EBookCollection {
   author: string
   coverImage: string
   price: {
-    amount: number | "FREE"
+    amount: number | 'FREE'
     currency: string
   }
   items: string
@@ -22,7 +23,7 @@ interface EBookCollection {
 }
 
 function CountdownTimer({ endTime }: { endTime: string }) {
-  const [timeLeft, setTimeLeft] = useState("")
+  const [timeLeft, setTimeLeft] = useState('')
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -32,12 +33,14 @@ function CountdownTimer({ endTime }: { endTime: string }) {
 
       if (distance < 0) {
         clearInterval(timer)
-        setTimeLeft("Ended")
+        setTimeLeft('Ended')
         return
       }
 
       const days = Math.floor(distance / (1000 * 60 * 60 * 24))
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+      const hours = Math.floor(
+        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+      )
       const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
       const seconds = Math.floor((distance % (1000 * 60)) / 1000)
 
@@ -45,7 +48,7 @@ function CountdownTimer({ endTime }: { endTime: string }) {
         setTimeLeft(`${days}d ${hours}h ${minutes}m`)
       } else {
         setTimeLeft(
-          `${hours.toString().padStart(2, "0")}h ${minutes.toString().padStart(2, "0")}m ${seconds.toString().padStart(2, "0")}s`,
+          `${hours.toString().padStart(2, '0')}h ${minutes.toString().padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`,
         )
       }
     }, 1000)
@@ -73,21 +76,21 @@ export function ProjectCard({ collection }: { collection: EBookCollection }) {
           </div>
           <span className="text-green-600 font-semibold">Live</span>
           <span className="text-power-pump-heading">
-            ends:{" "}
+            ends:{' '}
             <span className="font-bold text-power-pump-button">
               <CountdownTimer endTime={collection.mintEnd} />
             </span>
           </span>
         </div>
         <Image
-          src={collection.coverImage || "/placeholder.svg"}
+          src={collection.coverImage || '/placeholder.svg'}
           alt={collection.title}
           layout="fill"
           objectFit="cover"
         />
         <div
           className={`absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300 ${
-            isHovered ? "opacity-100" : "opacity-0"
+            isHovered ? 'opacity-100' : 'opacity-0'
           }`}
         >
           <Link
@@ -100,7 +103,9 @@ export function ProjectCard({ collection }: { collection: EBookCollection }) {
       </div>
       <CardContent className="flex flex-col p-4 space-y-4">
         <div>
-          <h2 className="text-lg font-bold text-power-pump-heading truncate">{collection.title}</h2>
+          <h2 className="text-lg font-bold text-power-pump-heading truncate">
+            {collection.title}
+          </h2>
           <p className="text-sm text-power-pump-text">{collection.author}</p>
         </div>
 
@@ -108,14 +113,16 @@ export function ProjectCard({ collection }: { collection: EBookCollection }) {
           <div className="text-left">
             <div className="text-power-pump-text uppercase text-xs">Price</div>
             <div className="font-medium text-power-pump-heading text-base tabular-nums">
-              {typeof collection.price.amount === "number"
+              {typeof collection.price.amount === 'number'
                 ? `${collection.price.amount} ${collection.price.currency}`
                 : collection.price.amount}
             </div>
           </div>
           <div className="text-center">
             <div className="text-power-pump-text uppercase text-xs">Copies</div>
-            <div className="font-medium text-power-pump-heading text-base tabular-nums">{collection.items}</div>
+            <div className="font-medium text-power-pump-heading text-base tabular-nums">
+              {collection.items}
+            </div>
           </div>
           <div className="text-right">
             <div className="text-power-pump-text uppercase text-xs">Minted</div>
@@ -137,4 +144,3 @@ export function ProjectCard({ collection }: { collection: EBookCollection }) {
     </Card>
   )
 }
-

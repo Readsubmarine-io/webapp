@@ -1,8 +1,9 @@
-import type { Book } from "@/types/profile"
-import Image from "next/image"
-import { Card, CardContent } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { ExternalLink, Check } from "lucide-react"
+import { Check, ExternalLink } from 'lucide-react'
+import Image from 'next/image'
+
+import { Card, CardContent } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import type { Book } from '@/types/profile'
 
 interface BookCollectionProps {
   books: Book[]
@@ -12,13 +13,23 @@ export function BookCollection({ books }: BookCollectionProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full">
       {books.map((book) => (
-        <Card key={book.id} className="overflow-hidden flex flex-col w-full h-full">
+        <Card
+          key={book.id}
+          className="overflow-hidden flex flex-col w-full h-full"
+        >
           <div className="aspect-square relative flex-shrink-0">
-            <Image src={book.coverImage || "/placeholder.svg"} alt={book.title} layout="fill" objectFit="cover" />
+            <Image
+              src={book.coverImage || '/placeholder.svg'}
+              alt={book.title}
+              layout="fill"
+              objectFit="cover"
+            />
           </div>
           <CardContent className="p-3 sm:p-4 flex flex-col flex-grow relative">
             <div className="flex flex-wrap items-center mb-2">
-              <h3 className="font-semibold text-base sm:text-lg text-power-pump-heading mr-2 mb-1">{book.title}</h3>
+              <h3 className="font-semibold text-base sm:text-lg text-power-pump-heading mr-2 mb-1">
+                {book.title}
+              </h3>
               {book.id === 1 ? (
                 <span className="bg-power-pump-button/10 text-power-pump-button text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap">
                   In Review
@@ -31,7 +42,9 @@ export function BookCollection({ books }: BookCollectionProps) {
               )}
             </div>
             <div className="mt-auto">
-              <p className="text-power-pump-text mb-2">Price: {book.price} SOL</p>
+              <p className="text-power-pump-text mb-2">
+                Price: {book.price} SOL
+              </p>
               <div className="mb-2">
                 <Progress
                   value={(book.mintedSupply / book.totalSupply) * 100}
@@ -42,11 +55,18 @@ export function BookCollection({ books }: BookCollectionProps) {
                 <span>
                   {book.mintedSupply} / {book.totalSupply} minted
                 </span>
-                <span>{(book.mintedSupply * book.price).toFixed(2)} SOL collected</span>
+                <span>
+                  {(book.mintedSupply * book.price).toFixed(2)} SOL collected
+                </span>
               </div>
             </div>
             <button
-              onClick={() => window.open(`https://explorer.solana.com/address/${book.id}`, "_blank")}
+              onClick={() =>
+                window.open(
+                  `https://explorer.solana.com/address/${book.id}`,
+                  '_blank',
+                )
+              }
               className="absolute bottom-4 right-4 text-power-pump-button hover:text-power-pump-button/80 transition-colors"
               aria-label="View on Solana Explorer"
             >
@@ -58,4 +78,3 @@ export function BookCollection({ books }: BookCollectionProps) {
     </div>
   )
 }
-

@@ -1,9 +1,10 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { USDPriceDisplay } from "../usd-price-display"
-import { Edit } from "lucide-react"
-import { SetSalePriceDialog } from "./set-sale-price-dialog"
+import { Edit } from 'lucide-react'
+import { useState } from 'react'
+
+import { USDPriceDisplay } from '../usd-price-display'
+import { SetSalePriceDialog } from './set-sale-price-dialog'
 
 interface ListPriceProps {
   price: number | undefined
@@ -13,7 +14,7 @@ interface ListPriceProps {
 export function ListPrice({ price, onPriceChange }: ListPriceProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const displayPrice = price !== undefined ? price.toFixed(2) : "0.00"
+  const displayPrice = price !== undefined ? price.toFixed(2) : '0.00'
 
   return (
     <div className="flex items-center space-x-2">
@@ -39,4 +40,3 @@ export function ListPrice({ price, onPriceChange }: ListPriceProps) {
     </div>
   )
 }
-

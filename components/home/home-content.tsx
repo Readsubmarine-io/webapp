@@ -1,10 +1,10 @@
-"use client"
+'use client'
 
-import { FeaturedCollections } from "@/components/home/featured-collections"
-import { CategoryFilter } from "@/components/home/category-filter"
-import { NFTListings } from "@/components/home/nft-listings"
-import { LaunchpadCTA } from "@/components/home/launchpad-cta"
-import { ShowTop } from "@/components/home/show-top"
+import { CategoryFilter } from '@/components/home/category-filter'
+import { FeaturedCollections } from '@/components/home/featured-collections'
+import { LaunchpadCTA } from '@/components/home/launchpad-cta'
+import { NFTListings } from '@/components/home/nft-listings'
+import { ShowTop } from '@/components/home/show-top'
 
 interface HomeContentProps {
   data: {
@@ -32,4 +32,3 @@ export function HomeContent({ data }: HomeContentProps) {
     </div>
   )
 }
-

@@ -1,7 +1,8 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { ProjectCard } from "./project-card"
+import { useEffect, useState } from 'react'
+
+import { ProjectCard } from './project-card'
 
 interface EBookCollection {
   id: string
@@ -9,7 +10,7 @@ interface EBookCollection {
   author: string
   coverImage: string
   price: {
-    amount: number | "FREE"
+    amount: number | 'FREE'
     currency: string
   }
   items: string
@@ -23,8 +24,12 @@ interface LaunchpadCollectionsProps {
   collections: EBookCollection[]
 }
 
-export function LaunchpadCollections({ collections }: LaunchpadCollectionsProps) {
-  const [sortedCollections, setSortedCollections] = useState<EBookCollection[]>([])
+export function LaunchpadCollections({
+  collections,
+}: LaunchpadCollectionsProps) {
+  const [sortedCollections, setSortedCollections] = useState<EBookCollection[]>(
+    [],
+  )
 
   useEffect(() => {
     const sorted = [...collections].sort((a, b) => {
@@ -46,4 +51,3 @@ export function LaunchpadCollections({ collections }: LaunchpadCollectionsProps)
     </div>
   )
 }
-

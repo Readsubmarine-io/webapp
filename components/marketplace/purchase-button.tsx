@@ -1,21 +1,24 @@
-"use client"
+'use client'
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { ShoppingCart, Loader2, CheckCircle } from "lucide-react"
-import Link from "next/link"
+import { CheckCircle, Loader2, ShoppingCart } from 'lucide-react'
+import Link from 'next/link'
+import { useState } from 'react'
+
+import { Button } from '@/components/ui/button'
 
 export function PurchaseButton() {
-  const [purchaseState, setPurchaseState] = useState<"idle" | "processing" | "success">("idle")
+  const [purchaseState, setPurchaseState] = useState<
+    'idle' | 'processing' | 'success'
+  >('idle')
 
   const handlePurchase = async () => {
-    setPurchaseState("processing")
+    setPurchaseState('processing')
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 2000))
-    setPurchaseState("success")
+    setPurchaseState('success')
   }
 
-  if (purchaseState === "processing") {
+  if (purchaseState === 'processing') {
     return (
       <Button
         disabled
@@ -27,14 +30,20 @@ export function PurchaseButton() {
     )
   }
 
-  if (purchaseState === "success") {
+  if (purchaseState === 'success') {
     return (
-      <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+      <div
+        className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
+        role="alert"
+      >
         <div className="flex items-center">
           <CheckCircle className="h-5 w-5 mr-2" />
           <span className="block sm:inline">Purchase Successful!</span>
         </div>
-        <Link href="/profile" className="block mt-2 underline text-green-700 hover:text-green-900">
+        <Link
+          href="/profile"
+          className="block mt-2 underline text-green-700 hover:text-green-900"
+        >
           Go to My Profile
         </Link>
       </div>
@@ -51,4 +60,3 @@ export function PurchaseButton() {
     </Button>
   )
 }
-

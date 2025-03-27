@@ -1,13 +1,14 @@
-"use client"
+'use client'
 
-import Image from "next/image"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { USDPriceDisplay } from "@/components/usd-price-display"
-import { Badge } from "@/components/ui/badge"
-import { md5 } from "@/utils/md5"
-import { PurchaseButton } from "@/components/marketplace/purchase-button"
-import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
+
+import { PurchaseButton } from '@/components/marketplace/purchase-button'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { USDPriceDisplay } from '@/components/usd-price-display'
+import { md5 } from '@/utils/md5'
 
 interface BookCollection {
   id: string
@@ -47,19 +48,19 @@ export function MarketplaceContent({ collection }: MarketplaceContentProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Book",
+            '@context': 'https://schema.org',
+            '@type': 'Book',
             name: collection.title,
             author: {
-              "@type": "Person",
+              '@type': 'Person',
               name: collection.author.name,
             },
             description: collection.description,
             image: collection.coverImage,
             offers: {
-              "@type": "Offer",
+              '@type': 'Offer',
               price: collection.floorPrice,
-              priceCurrency: "SOL",
+              priceCurrency: 'SOL',
             },
             numberOfPages: collection.details.pages,
             isbn: collection.details.isbn,
@@ -69,7 +70,10 @@ export function MarketplaceContent({ collection }: MarketplaceContentProps) {
       />
 
       <div className="container mx-auto px-4 pt-8">
-        <Link href="/" className="inline-flex items-center text-power-pump-button hover:text-power-pump-button/80 mb-6">
+        <Link
+          href="/"
+          className="inline-flex items-center text-power-pump-button hover:text-power-pump-button/80 mb-6"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Marketplace
         </Link>
@@ -79,19 +83,23 @@ export function MarketplaceContent({ collection }: MarketplaceContentProps) {
           <section className="md:w-1/3">
             <figure>
               <Image
-                src={collection.coverImage || "/placeholder.svg"}
+                src={collection.coverImage || '/placeholder.svg'}
                 alt={`Cover of ${collection.title}`}
                 width={400}
                 height={600}
                 className="rounded-lg shadow-lg w-full"
               />
-              <figcaption className="sr-only">Book cover for {collection.title}</figcaption>
+              <figcaption className="sr-only">
+                Book cover for {collection.title}
+              </figcaption>
             </figure>
           </section>
 
           <section className="md:w-2/3">
             <header className="mb-8">
-              <h1 className="text-3xl font-bold mb-2 text-power-pump-heading">{collection.title}</h1>
+              <h1 className="text-3xl font-bold mb-2 text-power-pump-heading">
+                {collection.title}
+              </h1>
               <p className="text-lg mb-4 text-power-pump-text">
                 by <span itemProp="author">{collection.author.name}</span>
               </p>
@@ -101,7 +109,8 @@ export function MarketplaceContent({ collection }: MarketplaceContentProps) {
               <PurchaseButton />
               {collection.userCopies > 0 && (
                 <p className="mt-2 text-sm text-power-pump-text">
-                  You own {collection.userCopies} {collection.userCopies === 1 ? "copy" : "copies"} of this book
+                  You own {collection.userCopies}{' '}
+                  {collection.userCopies === 1 ? 'copy' : 'copies'} of this book
                 </p>
               )}
             </div>
@@ -110,27 +119,40 @@ export function MarketplaceContent({ collection }: MarketplaceContentProps) {
               <CardContent className="p-4">
                 <dl className="grid grid-cols-2 gap-4">
                   <div>
-                    <dt className="text-sm text-power-pump-text">Floor Price</dt>
+                    <dt className="text-sm text-power-pump-text">
+                      Floor Price
+                    </dt>
                     <dd className="text-sm sm:text-base font-semibold text-power-pump-heading">
                       <span itemProp="price">{collection.floorPrice} SOL</span>
                       <USDPriceDisplay amount={collection.floorPrice * 20} />
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-power-pump-text">Copies Sold (24h)</dt>
+                    <dt className="text-sm text-power-pump-text">
+                      Copies Sold (24h)
+                    </dt>
                     <dd className="text-sm sm:text-base font-semibold text-power-pump-heading">
                       {collection.copiesSold24h}
                     </dd>
                   </div>
                   <div>
                     <dt className="text-sm text-power-pump-text">Holders</dt>
-                    <dd className="text-sm sm:text-base font-semibold text-power-pump-heading">{collection.holders}</dd>
+                    <dd className="text-sm sm:text-base font-semibold text-power-pump-heading">
+                      {collection.holders}
+                    </dd>
                   </div>
                   <div>
-                    <dt className="text-sm text-power-pump-text">Copies Minted</dt>
+                    <dt className="text-sm text-power-pump-text">
+                      Copies Minted
+                    </dt>
                     <dd className="text-sm sm:text-base font-semibold text-power-pump-heading">
-                      <span itemProp="copiesMinted">{collection.copiesMinted}</span> of{" "}
-                      <span itemProp="totalSupply">{collection.totalSupply}</span>
+                      <span itemProp="copiesMinted">
+                        {collection.copiesMinted}
+                      </span>{' '}
+                      of{' '}
+                      <span itemProp="totalSupply">
+                        {collection.totalSupply}
+                      </span>
                     </dd>
                   </div>
                 </dl>
@@ -140,30 +162,36 @@ export function MarketplaceContent({ collection }: MarketplaceContentProps) {
             <div className="grid lg:grid-cols-2 gap-6 mb-6">
               <Card className="border border-container-border rounded-xl shadow-content-container">
                 <CardHeader>
-                  <CardTitle className="text-xl font-bold text-power-pump-heading">Book Details</CardTitle>
+                  <CardTitle className="text-xl font-bold text-power-pump-heading">
+                    Book Details
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4 text-sm">
                     <div className="flex items-center gap-2">
                       <span className="text-power-pump-text">Format:</span>
-                      <span className="font-medium text-power-pump-text">PDF</span>
+                      <span className="font-medium text-power-pump-text">
+                        PDF
+                      </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-power-pump-text">Pages:</span>
-                      <span className="font-medium text-power-pump-text">{collection.details.pages}</span>
+                      <span className="font-medium text-power-pump-text">
+                        {collection.details.pages}
+                      </span>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {collection.details.categories.map((category) => {
                         const badgeColors = {
-                          Science: "bg-blue-100 text-blue-800",
-                          Philosophy: "bg-purple-100 text-purple-800",
-                          "Quantum Physics": "bg-green-100 text-green-800",
+                          Science: 'bg-blue-100 text-blue-800',
+                          Philosophy: 'bg-purple-100 text-purple-800',
+                          'Quantum Physics': 'bg-green-100 text-green-800',
                         }
                         return (
                           <Badge
                             key={category}
                             variant="secondary"
-                            className={`${badgeColors[category] || "bg-gray-100 text-power-pump-text"} transition-none`}
+                            className={`${badgeColors[category] || 'bg-gray-100 text-power-pump-text'} transition-none`}
                           >
                             {category}
                           </Badge>
@@ -173,7 +201,9 @@ export function MarketplaceContent({ collection }: MarketplaceContentProps) {
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
                         <span className="text-power-pump-text">Published:</span>
-                        <span className="font-medium text-power-pump-text">{collection.details.publishedDate}</span>
+                        <span className="font-medium text-power-pump-text">
+                          {collection.details.publishedDate}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -182,7 +212,9 @@ export function MarketplaceContent({ collection }: MarketplaceContentProps) {
 
               <Card className="border border-container-border rounded-xl shadow-content-container">
                 <CardHeader>
-                  <CardTitle className="text-xl font-bold text-power-pump-heading">About the Author</CardTitle>
+                  <CardTitle className="text-xl font-bold text-power-pump-heading">
+                    About the Author
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center gap-4 mb-4">
@@ -194,17 +226,25 @@ export function MarketplaceContent({ collection }: MarketplaceContentProps) {
                       className="rounded-full"
                     />
                     <div>
-                      <h3 className="font-semibold text-power-pump-heading">{collection.author.name}</h3>
-                      <p className="text-sm text-power-pump-text">{collection.author.title}</p>
+                      <h3 className="font-semibold text-power-pump-heading">
+                        {collection.author.name}
+                      </h3>
+                      <p className="text-sm text-power-pump-text">
+                        {collection.author.title}
+                      </p>
                     </div>
                   </div>
-                  <p className="text-sm text-power-pump-text leading-relaxed">{collection.author.bio}</p>
+                  <p className="text-sm text-power-pump-text leading-relaxed">
+                    {collection.author.bio}
+                  </p>
                 </CardContent>
               </Card>
             </div>
 
             <section className="prose max-w-none mb-16">
-              <h2 className="text-2xl font-semibold mb-2 text-power-pump-heading">About this book</h2>
+              <h2 className="text-2xl font-semibold mb-2 text-power-pump-heading">
+                About this book
+              </h2>
               <p className="text-power-pump-text" itemProp="description">
                 {collection.description}
               </p>
@@ -215,4 +255,3 @@ export function MarketplaceContent({ collection }: MarketplaceContentProps) {
     </>
   )
 }
-

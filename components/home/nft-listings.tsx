@@ -1,6 +1,13 @@
-import Image from "next/image"
-import { Table, TableBody, TableCell, TableHead, TableRow } from "@/components/ui/table"
-import Link from "next/link"
+import Image from 'next/image'
+import Link from 'next/link'
+
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+} from '@/components/ui/table'
 
 interface NFTListing {
   id: number
@@ -41,12 +48,20 @@ export function NFTListings({ listings }: NFTListingsProps) {
         </thead>
         <TableBody>
           {listings.map((listing) => (
-            <TableRow key={listing.id} className="cursor-pointer hover:bg-table-row-hover">
-              <TableCell className="hidden sm:table-cell">{listing.id}</TableCell>
+            <TableRow
+              key={listing.id}
+              className="cursor-pointer hover:bg-table-row-hover"
+            >
+              <TableCell className="hidden sm:table-cell">
+                {listing.id}
+              </TableCell>
               <TableCell>
-                <Link href={`/marketplace/${listing.id}`} className="flex items-center space-x-3 hover:underline">
+                <Link
+                  href={`/marketplace/${listing.id}`}
+                  className="flex items-center space-x-3 hover:underline"
+                >
                   <Image
-                    src={listing.image || "/placeholder.svg"}
+                    src={listing.image || '/placeholder.svg'}
                     alt={listing.name}
                     width={32}
                     height={32}
@@ -56,17 +71,29 @@ export function NFTListings({ listings }: NFTListingsProps) {
                 </Link>
               </TableCell>
               <TableCell>
-                <Link href={`/marketplace/${listing.id}`} className="hover:underline">
-                  {listing.floorPrice} <span className="text-currency-code text-xs">{listing.currency}</span>
+                <Link
+                  href={`/marketplace/${listing.id}`}
+                  className="hover:underline"
+                >
+                  {listing.floorPrice}{' '}
+                  <span className="text-currency-code text-xs">
+                    {listing.currency}
+                  </span>
                 </Link>
               </TableCell>
               <TableCell className="hidden md:table-cell">
-                <Link href={`/marketplace/${listing.id}`} className="hover:underline">
+                <Link
+                  href={`/marketplace/${listing.id}`}
+                  className="hover:underline"
+                >
                   {listing.totalCopies}
                 </Link>
               </TableCell>
               <TableCell className="hidden lg:table-cell">
-                <Link href={`/marketplace/${listing.id}`} className="hover:underline">
+                <Link
+                  href={`/marketplace/${listing.id}`}
+                  className="hover:underline"
+                >
                   {listing.dailyCopies}
                 </Link>
               </TableCell>
@@ -77,4 +104,3 @@ export function NFTListings({ listings }: NFTListingsProps) {
     </div>
   )
 }
-

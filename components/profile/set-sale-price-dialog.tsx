@@ -1,9 +1,16 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from 'react'
+
+import { Button } from '@/components/ui/button'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 
 interface SetSalePriceDialogProps {
   isOpen: boolean
@@ -17,8 +24,15 @@ const calculateSellerFee = (price: number) => {
   return price * feePercentage
 }
 
-export function SetSalePriceDialog({ isOpen, onOpenChange, onConfirm, initialPrice }: SetSalePriceDialogProps) {
-  const [tempListPrice, setTempListPrice] = useState(initialPrice?.toString() || "")
+export function SetSalePriceDialog({
+  isOpen,
+  onOpenChange,
+  onConfirm,
+  initialPrice,
+}: SetSalePriceDialogProps) {
+  const [tempListPrice, setTempListPrice] = useState(
+    initialPrice?.toString() || '',
+  )
 
   useEffect(() => {
     if (isOpen && initialPrice) {
@@ -49,16 +63,16 @@ export function SetSalePriceDialog({ isOpen, onOpenChange, onConfirm, initialPri
           />
           <div className="text-sm text-power-pump-text space-y-1">
             <p>
-              Seller fee (2.5%):{" "}
+              Seller fee (2.5%):{' '}
               {tempListPrice && !isNaN(Number.parseFloat(tempListPrice))
                 ? `${calculateSellerFee(Number.parseFloat(tempListPrice)).toFixed(4)} SOL`
-                : "-"}
+                : '-'}
             </p>
             <p>
-              You will receive:{" "}
+              You will receive:{' '}
               {tempListPrice && !isNaN(Number.parseFloat(tempListPrice))
                 ? `${(Number.parseFloat(tempListPrice) - calculateSellerFee(Number.parseFloat(tempListPrice))).toFixed(4)} SOL`
-                : "-"}
+                : '-'}
             </p>
           </div>
         </div>
@@ -74,4 +88,3 @@ export function SetSalePriceDialog({ isOpen, onOpenChange, onConfirm, initialPri
     </Dialog>
   )
 }
-

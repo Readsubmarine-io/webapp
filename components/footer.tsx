@@ -1,6 +1,6 @@
-import Link from "next/link"
-import Image from "next/image"
-import { Twitter, Linkedin } from "lucide-react"
+import { Linkedin, Twitter } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
 
 export function Footer() {
   return (
@@ -17,12 +17,15 @@ export function Footer() {
                 height={48}
                 className="h-10 w-10 sm:h-12 sm:w-12"
               />
-              <span className="text-lg sm:text-xl font-bold text-white">Power Pump</span>
+              <span className="text-lg sm:text-xl font-bold text-white">
+                Power Pump
+              </span>
             </Link>
             <p className="mt-4 text-sm sm:text-base text-power-pump-text leading-relaxed sm:leading-[30px] font-normal max-w-md font-sans">
-              Power Pump is an innovative NFT marketplace and launchpad for writers. We empower authors to transform
-              their ebooks into unique digital assets, providing a platform to mint, sell, and manage literary NFTs with
-              ease.
+              Power Pump is an innovative NFT marketplace and launchpad for
+              writers. We empower authors to transform their ebooks into unique
+              digital assets, providing a platform to mint, sell, and manage
+              literary NFTs with ease.
             </p>
           </div>
 
@@ -30,7 +33,9 @@ export function Footer() {
           <div className="sm:col-span-2 md:col-span-6 grid grid-cols-2 sm:grid-cols-3 gap-8">
             {/* Launchpad */}
             <div>
-              <h3 className="text-white font-semibold mb-4 text-base sm:text-lg">Launchpad</h3>
+              <h3 className="text-white font-semibold mb-4 text-base sm:text-lg">
+                Launchpad
+              </h3>
               <ul className="space-y-2 sm:space-y-3">
                 <li>
                   <Link
@@ -61,7 +66,9 @@ export function Footer() {
 
             {/* Marketplace */}
             <div>
-              <h3 className="text-white font-semibold mb-4 text-base sm:text-lg">Marketplace</h3>
+              <h3 className="text-white font-semibold mb-4 text-base sm:text-lg">
+                Marketplace
+              </h3>
               <ul className="space-y-2 sm:space-y-3">
                 <li>
                   <Link
@@ -76,7 +83,9 @@ export function Footer() {
 
             {/* About */}
             <div>
-              <h3 className="text-white font-semibold mb-4 text-base sm:text-lg">About</h3>
+              <h3 className="text-white font-semibold mb-4 text-base sm:text-lg">
+                About
+              </h3>
               <ul className="space-y-2 sm:space-y-3">
                 <li>
                   <Link
@@ -102,18 +111,27 @@ export function Footer() {
         {/* Bottom Section */}
         <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
           <div className="text-xs sm:text-sm font-sans text-center sm:text-left">
-            © Copyright 2025{". "}
-            <Link href="/" className="text-white hover:text-white/90 transition-colors font-sans">
+            © Copyright 2025{'. '}
+            <Link
+              href="/"
+              className="text-white hover:text-white/90 transition-colors font-sans"
+            >
               Power Pump
             </Link>
-            {". "}
+            {'. '}
             All Rights Reserved
           </div>
           <div className="flex space-x-4">
-            <Link href="#" className="text-white/80 hover:text-white transition-colors">
+            <Link
+              href="#"
+              className="text-white/80 hover:text-white transition-colors"
+            >
               <Twitter className="h-5 w-5" />
             </Link>
-            <Link href="#" className="text-white/80 hover:text-white transition-colors">
+            <Link
+              href="#"
+              className="text-white/80 hover:text-white transition-colors"
+            >
               <Linkedin className="h-5 w-5" />
             </Link>
           </div>
@@ -122,4 +140,3 @@ export function Footer() {
     </footer>
   )
 }
-
