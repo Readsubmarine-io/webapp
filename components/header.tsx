@@ -5,7 +5,7 @@ import { Loader2, LogOut, Menu, User } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type React from 'react'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -35,15 +35,7 @@ export function Header() {
   const [isConnecting, setIsConnecting] = useState(false)
   const [userBalance, setUserBalance] = useState<number | null>(null)
 
-  const handleConnect = () => {
-    setIsConnecting(true)
-    setTimeout(() => {
-      setIsConnected(true)
-      setIsConnecting(false)
-      // Simulate fetching the balance
-      setUserBalance(Math.random() * 10 + 1) // Random balance between 1 and 11 SOL
-    }, 2000)
-  }
+  const handleConnect = useCallback(() => {}, [])
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 w-full border-b bg-white py-3 sm:py-5 shadow-[0_4px_6px_rgba(0,0,0,0.05)] rounded-none">

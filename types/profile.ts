@@ -37,4 +37,3 @@ export interface Project {
   totalSupply: number
   mintedSupply: number
 }
-
