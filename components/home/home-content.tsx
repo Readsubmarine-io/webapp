@@ -1,22 +1,27 @@
 'use client'
 
+import { useQuery } from '@tanstack/react-query'
+
 import { CategoryFilter } from '@/components/home/category-filter'
 import { FeaturedCollections } from '@/components/home/featured-collections'
 import { LaunchpadCTA } from '@/components/home/launchpad-cta'
 import { NFTListings } from '@/components/home/nft-listings'
 import { ShowTop } from '@/components/home/show-top'
 
-interface HomeContentProps {
-  data: {
-    featuredCollections: any[]
-    categories: string[]
-    nftListings: any[]
-    topShows: number[]
-  }
+interface HomePageData {
+  featuredCollections: any[]
+  categories: string[]
+  nftListings: any[]
+  topShows: number[]
 }
 
-export function HomeContent({ data }: HomeContentProps) {
-  const { featuredCollections, categories, nftListings, topShows } = data
+export function HomeContent() {
+  const { data } = useQuery({
+    queryKey: ['homePageData'],
+  })
+
+  const { featuredCollections, categories, nftListings, topShows } =
+    data as HomePageData
 
   return (
     <div className="min-h-screen font-sans">
