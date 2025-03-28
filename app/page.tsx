@@ -1,8 +1,8 @@
 import { dehydrate } from '@tanstack/react-query'
 
 import { HomeContent } from '@/components/home/home-content'
+import { getQueryClient } from '@/lib/get-query-client'
 
-import { getQueryClient } from './get-query-client'
 import StatefullLayout from './statefull-layout'
 
 async function getHomePageData() {
