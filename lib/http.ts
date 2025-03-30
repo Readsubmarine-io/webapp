@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { cookies } from 'next/headers'
+import Cookies from 'js-cookie'
 
 import { API_BASE_URL } from '@/constants/env'
 
@@ -11,17 +11,19 @@ const http = axios.create({
   timeout: 10000,
 })
 
-const getToken = async () => {
-  const cookieStore = await cookies()
+const getToken = () => {
+  const token = Cookies.get('authToken')
 
-  const token = cookieStore.get('authToken')
-
-  return token?.value
+  return token
 }
 
 http.interceptors.request.use(
   async (config) => {
-    const token = await getToken()
+    if (config.headers.Authorization) {
+      return config
+    }
+
+    const token = getToken()
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
@@ -43,4 +45,17 @@ http.interceptors.response.use(
   },
 )
 
+const getServerHttp = (token?: string) => {
+  const http = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  })
+
+  return http
+}
+
 export default http
+export { getServerHttp }

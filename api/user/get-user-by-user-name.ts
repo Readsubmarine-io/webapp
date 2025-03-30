@@ -8,7 +8,7 @@ const getUserByUsernameCall = async (username: string) => {
   return response.data
 }
 
-const GET_USER_BY_USERNAME_QUERY_KEY = 'user'
+export const GET_USER_BY_USERNAME_QUERY_KEY = 'user'
 
 export const useGetUserByUsernameQuery = (username: string) => {
   return useQuery({

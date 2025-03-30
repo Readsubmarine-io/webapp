@@ -5,8 +5,7 @@ import { Loader2, LogOut, Menu, User } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type React from 'react'
-import { useCallback, useState } from 'react'
-
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -20,7 +19,7 @@ import {
   SheetDescription,
   SheetTrigger,
 } from '@/components/ui/sheet'
-
+import { useAuthentication } from '@/hooks/use-authentication'
 const StyledContent = styled(DropdownMenuContent, {
   zIndex: 1000,
   fontFamily: 'var(--font-dm-sans)',
@@ -31,11 +30,14 @@ const StyledContent = styled(DropdownMenuContent, {
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
-  const [isConnected, setIsConnected] = useState(false)
-  const [isConnecting, setIsConnecting] = useState(false)
-  const [userBalance, setUserBalance] = useState<number | null>(null)
-
-  const handleConnect = useCallback(() => {}, [])
+  const {
+    isConnected,
+    isConnecting,
+    user,
+    balance,
+    handleDisconnect,
+    handleConnect,
+  } = useAuthentication()
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 w-full border-b bg-white py-3 sm:py-5 shadow-[0_4px_6px_rgba(0,0,0,0.05)] rounded-none">
@@ -90,16 +92,17 @@ export function Header() {
 
             {isConnected ? (
               <div className="flex items-center space-x-2">
-                {userBalance !== null && (
-                  <span className="text-sm font-medium text-power-pump-text">
-                    {userBalance.toFixed(2)} SOL
-                  </span>
-                )}
+                <span className="text-sm font-medium text-power-pump-text">
+                  {balance} SOL
+                </span>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <div className="actionable">
                       <Image
-                        src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+                        src={
+                          user?.avatar?.metadata.srcUrl ??
+                          'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'
+                        }
                         alt="User Avatar"
                         width={40}
                         height={40}
@@ -119,10 +122,7 @@ export function Header() {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => {
-                          setIsConnected(false)
-                          setUserBalance(null)
-                        }}
+                        onClick={handleDisconnect}
                         className="text-power-pump-text hover:bg-gray-100 flex items-center actionable"
                       >
                         <LogOut className="w-4 h-4 mr-2" />

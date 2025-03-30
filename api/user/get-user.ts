@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 
+import { User } from '@/api/user/types'
 import http from '@/lib/http'
 
 const getUserCall = async () => {
-  const response = await http.get('/user')
+  const response = await http.get<User>('/v1/user')
 
   if (response.status !== 200) {
     throw new Error('Failed to get user.')
@@ -12,11 +13,12 @@ const getUserCall = async () => {
   return response.data
 }
 
-const GET_USER_QUERY_KEY = 'user'
+export const GET_USER_QUERY_KEY = 'user'
 
 export const useGetUserQuery = () => {
-  return useQuery({
+  return useQuery<User>({
     queryKey: [GET_USER_QUERY_KEY],
     queryFn: getUserCall,
+    retry: false,
   })
 }
