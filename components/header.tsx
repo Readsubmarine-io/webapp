@@ -118,7 +118,10 @@ export function Header() {
                     >
                       <DropdownMenuItem className="text-power-pump-text hover:bg-gray-100 flex items-center actionable">
                         <User className="w-4 h-4 mr-2" />
-                        <Link href="/profile" className="w-full">
+                        <Link
+                          href={`/profile/${user?.userName}`}
+                          className="w-full"
+                        >
                           My Profile
                         </Link>
                       </DropdownMenuItem>

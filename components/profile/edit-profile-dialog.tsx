@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
+import { User } from '@/api/user/types'
+import { useUpdateUserMutation } from '@/api/user/update-user'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -12,12 +14,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-
-interface User {
-  username: string
-  bio: string
-  website: string
-}
 
 interface EditProfileDialogProps {
   user: User
@@ -31,13 +27,12 @@ export function EditProfileDialog({
   onOpenChange,
 }: EditProfileDialogProps) {
   const [formData, setFormData] = useState({
-    username: user.username,
+    displayName: user.displayName,
     bio: user.bio,
     website: user.website,
-    facebook: '',
-    instagram: '',
-    twitter: '',
   })
+
+  const { mutate: updateUser } = useUpdateUserMutation()
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -52,8 +47,18 @@ export function EditProfileDialog({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     console.log('Form submitted:', formData)
+    updateUser(formData)
     onOpenChange(false)
   }
+
+  const getFieldName = useCallback((key: string) => {
+    switch (key) {
+      case 'displayName':
+        return 'Display Name'
+      case 'bio':
+        return key.charAt(0).toUpperCase() + key.slice(1)
+    }
+  }, [])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -70,7 +75,7 @@ export function EditProfileDialog({
                 htmlFor={key}
                 className="text-power-pump-text text-sm sm:text-base font-medium"
               >
-                {key.charAt(0).toUpperCase() + key.slice(1)}
+                {getFieldName(key)}
               </Label>
               {key === 'bio' ? (
                 <Textarea

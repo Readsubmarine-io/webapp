@@ -1,6 +1,5 @@
 import { dehydrate } from '@tanstack/react-query'
 
-import { getUserPrefetchQuery } from '@/api/user/get-user'
 import { HomeContent } from '@/components/home/home-content'
 import { getQueryClient } from '@/lib/get-query-client'
 

@@ -17,3 +17,9 @@ export type User = {
 export type Wallet = {
   address: string
 }
+
+export type UserCounters = {
+  createdBooks: number
+  ownedEditions: number
+  activeSales: number
+}
