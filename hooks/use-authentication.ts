@@ -1,17 +1,18 @@
 import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js'
+import { isServer } from '@tanstack/react-query'
+import { useEffect, useMemo, useState } from 'react'
+import { useCallback } from 'react'
+
 import { useGetWalletQuery } from '@/api/auth/get-wallet'
 import { useSignInMutation } from '@/api/auth/sign-in'
 import { useSignOutMutation } from '@/api/auth/sign-out'
-import { isServer } from '@tanstack/react-query'
-import { useEffect, useMemo, useState } from 'react'
-
-import { useCallback } from 'react'
-import { useRpc } from './use-rpc'
 import { useGetUserQuery } from '@/api/user/get-user'
+import { useRpc } from '@/hooks/use-rpc'
 
 export const useAuthentication = () => {
   const {
     data: user,
+    refetch: refetchUser,
     isFetched: isUserFetched,
     isFetching: isUserFetching,
   } = useGetUserQuery()
@@ -48,10 +49,12 @@ export const useAuthentication = () => {
 
   useEffect(() => {
     if (wallet?.connected) {
-      signIn()
+      signIn().then(() => {
+        refetchUser()
+      })
       getBalance()
     }
-  }, [wallet, signIn, getBalance])
+  }, [wallet, signIn, getBalance, refetchUser])
 
   const handleDisconnect = useCallback(async () => {
     signOut()

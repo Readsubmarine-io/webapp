@@ -1,10 +1,9 @@
-import { useMutation } from '@tanstack/react-query'
 import { getBase58Decoder } from '@solana/kit'
+import { useMutation } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
 
 import { useGetWalletQuery } from '@/api/auth/get-wallet'
 import http from '@/lib/http'
-import { useGetUserQuery } from '../user/get-user'
 
 type SignInStartCallParams = {
   walletAddress: string
@@ -47,7 +46,6 @@ const signInCompleteCall = async (
 
 export const useSignInMutation = () => {
   const { data: walletData } = useGetWalletQuery()
-  const { refetch: refetchUser } = useGetUserQuery()
 
   const wallet = walletData?.wallet
   const walletAddress = walletData?.wallet.publicKey?.toString()
@@ -77,11 +75,9 @@ export const useSignInMutation = () => {
         signature: getBase58Decoder().decode(signature),
       })
 
-      return authToken
-    },
-    onSuccess: (authToken) => {
       Cookies.set('authToken', authToken)
-      refetchUser()
+
+      return authToken
     },
   })
 }

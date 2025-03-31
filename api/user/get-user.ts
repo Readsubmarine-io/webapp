@@ -19,6 +19,7 @@ export const useGetUserQuery = () => {
   return useQuery<User>({
     queryKey: [GET_USER_QUERY_KEY],
     queryFn: getUserCall,
+    enabled: false,
     retry: false,
   })
 }

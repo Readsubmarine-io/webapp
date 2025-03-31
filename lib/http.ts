@@ -2,6 +2,10 @@ import axios from 'axios'
 import Cookies from 'js-cookie'
 
 import { API_BASE_URL } from '@/constants/env'
+import { getQueryClient } from '@/lib/get-query-client'
+import { signOut } from '@/lib/sign-out'
+
+const queryClient = getQueryClient()
 
 const http = axios.create({
   baseURL: API_BASE_URL,
@@ -41,6 +45,10 @@ http.interceptors.response.use(
     return response
   },
   (error) => {
+    if (error.response.status === 401) {
+      signOut(queryClient)
+    }
+
     return Promise.reject(error)
   },
 )
@@ -50,7 +58,7 @@ const getServerHttp = (token?: string) => {
     baseURL: API_BASE_URL,
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
+      Authorization: token ? `Bearer ${token}` : undefined,
     },
   })
 
