@@ -3,24 +3,26 @@
 import { Edit } from 'lucide-react'
 import { useState } from 'react'
 
-import { USDPriceDisplay } from '../usd-price-display'
+import { BookEdition } from '@/api/book-edition/types'
+
 import { SetSalePriceDialog } from './set-sale-price-dialog'
 
 interface ListPriceProps {
-  price: number | undefined
-  onPriceChange: (newPrice: number) => void
+  bookEdition: BookEdition
 }
 
-export function ListPrice({ price, onPriceChange }: ListPriceProps) {
+export function ListPrice({ bookEdition }: ListPriceProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const displayPrice = price !== undefined ? price.toFixed(2) : '0.00'
+  const displayPrice = bookEdition.sale?.price
+    ? `${bookEdition.sale.price} SOL`
+    : '-'
 
   return (
     <div className="flex items-center space-x-2">
       <span className="text-sm text-power-pump-text">
-        List: <span className="font-semibold">{displayPrice} SOL</span>
-        <USDPriceDisplay amount={(price || 0) * 20} />
+        List: <span className="font-semibold">{displayPrice}</span>
+        {/* <USDPriceDisplay amount={(price || 0) * 20} /> */}
       </span>
       <button
         onClick={() => setIsDialogOpen(true)}
@@ -29,13 +31,9 @@ export function ListPrice({ price, onPriceChange }: ListPriceProps) {
         <Edit className="w-4 h-4" />
       </button>
       <SetSalePriceDialog
+        bookEdition={bookEdition}
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        onConfirm={(newPrice) => {
-          onPriceChange(newPrice)
-          setIsDialogOpen(false)
-        }}
-        initialPrice={price}
       />
     </div>
   )

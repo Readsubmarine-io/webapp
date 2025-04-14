@@ -1,7 +1,13 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { sol } from '@metaplex-foundation/js'
+import { PublicKey } from '@solana/web3.js'
+import { useCallback } from 'react'
 
+import { BookEdition } from '@/api/book-edition/types'
+import { useCancelSaleMutation } from '@/api/sale/cancel-sale'
+import { useCreateSaleMutation } from '@/api/sale/create-sale'
+import { useUpdateSaleMutation } from '@/api/sale/update-sale'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -11,12 +17,14 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { AUCTION_HOUSE_ADDRESS } from '@/constants/env'
+import { useMetaplex } from '@/hooks/use-metaplex'
+import { useNumberInput } from '@/hooks/use-number-input'
 
 interface SetSalePriceDialogProps {
+  bookEdition: BookEdition
   isOpen: boolean
   onOpenChange: (open: boolean) => void
-  onConfirm: (price: number) => void
-  initialPrice?: number
 }
 
 const calculateSellerFee = (price: number) => {
@@ -25,28 +33,134 @@ const calculateSellerFee = (price: number) => {
 }
 
 export function SetSalePriceDialog({
+  bookEdition,
   isOpen,
   onOpenChange,
-  onConfirm,
-  initialPrice,
 }: SetSalePriceDialogProps) {
-  const [tempListPrice, setTempListPrice] = useState(
-    initialPrice?.toString() || '',
-  )
+  const {
+    value: userListPrice,
+    inputValue,
+    handleChange,
+  } = useNumberInput(bookEdition.sale?.price)
 
-  useEffect(() => {
-    if (isOpen && initialPrice) {
-      setTempListPrice(initialPrice.toString())
-    }
-  }, [isOpen, initialPrice])
+  const { metaplex } = useMetaplex()
+  const { mutateAsync: createSale } = useCreateSaleMutation()
+  const { mutateAsync: updateSale } = useUpdateSaleMutation()
 
-  const handleConfirmSale = () => {
-    const price = Number.parseFloat(tempListPrice)
-    if (!isNaN(price) && price > 0) {
-      onConfirm(price)
+  const handleConfirmSale = useCallback(async () => {
+    try {
+      if (
+        userListPrice <= 0 ||
+        !metaplex ||
+        !bookEdition?.address ||
+        !AUCTION_HOUSE_ADDRESS
+      ) {
+        return
+      }
+
+      const auctionHouse = await metaplex.auctionHouse().findByAddress({
+        address: new PublicKey(AUCTION_HOUSE_ADDRESS),
+      })
+
+      if (!auctionHouse) {
+        return
+      }
+
+      const listing = await metaplex.auctionHouse().list(
+        {
+          auctionHouse,
+          seller: metaplex.identity(),
+          mintAccount: new PublicKey(bookEdition.address),
+          price: sol(userListPrice),
+          printReceipt: true,
+        },
+        {
+          commitment: 'confirmed',
+        },
+      )
+
+      if (bookEdition.sale) {
+        await updateSale({
+          saleId: bookEdition.sale.id,
+          price: userListPrice,
+        })
+      } else {
+        await createSale({
+          bookEditionId: bookEdition.id,
+          price: userListPrice,
+          listingReceipt: listing.listing.receiptAddress?.toString() || '',
+        })
+      }
+
       onOpenChange(false)
+    } catch (error) {
+      console.error('Error creating sale:', error)
     }
-  }
+  }, [
+    bookEdition.address,
+    bookEdition.id,
+    bookEdition.sale,
+    createSale,
+    metaplex,
+    onOpenChange,
+    updateSale,
+    userListPrice,
+  ])
+
+  const { mutateAsync: cancelSale } = useCancelSaleMutation()
+
+  const handleCancelSale = useCallback(async () => {
+    try {
+      if (
+        !metaplex ||
+        !bookEdition.sale?.listingReceipt ||
+        !bookEdition.sale?.id
+      ) {
+        return
+      }
+
+      const auctionHouse = await metaplex.auctionHouse().findByAddress({
+        address: new PublicKey(AUCTION_HOUSE_ADDRESS),
+      })
+
+      if (!auctionHouse) {
+        return
+      }
+
+      const listing = await metaplex.auctionHouse().findListingByReceipt({
+        auctionHouse,
+        receiptAddress: new PublicKey(bookEdition.sale?.listingReceipt || ''),
+      })
+
+      if (!listing) {
+        return
+      }
+
+      await metaplex.auctionHouse().cancelListing(
+        {
+          auctionHouse,
+          listing,
+        },
+        {
+          commitment: 'confirmed',
+        },
+      )
+
+      await cancelSale({
+        saleId: bookEdition.sale.id,
+      })
+
+      onOpenChange(false)
+    } catch (error) {
+      console.error('Error canceling sale:', error)
+    }
+  }, [
+    metaplex,
+    bookEdition.sale?.listingReceipt,
+    bookEdition.sale?.id,
+    cancelSale,
+    onOpenChange,
+  ])
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -57,21 +171,21 @@ export function SetSalePriceDialog({
         <div className="py-4 space-y-4">
           <Input
             type="number"
-            value={tempListPrice}
-            onChange={(e) => setTempListPrice(e.target.value)}
+            value={inputValue}
+            onChange={handleChange}
             placeholder="Enter sale price in SOL"
           />
           <div className="text-sm text-power-pump-text space-y-1">
             <p>
               Seller fee (2.5%):{' '}
-              {tempListPrice && !isNaN(Number.parseFloat(tempListPrice))
-                ? `${calculateSellerFee(Number.parseFloat(tempListPrice)).toFixed(4)} SOL`
+              {userListPrice && !isNaN(userListPrice)
+                ? `${calculateSellerFee(userListPrice).toFixed(4)} SOL`
                 : '-'}
             </p>
             <p>
               You will receive:{' '}
-              {tempListPrice && !isNaN(Number.parseFloat(tempListPrice))
-                ? `${(Number.parseFloat(tempListPrice) - calculateSellerFee(Number.parseFloat(tempListPrice))).toFixed(4)} SOL`
+              {userListPrice && !isNaN(userListPrice)
+                ? `${(userListPrice - calculateSellerFee(userListPrice)).toFixed(4)} SOL`
                 : '-'}
             </p>
           </div>
@@ -83,6 +197,15 @@ export function SetSalePriceDialog({
           >
             Confirm
           </Button>
+
+          {bookEdition.sale && (
+            <Button
+              onClick={handleCancelSale}
+              className="bg-red-500 text-white hover:bg-red-500/90 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-sm sm:text-base font-medium transition-colors duration-200"
+            >
+              Cancel Sale
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

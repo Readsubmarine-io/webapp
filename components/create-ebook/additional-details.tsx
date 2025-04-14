@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 
+import { CreateBookCallParams } from '@/api/book/create-book'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
@@ -21,12 +22,8 @@ const genres = [
 ]
 
 interface AdditionalDetailsProps {
-  formData: {
-    longDescription: string
-    genres: string[]
-    pages: string
-  }
-  updateFormData: (data: Partial<AdditionalDetailsProps['formData']>) => void
+  formData: Partial<CreateBookCallParams>
+  updateFormData: (data: Partial<CreateBookCallParams>) => void
   onNext: () => void
   onPrev: () => void
 }
@@ -51,21 +48,27 @@ export function AdditionalDetails({
       pages: '',
     }
 
-    if (!formData.longDescription.trim()) {
+    const trimmedLongDescription = formData.longDescription?.trim()
+
+    if (!trimmedLongDescription) {
       newErrors.longDescription = 'Long Description is required'
       isValid = false
-    } else if (formData.longDescription.length > 1500) {
+    } else if (trimmedLongDescription.length > 1500) {
       newErrors.longDescription =
         'Long Description must be 1500 characters or less'
       isValid = false
+    } else if (trimmedLongDescription.length < 100) {
+      newErrors.longDescription =
+        'Long Description must be 100 characters or more'
+      isValid = false
     }
 
-    if (formData.genres.length === 0) {
+    if (formData.genres?.length === 0) {
       newErrors.genres = 'Please select at least one genre'
       isValid = false
     }
 
-    if (!formData.pages.trim()) {
+    if (!formData.pages) {
       newErrors.pages = 'Number of pages is required'
       isValid = false
     } else if (isNaN(Number(formData.pages)) || Number(formData.pages) <= 0) {
@@ -85,9 +88,9 @@ export function AdditionalDetails({
   }
 
   const handleGenreChange = (genre: string) => {
-    const updatedGenres = formData.genres.includes(genre)
-      ? formData.genres.filter((g) => g !== genre)
-      : [...formData.genres, genre]
+    const updatedGenres = formData.genres?.includes(genre)
+      ? formData.genres?.filter((g) => g !== genre)
+      : [...(formData.genres ?? []), genre]
     updateFormData({ genres: updatedGenres })
   }
 
@@ -103,7 +106,7 @@ export function AdditionalDetails({
           maxLength={1500}
         />
         <p className="text-sm text-gray-500 mt-1">
-          {formData.longDescription.length}/1500 characters
+          {formData.longDescription?.length ?? 0}/1500 characters
         </p>
         {errors.longDescription && (
           <p className="text-red-500 text-sm mt-1">{errors.longDescription}</p>
@@ -116,11 +119,11 @@ export function AdditionalDetails({
             <div key={genre} className="flex items-center space-x-2">
               <Checkbox
                 id={genre}
-                checked={formData.genres.includes(genre)}
+                checked={formData.genres?.includes(genre)}
                 onCheckedChange={() => handleGenreChange(genre)}
                 className={cn(
                   'border-gray-300 focus:ring-power-pump-button',
-                  formData.genres.includes(genre) &&
+                  (formData.genres?.includes(genre) ?? false) &&
                     'bg-power-pump-button border-power-pump-button text-white',
                 )}
               />
@@ -143,7 +146,13 @@ export function AdditionalDetails({
           id="pages"
           type="number"
           value={formData.pages}
-          onChange={(e) => updateFormData({ pages: e.target.value })}
+          onChange={(e) => {
+            if (!e.target.value) {
+              return
+            }
+
+            updateFormData({ pages: Number(e.target.value) })
+          }}
           placeholder="Enter the number of pages"
         />
         {errors.pages && (

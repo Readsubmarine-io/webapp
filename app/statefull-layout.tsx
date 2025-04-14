@@ -1,6 +1,7 @@
 import {
+  dehydrate,
   HydrationBoundary,
-  HydrationBoundaryProps,
+  QueryClient,
 } from '@tanstack/react-query'
 import { ReactNode } from 'react'
 
@@ -11,18 +12,20 @@ import Providers from './providers'
 
 export type StatefullLayoutProps = {
   children: ReactNode
-  state?: HydrationBoundaryProps['state']
+  queryClient?: QueryClient
 }
 
 export default function StatefullLayout({
   children,
-  state,
+  queryClient,
 }: StatefullLayoutProps) {
+  const state = queryClient ? dehydrate(queryClient) : undefined
+
   return (
     <Providers>
       <HydrationBoundary state={state}>
         <Header />
-        <main className="flex-1 mx-auto w-full max-w-[1128px] pt-16 sm:pt-20">
+        <main className="flex-1 mx-auto w-full max-w-[1128px] pt-[6rem]">
           {children}
         </main>
         <Footer />

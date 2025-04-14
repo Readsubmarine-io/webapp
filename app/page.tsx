@@ -1,5 +1,3 @@
-import { dehydrate } from '@tanstack/react-query'
-
 import { HomeContent } from '@/components/home/home-content'
 import { getQueryClient } from '@/lib/get-query-client'
 
@@ -129,15 +127,14 @@ async function getHomePageData() {
 
 export default async function Home() {
   const queryClient = getQueryClient()
+
   await queryClient.prefetchQuery({
     queryKey: ['homePageData'],
     queryFn: getHomePageData,
   })
 
-  const dehydratedState = dehydrate(queryClient)
-
   return (
-    <StatefullLayout state={dehydratedState}>
+    <StatefullLayout queryClient={queryClient}>
       <HomeContent />
     </StatefullLayout>
   )

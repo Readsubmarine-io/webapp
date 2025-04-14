@@ -1,12 +1,6 @@
-'use client'
-
 import { LaunchpadCollections } from '@/components/launchpad/launchpad-collections'
 
-interface LaunchpadContentProps {
-  collections: any[] // Replace 'any' with the actual type of your collections
-}
-
-export function LaunchpadContent({ collections }: LaunchpadContentProps) {
+export function LaunchpadContent() {
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8 text-center">
@@ -21,7 +15,7 @@ export function LaunchpadContent({ collections }: LaunchpadContentProps) {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 pb-8">
-        <LaunchpadCollections collections={collections} />
+        <LaunchpadCollections />
       </div>
     </div>
   )

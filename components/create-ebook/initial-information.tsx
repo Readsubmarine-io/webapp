@@ -2,18 +2,14 @@
 
 import { useState } from 'react'
 
+import { CreateBookCallParams } from '@/api/book/create-book'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-
 interface InitialInformationProps {
-  formData: {
-    title: string
-    authorName: string
-    shortDescription: string
-  }
-  updateFormData: (data: Partial<InitialInformationProps['formData']>) => void
+  formData: Partial<CreateBookCallParams>
+  updateFormData: (data: Partial<CreateBookCallParams>) => void
   onNext: () => void
 }
 
@@ -24,7 +20,7 @@ export function InitialInformation({
 }: InitialInformationProps) {
   const [errors, setErrors] = useState({
     title: '',
-    authorName: '',
+    author: '',
     shortDescription: '',
   })
 
@@ -32,26 +28,45 @@ export function InitialInformation({
     let isValid = true
     const newErrors = {
       title: '',
-      authorName: '',
+      author: '',
       shortDescription: '',
     }
 
-    if (!formData.title.trim()) {
+    const trimmedTitle = formData.title?.trim()
+
+    if (!trimmedTitle) {
       newErrors.title = 'eBook Title is required'
       isValid = false
-    }
-
-    if (!formData.authorName.trim()) {
-      newErrors.authorName = 'Author Name is required'
+    } else if (trimmedTitle.length > 22) {
+      newErrors.title = 'eBook Title must be 22 characters or less'
       isValid = false
     }
 
-    if (!formData.shortDescription.trim()) {
+    const trimmedAuthor = formData.author?.trim()
+
+    if (!trimmedAuthor) {
+      newErrors.author = 'Author Name is required'
+      isValid = false
+    } else if (trimmedAuthor.length > 255) {
+      newErrors.author = 'Author Name must be 255 characters or less'
+      isValid = false
+    } else if (trimmedAuthor.length < 5) {
+      newErrors.author = 'Author Name must be 5 characters or more'
+      isValid = false
+    }
+
+    const trimmedShortDescription = formData.shortDescription?.trim()
+
+    if (!trimmedShortDescription) {
       newErrors.shortDescription = 'Short Description is required'
       isValid = false
-    } else if (formData.shortDescription.length > 150) {
+    } else if (trimmedShortDescription.length > 150) {
       newErrors.shortDescription =
         'Short Description must be 150 characters or less'
+      isValid = false
+    } else if (trimmedShortDescription.length < 5) {
+      newErrors.shortDescription =
+        'Short Description must be 5 characters or more'
       isValid = false
     }
 
@@ -81,15 +96,15 @@ export function InitialInformation({
         )}
       </div>
       <div>
-        <Label htmlFor="authorName">Author Name</Label>
+        <Label htmlFor="author">Author Name</Label>
         <Input
-          id="authorName"
-          value={formData.authorName}
-          onChange={(e) => updateFormData({ authorName: e.target.value })}
+          id="author"
+          value={formData.author}
+          onChange={(e) => updateFormData({ author: e.target.value })}
           placeholder="Enter your name"
         />
-        {errors.authorName && (
-          <p className="text-red-500 text-sm mt-1">{errors.authorName}</p>
+        {errors.author && (
+          <p className="text-red-500 text-sm mt-1">{errors.author}</p>
         )}
       </div>
       <div>
@@ -102,7 +117,7 @@ export function InitialInformation({
           maxLength={150}
         />
         <p className="text-sm text-gray-500 mt-1">
-          {formData.shortDescription.length}/150 characters
+          {formData.shortDescription?.length ?? 0}/150 characters
         </p>
         {errors.shortDescription && (
           <p className="text-red-500 text-sm mt-1">{errors.shortDescription}</p>
