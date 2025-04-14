@@ -2,18 +2,14 @@
 
 import { useState } from 'react'
 
+import { CreateBookCallParams } from '@/api/book/create-book'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 interface MintingDetailsProps {
-  formData: {
-    mintPrice: string
-    totalCopies: string
-    mintDate: string
-    mintTime: string
-  }
-  updateFormData: (data: Partial<MintingDetailsProps['formData']>) => void
+  formData: Partial<CreateBookCallParams>
+  updateFormData: (data: Partial<CreateBookCallParams>) => void
   onNext: () => void
   onPrev: () => void
 }
@@ -27,8 +23,8 @@ export function MintingDetails({
   const [errors, setErrors] = useState({
     mintPrice: '',
     totalCopies: '',
-    mintDate: '',
-    mintTime: '',
+    mintStartDate: '',
+    mintEndDate: '',
   })
 
   const validate = () => {
@@ -36,11 +32,11 @@ export function MintingDetails({
     const newErrors = {
       mintPrice: '',
       totalCopies: '',
-      mintDate: '',
-      mintTime: '',
+      mintStartDate: '',
+      mintEndDate: '',
     }
 
-    if (!formData.mintPrice.trim()) {
+    if (!formData.mintPrice) {
       newErrors.mintPrice = 'Mint Price is required'
       isValid = false
     } else if (
@@ -51,7 +47,7 @@ export function MintingDetails({
       isValid = false
     }
 
-    if (!formData.totalCopies.trim()) {
+    if (!formData.totalCopies) {
       newErrors.totalCopies = 'Total Copies is required'
       isValid = false
     } else if (
@@ -62,13 +58,18 @@ export function MintingDetails({
       isValid = false
     }
 
-    if (!formData.mintDate.trim()) {
-      newErrors.mintDate = 'Mint Date is required'
+    if (!formData.mintStartDate) {
+      newErrors.mintStartDate = 'Mint Date is required'
       isValid = false
     }
 
-    if (!formData.mintTime.trim()) {
-      newErrors.mintTime = 'Mint Time is required'
+    if (
+      formData.mintEndDate &&
+      formData.mintStartDate &&
+      formData.mintEndDate < formData.mintStartDate
+    ) {
+      newErrors.mintEndDate =
+        'Mint End Date must be after Mint Start Date or empty'
       isValid = false
     }
 
@@ -90,9 +91,16 @@ export function MintingDetails({
         <Input
           id="mintPrice"
           type="number"
+          inputMode="decimal"
           step="0.01"
           value={formData.mintPrice}
-          onChange={(e) => updateFormData({ mintPrice: e.target.value })}
+          onChange={(e) => {
+            if (isNaN(Number(e.target.value))) {
+              return
+            }
+
+            updateFormData({ mintPrice: parseFloat(e.target.value) })
+          }}
           placeholder="Enter the mint price in SOL"
         />
         {errors.mintPrice && (
@@ -109,7 +117,9 @@ export function MintingDetails({
           id="totalCopies"
           type="number"
           value={formData.totalCopies}
-          onChange={(e) => updateFormData({ totalCopies: e.target.value })}
+          onChange={(e) =>
+            updateFormData({ totalCopies: Number(e.target.value) })
+          }
           placeholder="Enter the total number of copies"
         />
         {errors.totalCopies && (
@@ -119,25 +129,31 @@ export function MintingDetails({
       <div>
         <Label htmlFor="mintDate">Mint Start Date</Label>
         <Input
-          id="mintDate"
+          id="mintStartDate"
           type="date"
-          value={formData.mintDate}
-          onChange={(e) => updateFormData({ mintDate: e.target.value })}
+          value={formData.mintStartDate?.toISOString().split('T')[0]}
+          onChange={(e) =>
+            updateFormData({ mintStartDate: new Date(e.target.value) })
+          }
         />
-        {errors.mintDate && (
-          <p className="text-red-500 text-sm mt-1">{errors.mintDate}</p>
+        {errors.mintStartDate && (
+          <p className="text-red-500 text-sm mt-1">{errors.mintStartDate}</p>
         )}
       </div>
       <div>
-        <Label htmlFor="mintTime">Mint Start Time (UTC)</Label>
+        <Label htmlFor="mintEndDate">Mint End Date</Label>
         <Input
-          id="mintTime"
-          type="time"
-          value={formData.mintTime}
-          onChange={(e) => updateFormData({ mintTime: e.target.value })}
+          id="mintEndDate"
+          type="date"
+          value={formData.mintEndDate?.toISOString().split('T')[0]}
+          onChange={(e) =>
+            updateFormData({
+              mintEndDate: e.target.value ? new Date(e.target.value) : null,
+            })
+          }
         />
-        {errors.mintTime && (
-          <p className="text-red-500 text-sm mt-1">{errors.mintTime}</p>
+        {errors.mintEndDate && (
+          <p className="text-red-500 text-sm mt-1">{errors.mintEndDate}</p>
         )}
         <p className="text-sm text-gray-500 mt-1">
           Mints remain open for seven days or until all NFTs are minted.

@@ -2,43 +2,45 @@
 
 import { CheckCircle } from 'lucide-react'
 import type React from 'react'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
+import { CreateBookCallParams } from '@/api/book/create-book'
+import { useCreateFileMutation } from '@/api/file/create-file'
+import { FileAssignment } from '@/api/file/types'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 interface FileUploadsProps {
-  formData: {
-    coverImage: File | null
-    ebookPdf: File | null
-    email: string
-    acceptTerms: boolean
-  }
-  updateFormData: (data: Partial<FileUploadsProps['formData']>) => void
+  formData: Partial<CreateBookCallParams>
+  updateFormData: (data: Partial<CreateBookCallParams>) => void
   onPrev: () => void
+  onNext: () => void
 }
 
 export function FileUploads({
   formData,
   updateFormData,
   onPrev,
+  onNext,
 }: FileUploadsProps) {
   const [isSubmissionSuccessful, setIsSubmissionSuccessful] = useState(false)
   const [errors, setErrors] = useState({
     coverImage: '',
-    ebookPdf: '',
-    email: '',
+    pdf: '',
+    contactEmail: '',
     acceptTerms: '',
   })
+  const [acceptTerms, setAcceptTerms] = useState(false)
+  const { mutateAsync: createFile } = useCreateFileMutation()
 
   const validate = () => {
     let isValid = true
     const newErrors = {
       coverImage: '',
-      ebookPdf: '',
-      email: '',
+      pdf: '',
+      contactEmail: '',
       acceptTerms: '',
     }
 
@@ -47,20 +49,20 @@ export function FileUploads({
       isValid = false
     }
 
-    if (!formData.ebookPdf) {
-      newErrors.ebookPdf = 'eBook PDF is required'
+    if (!formData.pdf) {
+      newErrors.pdf = 'eBook PDF is required'
       isValid = false
     }
 
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required'
+    if (!formData.contactEmail?.trim()) {
+      newErrors.contactEmail = 'Email is required'
       isValid = false
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address'
+    } else if (!/\S+@\S+\.\S+/.test(formData.contactEmail)) {
+      newErrors.contactEmail = 'Please enter a valid email address'
       isValid = false
     }
 
-    if (!formData.acceptTerms) {
+    if (!acceptTerms) {
       newErrors.acceptTerms = 'You must accept the terms to proceed'
       isValid = false
     }
@@ -72,23 +74,81 @@ export function FileUploads({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (validate()) {
+      // Create metadata file
+      await handleMetadataUpload()
       // Here you would typically send the form data to your backend
       console.log('Form submitted:', formData)
       // Set submission as successful
       setIsSubmissionSuccessful(true)
       // Reset the form or perform any other necessary actions
-      // ...
+      onNext()
     }
   }
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: 'coverImage' | 'ebookPdf',
-  ) => {
-    if (e.target.files && e.target.files[0]) {
-      updateFormData({ [field]: e.target.files[0] })
+  const handleMetadataUpload = useCallback(async () => {
+    const coverImage = formData.coverImage
+    const pdf = formData.pdf
+
+    if (!coverImage || !pdf) {
+      throw new Error('Cover image and PDF are required')
     }
-  }
+
+    // Generate metadata file
+    const metadata = {
+      title: formData.title,
+      author: formData.author,
+      description: formData.longDescription,
+      pages: formData.pages,
+      image: coverImage?.metadata.srcUrl,
+      pdf: pdf?.metadata.srcUrl,
+    }
+
+    const metadataFile = new File([JSON.stringify(metadata)], 'metadata.json', {
+      type: 'application/json',
+    })
+
+    // Create metadata file (upload)
+    const fileInfo = await createFile({
+      file: metadataFile,
+      assignment: FileAssignment.BookMetadata,
+    })
+
+    updateFormData({ metadata: fileInfo })
+  }, [
+    createFile,
+    formData.author,
+    formData.coverImage,
+    formData.longDescription,
+    formData.pages,
+    formData.pdf,
+    formData.title,
+    updateFormData,
+  ])
+
+  const handleFileChange = useCallback(
+    async (
+      e: React.ChangeEvent<HTMLInputElement>,
+      field: 'coverImage' | 'pdf',
+    ) => {
+      if (e.target.files && e.target.files[0]) {
+        try {
+          const fileInfo = await createFile({
+            file: e.target.files[0],
+            assignment:
+              field === 'coverImage'
+                ? FileAssignment.BookCover
+                : FileAssignment.BookPdf,
+          })
+
+          updateFormData({ [field]: fileInfo })
+        } catch (error) {
+          console.error(error)
+          e.target.value = ''
+        }
+      }
+    },
+    [createFile, updateFormData],
+  )
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -112,7 +172,7 @@ export function FileUploads({
         <Input
           id="coverImage"
           type="file"
-          accept="image/jpeg"
+          accept="image/jpeg, image/png"
           onChange={(e) => handleFileChange(e, 'coverImage')}
         />
         {errors.coverImage && (
@@ -120,37 +180,35 @@ export function FileUploads({
         )}
       </div>
       <div>
-        <Label htmlFor="ebookPdf">Upload eBook PDF</Label>
+        <Label htmlFor="pdf">Upload eBook PDF</Label>
         <Input
-          id="ebookPdf"
+          id="pdf"
           type="file"
           accept="application/pdf"
-          onChange={(e) => handleFileChange(e, 'ebookPdf')}
+          onChange={(e) => handleFileChange(e, 'pdf')}
         />
-        {errors.ebookPdf && (
-          <p className="text-red-500 text-sm mt-1">{errors.ebookPdf}</p>
+        {errors.pdf && (
+          <p className="text-red-500 text-sm mt-1">{errors.pdf}</p>
         )}
       </div>
       <div>
         <Label htmlFor="email">Email Address</Label>
         <Input
-          id="email"
+          id="contactEmail"
           type="email"
-          value={formData.email}
-          onChange={(e) => updateFormData({ email: e.target.value })}
+          value={formData.contactEmail}
+          onChange={(e) => updateFormData({ contactEmail: e.target.value })}
           placeholder="Enter your email address"
         />
-        {errors.email && (
-          <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+        {errors.contactEmail && (
+          <p className="text-red-500 text-sm mt-1">{errors.contactEmail}</p>
         )}
       </div>
       <div className="flex items-center space-x-2">
         <Checkbox
           id="acceptTerms"
-          checked={formData.acceptTerms}
-          onCheckedChange={(checked) =>
-            updateFormData({ acceptTerms: checked as boolean })
-          }
+          checked={acceptTerms}
+          onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
         />
         <label
           htmlFor="acceptTerms"
@@ -175,7 +233,7 @@ export function FileUploads({
           type="submit"
           className="w-[48%] bg-power-pump-button text-white hover:bg-power-pump-button/90"
         >
-          Submit for Review
+          Deploy Contracts
         </Button>
       </div>
     </form>

@@ -1,0 +1,104 @@
+import { Download, Eye } from 'lucide-react'
+import { DollarSign, MoreVertical } from 'lucide-react'
+import Image from 'next/image'
+
+import { BookEdition } from '@/api/book-edition/types'
+import { ListPrice } from '@/components/profile/list-price'
+import { Card } from '@/components/ui/card'
+import { CardContent } from '@/components/ui/card'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+
+export type BookEditionCardProps = {
+  bookEdition: BookEdition
+  handleViewBook: (bookEdition: BookEdition) => void
+  setSelectedBookForSale: (bookEdition: BookEdition) => void
+  setIsSetPriceDialogOpen: (isOpen: boolean) => void
+}
+
+export function BookEditionCard({
+  bookEdition,
+  handleViewBook,
+  setSelectedBookForSale,
+  setIsSetPriceDialogOpen,
+}: BookEditionCardProps) {
+  const book = bookEdition.book
+  const coverImageUrl = book?.coverImage?.metadata.srcUrl
+  const pdfUrl = book?.pdf?.metadata.srcUrl
+
+  return (
+    <Card
+      key={bookEdition.id}
+      className="overflow-hidden h-full relative flex flex-row"
+    >
+      <div className="w-1/3 aspect-[3/4] relative">
+        <Image
+          src={coverImageUrl || '/placeholder.svg'}
+          alt={book?.title || ''}
+          layout="fill"
+          objectFit="cover"
+        />
+      </div>
+      <CardContent className="p-4 flex flex-col w-2/3 relative">
+        <div className="flex justify-between items-start mb-2">
+          <span className="text-sm text-power-pump-button font-semibold">
+            {bookEdition.name}
+          </span>
+          <DropdownMenu>
+            <DropdownMenuTrigger className="focus:outline-none relative z-10">
+              <MoreVertical className="h-4 w-4 sm:h-5 sm:w-5 text-power-pump-text hover:text-power-pump-button transition-colors" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48 sm:w-56 bg-contextMenu text-contextMenu-foreground">
+              <DropdownMenuItem
+                className="cursor-pointer flex items-center"
+                onSelect={() => handleViewBook(bookEdition)}
+              >
+                <Eye className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="text-sm">View</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer flex items-center"
+                onSelect={() => {
+                  setSelectedBookForSale(bookEdition)
+                  setIsSetPriceDialogOpen(true)
+                }}
+              >
+                <DollarSign className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="text-sm">Sale</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer flex items-center"
+                onSelect={() => window.open(pdfUrl, '_blank')}
+              >
+                <Download className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                <span className="text-sm">Download</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <h3 className="font-semibold text-lg mb-1 text-power-pump-heading line-clamp-2">
+          {book?.title}
+        </h3>
+        <p className="text-sm text-power-pump-text mb-2">{book?.author}</p>
+        <div className="flex flex-col space-y-1 mt-auto">
+          <span className="text-sm text-power-pump-text">
+            Bought: <span className="font-semibold">-</span>
+          </span>
+          <ListPrice bookEdition={bookEdition} />
+          <span className="text-sm text-power-pump-text">
+            Floor price:{' '}
+            <span className="font-semibold">
+              {book?.metrics?.floorPrice
+                ? `${book?.metrics?.floorPrice} SOL`
+                : '-'}
+            </span>
+          </span>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}

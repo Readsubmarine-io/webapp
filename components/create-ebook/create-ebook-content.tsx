@@ -2,9 +2,15 @@
 
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useCallback, useState } from 'react'
 
+import {
+  CreateBookCallParams,
+  useCreateBookMutation,
+} from '@/api/book/create-book'
 import { AdditionalDetails } from '@/components/create-ebook/additional-details'
+import { ContractsDeploy } from '@/components/create-ebook/contracts-deploy'
 import { FileUploads } from '@/components/create-ebook/file-uploads'
 import { InitialInformation } from '@/components/create-ebook/initial-information'
 import { MintingDetails } from '@/components/create-ebook/minting-details'
@@ -14,25 +20,28 @@ const steps = [
   'Additional Details',
   'Minting Details',
   'File Uploads',
+  'Blockchain Deployment',
 ]
 
 export function CreateEbookContent() {
   const [currentStep, setCurrentStep] = useState(0)
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<Partial<CreateBookCallParams>>({
     title: '',
-    authorName: '',
+    author: '',
     shortDescription: '',
     longDescription: '',
     genres: [],
-    pages: '',
-    mintPrice: '',
-    totalCopies: '',
-    mintDate: '',
-    mintTime: '',
-    coverImage: null,
-    ebookPdf: null,
-    email: '',
-    acceptTerms: false,
+    pages: 0,
+    mintPrice: 0,
+    totalCopies: 0,
+    mintStartDate: new Date(),
+    mintEndDate: undefined,
+    coverImage: undefined,
+    pdf: undefined,
+    metadata: undefined,
+    collectionAddress: '',
+    mintAddress: '',
+    contactEmail: '',
   })
 
   const updateFormData = (newData: Partial<typeof formData>) => {
@@ -42,6 +51,14 @@ export function CreateEbookContent() {
   const nextStep = () =>
     setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1))
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0))
+
+  const { mutateAsync: createBook } = useCreateBookMutation()
+  const router = useRouter()
+
+  const completeBookCreation = useCallback(async () => {
+    await createBook(formData as CreateBookCallParams)
+    router.push(`/create-ebook/confirmation`)
+  }, [createBook, formData, router])
 
   const renderStep = () => {
     switch (currentStep) {
@@ -76,7 +93,17 @@ export function CreateEbookContent() {
           <FileUploads
             formData={formData}
             updateFormData={updateFormData}
+            onNext={nextStep}
             onPrev={prevStep}
+          />
+        )
+      case 4:
+        return (
+          <ContractsDeploy
+            formData={formData}
+            updateFormData={updateFormData}
+            onPrev={prevStep}
+            onComplete={completeBookCreation}
           />
         )
       default:

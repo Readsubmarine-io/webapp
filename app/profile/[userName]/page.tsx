@@ -1,5 +1,3 @@
-import { dehydrate } from '@tanstack/react-query'
-
 import { getUserByUsernamePrefetchQuery } from '@/api/user/get-user-by-user-name'
 import StatefullLayout from '@/app/statefull-layout'
 import { ProfileContent } from '@/components/profile/profile-content'
@@ -15,13 +13,12 @@ export default async function ProfilePage({
   params: Promise<ProfilePageParams>
 }) {
   const queryClient = getQueryClient()
-  const dehydratedState = dehydrate(queryClient)
 
   const { userName } = await params
   await queryClient.prefetchQuery(getUserByUsernamePrefetchQuery(userName))
 
   return (
-    <StatefullLayout state={dehydratedState}>
+    <StatefullLayout queryClient={queryClient}>
       <ProfileContent userName={userName} />
     </StatefullLayout>
   )

@@ -2,27 +2,16 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
+import { Book } from '@/api/book/types'
 import { Card, CardContent } from '@/components/ui/card'
 
-interface EBookCollection {
-  id: string
-  title: string
-  author: string
-  coverImage: string
-  price: {
-    amount: number | 'FREE'
-    currency: string
-  }
-  items: string
-  mintedPercentage: number
-  mintStart: string
-  mintEnd: string
-  isOpenEdition?: boolean
+export type CountdownTimerProps = {
+  endTime: Date
 }
 
-function CountdownTimer({ endTime }: { endTime: string }) {
+function CountdownTimer({ endTime }: CountdownTimerProps) {
   const [timeLeft, setTimeLeft] = useState('')
 
   useEffect(() => {
@@ -59,8 +48,20 @@ function CountdownTimer({ endTime }: { endTime: string }) {
   return timeLeft
 }
 
-export function ProjectCard({ collection }: { collection: EBookCollection }) {
+interface ProjectCardProps {
+  book: Book
+}
+
+export function ProjectCard({ book }: ProjectCardProps) {
   const [isHovered, setIsHovered] = useState(false)
+
+  const mintedPercentage = useMemo(() => {
+    if (!book.metrics?.mintedSupply || !book.metrics?.totalSupply) {
+      return '0%'
+    }
+
+    return `${((book.metrics?.mintedSupply / book.metrics?.totalSupply) * 100).toFixed(2)}%`
+  }, [book.metrics?.mintedSupply, book.metrics?.totalSupply])
 
   return (
     <Card className="block max-w-sm mx-auto w-full overflow-hidden border border-container-border shadow-content-container relative flex flex-col">
@@ -75,16 +76,18 @@ export function ProjectCard({ collection }: { collection: EBookCollection }) {
             <div className="absolute w-full h-full bg-green-500 rounded-full"></div>
           </div>
           <span className="text-green-600 font-semibold">Live</span>
-          <span className="text-power-pump-heading">
-            ends:{' '}
-            <span className="font-bold text-power-pump-button">
-              <CountdownTimer endTime={collection.mintEnd} />
+          {book.mint?.endDate && (
+            <span className="text-power-pump-heading">
+              ends:{' '}
+              <span className="font-bold text-power-pump-button">
+                <CountdownTimer endTime={book.mint?.endDate} />
+              </span>
             </span>
-          </span>
+          )}
         </div>
         <Image
-          src={collection.coverImage || '/placeholder.svg'}
-          alt={collection.title}
+          src={book.coverImage.metadata.srcUrl || '/placeholder.svg'}
+          alt={book.title}
           layout="fill"
           objectFit="cover"
         />
@@ -94,7 +97,7 @@ export function ProjectCard({ collection }: { collection: EBookCollection }) {
           }`}
         >
           <Link
-            href={`/launchpad/${collection.id}`}
+            href={`/launchpad/${book.id}`}
             className="bg-white text-power-pump-button px-4 py-2 rounded-full font-bold hover:bg-power-pump-button hover:text-white transition-colors duration-300"
           >
             Click to know more
@@ -104,37 +107,37 @@ export function ProjectCard({ collection }: { collection: EBookCollection }) {
       <CardContent className="flex flex-col p-4 space-y-4">
         <div>
           <h2 className="text-lg font-bold text-power-pump-heading truncate">
-            {collection.title}
+            {book.title}
           </h2>
-          <p className="text-sm text-power-pump-text">{collection.author}</p>
+          <p className="text-sm text-power-pump-text">{book.author}</p>
         </div>
 
         <div className="grid grid-cols-3 gap-2">
           <div className="text-left">
             <div className="text-power-pump-text uppercase text-xs">Price</div>
             <div className="font-medium text-power-pump-heading text-base tabular-nums">
-              {typeof collection.price.amount === 'number'
-                ? `${collection.price.amount} ${collection.price.currency}`
-                : collection.price.amount}
+              {typeof book.mint?.price === 'number'
+                ? `${book.mint?.price} SOL`
+                : book.mint?.price}
             </div>
           </div>
           <div className="text-center">
             <div className="text-power-pump-text uppercase text-xs">Copies</div>
             <div className="font-medium text-power-pump-heading text-base tabular-nums">
-              {collection.items}
+              {book.metrics?.mintedSupply}
             </div>
           </div>
           <div className="text-right">
             <div className="text-power-pump-text uppercase text-xs">Minted</div>
             <div className="font-medium text-power-pump-heading text-base tabular-nums">
-              {collection.mintedPercentage}%
+              {mintedPercentage}
             </div>
           </div>
         </div>
 
         <div className="flex flex-col items-start justify-between text-sm w-full">
           <Link
-            href={`/launchpad/${collection.id}`}
+            href={`/launchpad/${book.id}`}
             className="bg-power-pump-button text-white py-2 px-6 rounded-[100px] font-bold transition-colors hover:bg-power-pump-button/90 w-full text-center block"
           >
             Mint

@@ -3,49 +3,49 @@
 import { ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { notFound } from 'next/navigation'
+import { useMemo } from 'react'
 
+import { useGetBookByIdQuery } from '@/api/book/get-book-by-id'
 import { MintingSection } from '@/components/launchpad/minting-section'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 
-interface Project {
-  id: string
-  title: string
-  author: {
-    name: string
-    title: string
-    bio: string
-    avatar: string
-  }
-  coverImage: string
-  description: string
-  price: {
-    amount: number
-    currency: string
-  }
-  totalSupply: number
-  mintedSupply: number
-  backers: number
-  raisedAmount: number
-  mintStart: string
-  mintEnd: string
-  details: {
-    pages: number
-    categories: string[]
-    publishedDate: string
-  }
+interface LaunchpadBookContentProps {
+  bookId: string
 }
 
-interface LaunchpadProjectContentProps {
-  project: Project
-}
+export function LaunchpadBookContent({ bookId }: LaunchpadBookContentProps) {
+  const { data: book } = useGetBookByIdQuery(bookId)
 
-export function LaunchpadProjectContent({
-  project,
-}: LaunchpadProjectContentProps) {
-  const progressPercentage = (project.mintedSupply / project.totalSupply) * 100
-  const timeLeft = new Date(project.mintEnd).getTime() - new Date().getTime()
+  if (!book) {
+    notFound()
+  }
+
+  const progressPercentage = useMemo(() => {
+    if (!book.metrics?.mintedSupply || !book.metrics?.totalSupply) {
+      return 0
+    }
+
+    return Math.floor(
+      (book.metrics.mintedSupply / book.metrics.totalSupply) * 100,
+    )
+  }, [book.metrics?.mintedSupply, book.metrics?.totalSupply])
+
+  const timeLeft = book.mint?.endDate
+    ? new Date(book.mint.endDate).getTime() - new Date().getTime()
+    : 0
   const daysLeft = Math.ceil(timeLeft / (1000 * 60 * 60 * 24))
+
+  const rasedAmount = useMemo(() => {
+    if (!book.mint?.price) {
+      return '0 SOL'
+    }
+
+    return (
+      Number(book.mint.price) * (book.metrics?.mintedSupply || 0)
+    ).toFixed(2)
+  }, [book.mint?.price, book.metrics?.mintedSupply])
 
   return (
     <article className="container mx-auto px-4 py-8 bg-white">
@@ -60,14 +60,14 @@ export function LaunchpadProjectContent({
         <section className="md:w-1/3">
           <figure>
             <Image
-              src={project.coverImage || '/placeholder.svg'}
-              alt={`Cover of ${project.title}`}
+              src={book.coverImage?.metadata.srcUrl || '/placeholder.svg'}
+              alt={`Cover of ${book.title}`}
               width={400}
               height={600}
               className="rounded-lg shadow-lg w-full"
             />
             <figcaption className="sr-only">
-              Book cover for {project.title}
+              Book cover for {book.title}
             </figcaption>
           </figure>
         </section>
@@ -75,10 +75,10 @@ export function LaunchpadProjectContent({
         <section className="md:w-2/3">
           <header className="mb-8">
             <h1 className="text-3xl font-bold mb-2 text-power-pump-heading">
-              {project.title}
+              {book.title}
             </h1>
             <p className="text-lg mb-4 text-power-pump-text">
-              by <span itemProp="author">{project.author.name}</span>
+              by <span itemProp="author">{book.author}</span>
             </p>
           </header>
 
@@ -88,8 +88,8 @@ export function LaunchpadProjectContent({
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-power-pump-text">Minted</span>
                   <span className="text-power-pump-heading font-semibold">
-                    {project.mintedSupply} / {project.totalSupply} [
-                    {progressPercentage.toFixed(0)}%]
+                    {book.metrics?.mintedSupply} / {book.metrics?.totalSupply}{' '}
+                    {progressPercentage}%
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -103,13 +103,13 @@ export function LaunchpadProjectContent({
                 <div>
                   <p className="text-power-pump-text">Backers</p>
                   <p className="font-semibold text-power-pump-heading">
-                    {project.backers}
+                    {book.metrics?.totalOwners}
                   </p>
                 </div>
                 <div>
                   <p className="text-power-pump-text">Raised</p>
                   <p className="font-semibold text-power-pump-heading">
-                    {project.raisedAmount} {project.price.currency}
+                    {rasedAmount} SOL
                   </p>
                 </div>
                 <div>
@@ -121,17 +121,14 @@ export function LaunchpadProjectContent({
                 <div>
                   <p className="text-power-pump-text">Price</p>
                   <p className="font-semibold text-power-pump-heading">
-                    {project.price.amount} {project.price.currency}
+                    {book.mint?.price} SOL
                   </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          <MintingSection
-            price={project.price.amount}
-            currency={project.price.currency}
-          />
+          <MintingSection book={book} />
 
           <div className="grid lg:grid-cols-2 gap-6 mb-6">
             <Card className="border border-container-border rounded-xl shadow-content-container">
@@ -149,17 +146,17 @@ export function LaunchpadProjectContent({
                   <div className="flex items-center gap-2">
                     <span className="text-power-pump-text">Pages:</span>
                     <span className="font-medium text-power-pump-text">
-                      {project.details.pages}
+                      {book.pages}
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {project.details.categories.map((category) => (
+                    {book.genres.map((genre) => (
                       <Badge
-                        key={category}
+                        key={genre}
                         variant="secondary"
                         className="bg-power-pump-button/10 text-power-pump-button"
                       >
-                        {category}
+                        {genre}
                       </Badge>
                     ))}
                   </div>
@@ -167,7 +164,7 @@ export function LaunchpadProjectContent({
                     <div className="flex items-center gap-2">
                       <span className="text-power-pump-text">Published:</span>
                       <span className="font-medium text-power-pump-text">
-                        {project.details.publishedDate}
+                        {new Date(book.createdAt).toDateString()}
                       </span>
                     </div>
                   </div>
@@ -182,23 +179,26 @@ export function LaunchpadProjectContent({
                 </h2>
                 <div className="flex items-center gap-4 mb-4">
                   <Image
-                    src={project.author.avatar || '/placeholder.svg'}
-                    alt={project.author.name}
+                    src={
+                      book.creator?.avatar?.metadata.srcUrl ||
+                      '/placeholder.svg'
+                    }
+                    alt={book.creator?.displayName || 'Author avatar'}
                     width={64}
                     height={64}
                     className="rounded-full"
                   />
                   <div>
                     <h3 className="font-semibold text-power-pump-heading">
-                      {project.author.name}
+                      {book.creator?.displayName}
                     </h3>
                     <p className="text-sm text-power-pump-text">
-                      {project.author.title}
+                      {book.creator?.email}
                     </p>
                   </div>
                 </div>
                 <p className="text-sm text-power-pump-text leading-relaxed">
-                  {project.author.bio}
+                  {book.creator?.bio}
                 </p>
               </CardContent>
             </Card>
@@ -209,7 +209,7 @@ export function LaunchpadProjectContent({
               About this book
             </h2>
             <p className="text-power-pump-text" itemProp="description">
-              {project.description}
+              {book.longDescription}
             </p>
           </section>
         </section>
