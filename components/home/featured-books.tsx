@@ -4,19 +4,21 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 
-interface Collection {
-  id: number
-  title: string
-  badge: string
-  description: string
-  image: string
+import { Book } from '@/api/book/types'
+
+interface FeaturedBooksProps {
+  books: Book[]
 }
 
-interface FeaturedCollectionsProps {
-  collections: Collection[]
-}
-
-function SliderButton({ direction, onClick, className = '' }) {
+function SliderButton({
+  direction,
+  onClick,
+  className = '',
+}: {
+  direction: 'left' | 'right'
+  onClick: () => void
+  className?: string
+}) {
   return (
     <button
       className={`absolute top-1/2 -translate-y-1/2 w-8 h-8 sm:w-12 sm:h-12 rounded-full border-none bg-slider-button text-white flex items-center justify-center cursor-pointer transition-all duration-200 z-[5] shadow-md text-sm sm:text-base font-bold hover:bg-slider-button-hover ${
@@ -29,7 +31,7 @@ function SliderButton({ direction, onClick, className = '' }) {
   )
 }
 
-export function FeaturedCollections({ collections }: FeaturedCollectionsProps) {
+export function FeaturedBooks({ books }: FeaturedBooksProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [showLeftArrow, setShowLeftArrow] = useState(false)
   const [showRightArrow, setShowRightArrow] = useState(true)
@@ -62,12 +64,12 @@ export function FeaturedCollections({ collections }: FeaturedCollectionsProps) {
         className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 sm:mx-0 px-4 sm:px-0"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        {collections.map((collection) => (
+        {books.map((book) => (
           <div
-            key={collection.id}
+            key={book.id}
             className="snap-start shrink-0 pr-4 sm:pr-6 w-[280px]"
           >
-            <CollectionCard collection={collection} />
+            <BookCard book={book} />
           </div>
         ))}
       </div>
@@ -81,19 +83,19 @@ export function FeaturedCollections({ collections }: FeaturedCollectionsProps) {
   )
 }
 
-function CollectionCard({ collection }: { collection: Collection }) {
+function BookCard({ book }: { book: Book }) {
   const [isHovered, setIsHovered] = useState(false)
 
   return (
-    <Link href={`/marketplace/${collection.id}`}>
+    <Link href={`/marketplace/${book.id}`}>
       <div
         className="relative w-full aspect-square rounded-card cursor-pointer overflow-hidden group"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         <Image
-          src={collection.image || '/placeholder.svg'}
-          alt={collection.title}
+          src={book.coverImage.metadata.srcUrl || '/placeholder.svg'}
+          alt={book.title}
           layout="fill"
           objectFit="cover"
         />
@@ -103,16 +105,16 @@ function CollectionCard({ collection }: { collection: Collection }) {
             ${isHovered ? 'bottom-0 -translate-y-[10%]' : 'bottom-0 translate-y-0'}`}
           >
             <h3 className="text-lg font-bold text-white line-clamp-1">
-              {collection.title}
+              {book.title}
             </h3>
             <span className="inline-block bg-white/20 px-2 py-1 text-xs text-white rounded mt-1">
-              {collection.badge}
+              Featured
             </span>
             <p
               className={`text-xs text-white mt-2 transition-all duration-300 ease-in-out
               ${isHovered ? 'opacity-100 max-h-20' : 'opacity-0 max-h-0'} overflow-hidden line-clamp-3`}
             >
-              {collection.description}
+              {book.shortDescription}
             </p>
           </div>
         </div>

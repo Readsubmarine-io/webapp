@@ -22,8 +22,6 @@ const getUserByUsernamePrefetchCall = async (username: string) => {
     throw new Error('Failed to get user.')
   }
 
-  console.log('response.data', response.data)
-
   return response.data
 }
 

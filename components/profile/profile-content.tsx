@@ -137,7 +137,7 @@ export function ProfileContent({ userName }: ProfileContentProps) {
         {/* Main Content */}
         <div className="flex-1 w-full md:w-[65%] lg:w-[70%]">
           <Tabs
-            defaultValue="created"
+            defaultValue="collected"
             className="w-full"
             onValueChange={(value) => setActiveTab(value)}
           >

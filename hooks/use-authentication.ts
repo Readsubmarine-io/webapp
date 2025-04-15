@@ -30,14 +30,14 @@ export const useAuthentication = () => {
 
   const { rpc } = useRpc()
 
-  const [balance, setBalance] = useState(0)
+  const [balance, setBalance] = useState('0.00')
 
   const getBalance = useCallback(async () => {
     if (!walletAddress || !rpc || isServer) return 0
 
     const balance = await rpc.getBalance(new PublicKey(walletAddress))
 
-    setBalance(balance / LAMPORTS_PER_SOL)
+    setBalance((balance / LAMPORTS_PER_SOL).toFixed(2))
   }, [rpc, walletAddress])
 
   useEffect(() => {
@@ -47,14 +47,58 @@ export const useAuthentication = () => {
     }
   }, [refetchWallet])
 
+  const handleSignIn = useCallback(async () => {
+    if (!wallet?.connected) return
+
+    await signIn()
+    refetchUser()
+  }, [wallet, signIn, refetchUser])
+
+  const handleGetBalance = useCallback(() => {
+    if (!wallet?.connected) return () => {}
+
+    getBalance()
+    const interval = setInterval(async () => {
+      wallet.on('disconnect', () => {
+        clearInterval(interval)
+      })
+
+      await getBalance()
+    }, 10000)
+
+    return () => clearInterval(interval)
+  }, [wallet, getBalance])
+
+  const handleAccountChange = useCallback(() => {
+    if (!wallet?.connected) return () => {}
+
+    const publicKey = wallet.publicKey?.toString()
+
+    const interval = setInterval(async () => {
+      const currentPublicKey = wallet.publicKey?.toString()
+
+      if (currentPublicKey !== publicKey) {
+        clearInterval(interval)
+        wallet.disconnect()
+        await signOut()
+      }
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [signOut, wallet])
+
   useEffect(() => {
     if (wallet?.connected) {
-      signIn().then(() => {
-        refetchUser()
-      })
-      getBalance()
+      handleSignIn()
+      const clearBalanceInterval = handleGetBalance()
+      const clearAccountChangeInterval = handleAccountChange()
+
+      return () => {
+        clearBalanceInterval()
+        clearAccountChangeInterval()
+      }
     }
-  }, [wallet, signIn, getBalance, refetchUser])
+  }, [wallet, handleSignIn, handleGetBalance, handleAccountChange])
 
   const handleDisconnect = useCallback(async () => {
     signOut()
