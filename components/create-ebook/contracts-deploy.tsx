@@ -59,6 +59,9 @@ export function ContractsDeploy({
 
   // Get the user's wallet
   const { isAuthenticated } = useUserData()
+
+  console.log('isAuthenticated', isAuthenticated)
+
   // Get UMI with the wallet as signer
   const umi = useUmi()
 
@@ -66,7 +69,7 @@ export function ContractsDeploy({
 
   const handleCreateNFTContract = useCallback(async () => {
     // Ensure wallet is connected
-    if (isAuthenticated) {
+    if (!isAuthenticated) {
       console.error('Wallet not connected')
       return
     }
