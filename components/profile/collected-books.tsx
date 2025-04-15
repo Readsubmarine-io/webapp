@@ -14,13 +14,10 @@ type CollectedBooksProps = {
   isOnSale?: boolean
 }
 
-export function CollectedBooks({
-  userAddress,
-  isOnSale = false,
-}: CollectedBooksProps) {
+export function CollectedBooks({ userAddress, isOnSale }: CollectedBooksProps) {
   const { data: bookEditions } = useGetBookEditionsQuery({
     ownerAddress: userAddress,
-    isOnSale: isOnSale,
+    isOnSale: isOnSale || undefined,
   })
 
   const [selectedBook, setSelectedBook] = useState<BookEdition | null>(null)

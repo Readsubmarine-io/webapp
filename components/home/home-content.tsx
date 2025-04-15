@@ -2,35 +2,37 @@
 
 import { useQuery } from '@tanstack/react-query'
 
+import { useGetBooksQuery } from '@/api/book/get-books'
+import { BooksListings } from '@/components/home/books-listings'
 import { CategoryFilter } from '@/components/home/category-filter'
-import { FeaturedCollections } from '@/components/home/featured-collections'
+import { FeaturedBooks } from '@/components/home/featured-books'
 import { LaunchpadCTA } from '@/components/home/launchpad-cta'
-import { NFTListings } from '@/components/home/nft-listings'
 import { ShowTop } from '@/components/home/show-top'
 
-interface HomePageData {
-  featuredCollections: any[]
-  categories: string[]
-  nftListings: any[]
-  topShows: number[]
+type HomeContentProps = {
+  showTop: number
 }
 
-export function HomeContent() {
-  const { data } = useQuery({
-    queryKey: ['homePageData'],
+export function HomeContent({ showTop }: HomeContentProps) {
+  const { data: listedBooks } = useGetBooksQuery({
+    isOnSale: true,
+    limit: showTop,
+    sortBy: 'floorPrice',
   })
-
-  const { featuredCollections, categories, nftListings, topShows } =
-    data as HomePageData
+  const { data: featuredBooks } = useGetBooksQuery({
+    isFeatured: true,
+    sortBy: 'featured',
+    limit: 100,
+  })
 
   return (
     <div className="min-h-screen font-sans">
       <div className="py-4 sm:py-6 md:py-8 px-4 sm:px-0">
-        <FeaturedCollections collections={featuredCollections} />
-        <CategoryFilter categories={categories} />
-        <NFTListings listings={nftListings} />
+        <FeaturedBooks books={featuredBooks || []} />
+        {/* <CategoryFilter categories={categories} /> */}
+        <BooksListings books={listedBooks || []} />
         <div className="mb-4 sm:mb-6 md:mb-8 max-w-full overflow-x-auto">
-          <ShowTop options={topShows} />
+          <ShowTop current={showTop} />
         </div>
         <LaunchpadCTA createEbookLink="/create-ebook" />
       </div>

@@ -7,8 +7,6 @@ export const useNumberInput = (initialValue: number | undefined) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let newStringValue = e.target.value
 
-    console.log('newStringValue', e.target.value)
-
     if (!newStringValue) {
       setInputValue('0')
       setValue(0)
@@ -18,8 +16,6 @@ export const useNumberInput = (initialValue: number | undefined) => {
     const newValue = Number.parseFloat(newStringValue)
 
     if (isNaN(newValue)) {
-      console.log()
-
       if (newStringValue.endsWith('.')) {
         newStringValue = newStringValue.replace('.', ',')
         setInputValue(newStringValue)

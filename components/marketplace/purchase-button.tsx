@@ -1,21 +1,93 @@
 'use client'
 
+import { sol } from '@metaplex-foundation/js'
+import { PublicKey } from '@solana/web3.js'
 import { CheckCircle, Loader2, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
+import { useGetBookSalesQuery } from '@/api/book/get-book-sales'
+import { useCompleteSaleMutation } from '@/api/sale/complete-sale'
+import { SaleStatus } from '@/api/sale/types'
 import { Button } from '@/components/ui/button'
+import { AUCTION_HOUSE_ADDRESS } from '@/constants/env'
+import { useMetaplex } from '@/hooks/use-metaplex'
+import { useUserData } from '@/hooks/use-user-data'
 
-export function PurchaseButton() {
+interface PurchaseButtonProps {
+  bookId: string
+}
+
+export function PurchaseButton({ bookId }: PurchaseButtonProps) {
+  const { data: sales, isLoading: isLoadingSales } = useGetBookSalesQuery({
+    bookId,
+    status: SaleStatus.Active,
+    sortBy: 'price',
+    limit: 100,
+    offset: 0,
+  })
+
   const [purchaseState, setPurchaseState] = useState<
     'idle' | 'processing' | 'success'
   >('idle')
+  const { metaplex } = useMetaplex()
+  const { mutateAsync: completeSale } = useCompleteSaleMutation()
+  const { user } = useUserData()
 
-  const handlePurchase = async () => {
-    setPurchaseState('processing')
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setPurchaseState('success')
+  const sale = user
+    ? sales?.find((sale) => sale.seller?.id !== user?.id)
+    : undefined
+
+  const handlePurchase = useCallback(async () => {
+    try {
+      if (!sale || !metaplex || !AUCTION_HOUSE_ADDRESS) {
+        throw new Error('No active sales')
+      }
+
+      const auctionHouse = await metaplex.auctionHouse().findByAddress({
+        address: new PublicKey(AUCTION_HOUSE_ADDRESS),
+      })
+
+      if (!auctionHouse) {
+        return
+      }
+
+      const listing = await metaplex.auctionHouse().findListingByReceipt({
+        auctionHouse,
+        receiptAddress: new PublicKey(sale.listingReceipt || ''),
+      })
+
+      if (!listing) {
+        return
+      }
+
+      await metaplex.auctionHouse().buy({
+        auctionHouse,
+        listing,
+        buyer: metaplex.identity(),
+        price: sol(sale.price),
+      })
+
+      await completeSale({
+        saleId: sale.id,
+      })
+
+      setPurchaseState('success')
+    } catch (error) {
+      console.error(error)
+    }
+  }, [completeSale, metaplex, sale])
+
+  if (isLoadingSales) {
+    return (
+      <Button
+        disabled
+        className="w-full md:w-auto bg-power-pump-button text-white flex items-center justify-center rounded-lg"
+      >
+        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+        Loading...
+      </Button>
+    )
   }
 
   if (purchaseState === 'processing') {
@@ -50,13 +122,16 @@ export function PurchaseButton() {
     )
   }
 
+  const isDisabled = !sale
+
   return (
     <Button
       onClick={handlePurchase}
+      disabled={isDisabled}
       className="w-full md:w-auto bg-power-pump-button text-white hover:bg-power-pump-button/90 flex items-center justify-center rounded-lg"
     >
       <ShoppingCart className="mr-2 h-5 w-5" />
-      Buy eBook
+      {isDisabled ? 'No active sales' : 'Buy eBook'}
     </Button>
   )
 }
