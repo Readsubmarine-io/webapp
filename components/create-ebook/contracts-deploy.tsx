@@ -95,7 +95,11 @@ export function ContractsDeploy({
       })
 
       try {
-        const signature = await transaction.sendAndConfirm(umi)
+        const signature = await transaction.sendAndConfirm(umi, {
+          confirm: {
+            commitment: 'confirmed',
+          },
+        })
         console.log(
           'Collection NFT transaction signature:',
           signature.signature,
