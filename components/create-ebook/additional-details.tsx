@@ -3,23 +3,14 @@
 import { useState } from 'react'
 
 import { CreateBookCallParams } from '@/api/book/create-book'
+import { useGetSettingsQuery } from '@/api/setting/get-settings'
+import { SettingKey } from '@/api/setting/types'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-
-const genres = [
-  'Non-fiction',
-  'Fiction',
-  'Science Fiction',
-  'Fantasy',
-  'Crime',
-  'Romance',
-  'Mystery',
-  'Other',
-]
 
 interface AdditionalDetailsProps {
   formData: Partial<CreateBookCallParams>
@@ -39,6 +30,8 @@ export function AdditionalDetails({
     genres: '',
     pages: '',
   })
+
+  const { data: settings } = useGetSettingsQuery()
 
   const validate = () => {
     let isValid = true
@@ -92,6 +85,11 @@ export function AdditionalDetails({
       ? formData.genres?.filter((g) => g !== genre)
       : [...(formData.genres ?? []), genre]
     updateFormData({ genres: updatedGenres })
+  }
+
+  const genres = settings?.[SettingKey.Genres] ?? []
+  if (!genres) {
+    return <div>Loading...</div>
   }
 
   return (
