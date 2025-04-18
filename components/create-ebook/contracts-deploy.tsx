@@ -9,6 +9,7 @@ import {
   generateSigner,
   percentAmount,
   PublicKey,
+  publicKey,
   some,
 } from '@metaplex-foundation/umi'
 import { none } from '@solana/kit'
@@ -17,9 +18,12 @@ import type React from 'react'
 import { useCallback, useState } from 'react'
 
 import { CreateBookCallParams } from '@/api/book/create-book'
+import { useGetSettingsQuery } from '@/api/setting/get-settings'
+import { SettingKey } from '@/api/setting/types'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { PLATFORM_FEE_ADDRESS } from '@/constants/env'
 import { useUmi } from '@/hooks/use-umi'
 import { useUserData } from '@/hooks/use-user-data'
 import { buildGuards } from '@/lib/build-guards'
@@ -59,13 +63,12 @@ export function ContractsDeploy({
 
   // Get the user's wallet
   const { isAuthenticated } = useUserData()
-
-  console.log('isAuthenticated', isAuthenticated)
-
   // Get UMI with the wallet as signer
   const umi = useUmi()
-
   const substeps = ['Create NFT Collection', 'Create Candy Machine']
+
+  const { data: settings } = useGetSettingsQuery()
+  const mintFee = settings?.[SettingKey.PlatformFee]
 
   const handleCreateNFTContract = useCallback(async () => {
     // Ensure wallet is connected
@@ -81,7 +84,6 @@ export function ContractsDeploy({
 
       // Create a new signer for the collection NFT
       const collectionSigner = generateSigner(umi)
-
       // Get metadata URL from formData
       const metadataUrl = formData.metadata?.metadata?.srcUrl || ''
 
@@ -151,6 +153,11 @@ export function ContractsDeploy({
       return
     }
 
+    if (!mintFee) {
+      console.error('Mint fee not found')
+      return
+    }
+
     setIsDeploying(true)
     try {
       console.log('Creating candy machine contract...')
@@ -180,7 +187,12 @@ export function ContractsDeploy({
           {
             address: umi.identity.publicKey,
             verified: true,
-            percentageShare: 100,
+            percentageShare: 100 - mintFee,
+          },
+          {
+            address: publicKey(PLATFORM_FEE_ADDRESS),
+            verified: true,
+            percentageShare: mintFee,
           },
         ],
         configLineSettings: none(),
@@ -214,13 +226,29 @@ export function ContractsDeploy({
     } finally {
       setIsDeploying(false)
     }
-  }, [collectionAddress, formData, updateFormData, umi, isAuthenticated])
+  }, [
+    isAuthenticated,
+    collectionAddress,
+    formData.metadata?.metadata?.srcUrl,
+    formData.totalCopies,
+    formData.title,
+    formData.mintPrice,
+    formData.mintStartDate,
+    formData.mintEndDate,
+    mintFee,
+    umi,
+    updateFormData,
+  ])
 
   const handleComplete = useCallback(() => {
     if (isComplete) {
       onComplete()
     }
   }, [isComplete, onComplete])
+
+  if (!mintFee) {
+    return <div>Loading...</div>
+  }
 
   const renderSubstep = () => {
     if (isComplete) {
