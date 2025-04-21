@@ -8,13 +8,18 @@ import http from '@/lib/http'
 export type UpdateSaleCallParams = {
   saleId: string
   price: number
+  listingReceipt: string
 }
 
 const updateSaleCall = async ({
   saleId,
   price,
+  listingReceipt,
 }: UpdateSaleCallParams): Promise<Sale> => {
-  const response = await http.put<Sale>(`/v1/sale/${saleId}`, { price })
+  const response = await http.put<Sale>(`/v1/sale/${saleId}`, {
+    price,
+    listingReceipt,
+  })
 
   if (response.status !== 200) {
     throw new Error('Failed to update sale.')

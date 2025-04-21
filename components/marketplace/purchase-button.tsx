@@ -15,6 +15,8 @@ import { useMetaplex } from '@/hooks/use-metaplex'
 import { useUserData } from '@/hooks/use-user-data'
 import { assertError } from '@/lib/assert-error'
 
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
+
 interface PurchaseButtonProps {
   bookId: string
 }
@@ -44,6 +46,8 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
       if (!sale || !metaplex || !AUCTION_HOUSE_ADDRESS) {
         throw new Error('No active sales')
       }
+
+      setPurchaseState('processing')
 
       const auctionHouse = await metaplex.auctionHouse().findByAddress({
         address: new PublicKey(AUCTION_HOUSE_ADDRESS),
@@ -76,8 +80,25 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
       setPurchaseState('success')
     } catch (error) {
       assertError(error, 'Failed to purchase eBook.')
+    } finally {
+      setPurchaseState('idle')
     }
   }, [completeSale, metaplex, sale])
+
+  const isDisabled = !sale
+  const userSales = sales?.find((sale) => sale.seller?.id === user?.id)
+
+  const getTooltipText = useCallback(() => {
+    if (isDisabled && userSales) {
+      return 'Only your copies are available for purchase.'
+    }
+
+    if (isDisabled && !userSales) {
+      return 'No active sales currently available.'
+    }
+
+    return 'Click to purchase eBook.'
+  }, [isDisabled, userSales])
 
   if (isLoadingSales) {
     return (
@@ -123,16 +144,27 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
     )
   }
 
-  const isDisabled = !sale
-
   return (
-    <Button
-      onClick={handlePurchase}
-      disabled={isDisabled}
-      className="w-full md:w-auto bg-power-pump-button text-white hover:bg-power-pump-button/90 flex items-center justify-center rounded-lg"
-    >
-      <ShoppingCart className="mr-2 h-5 w-5" />
-      {isDisabled ? 'No active sales' : 'Buy eBook'}
-    </Button>
+    <>
+      <Tooltip>
+        <TooltipTrigger>
+          <Button
+            onClick={handlePurchase}
+            disabled={isDisabled}
+            className="w-full md:w-auto bg-power-pump-button text-white hover:bg-power-pump-button/90 flex items-center justify-center rounded-lg"
+          >
+            <ShoppingCart className="mr-2 h-5 w-5" />
+            {isDisabled
+              ? userSales
+                ? 'No suitable sales'
+                : 'No active sales'
+              : `Buy eBook for ${sale?.price} SOL`}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{getTooltipText()}</p>
+        </TooltipContent>
+      </Tooltip>
+    </>
   )
 }
