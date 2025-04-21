@@ -3,6 +3,7 @@ import { useMutation } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
 
 import { useGetWalletQuery } from '@/api/auth/get-wallet'
+import { assertError } from '@/lib/assert-error'
 import http from '@/lib/http'
 
 type SignInStartCallParams = {
@@ -78,6 +79,9 @@ export const useSignInMutation = () => {
       Cookies.set('authToken', authToken)
 
       return authToken
+    },
+    onError: (error) => {
+      assertError(error, 'Failed to sign in.')
     },
   })
 }

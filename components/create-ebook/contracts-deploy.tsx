@@ -9,6 +9,7 @@ import {
   generateSigner,
   percentAmount,
   PublicKey,
+  publicKey,
   some,
 } from '@metaplex-foundation/umi'
 import { none } from '@solana/kit'
@@ -17,11 +18,15 @@ import type React from 'react'
 import { useCallback, useState } from 'react'
 
 import { CreateBookCallParams } from '@/api/book/create-book'
+import { useGetSettingsQuery } from '@/api/setting/get-settings'
+import { SettingKey } from '@/api/setting/types'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { PLATFORM_FEE_ADDRESS } from '@/constants/env'
 import { useUmi } from '@/hooks/use-umi'
 import { useUserData } from '@/hooks/use-user-data'
+import { assertError } from '@/lib/assert-error'
 import { buildGuards } from '@/lib/build-guards'
 
 const createNftsHash = async (amount: number, uri: string, title: string) => {
@@ -59,18 +64,17 @@ export function ContractsDeploy({
 
   // Get the user's wallet
   const { isAuthenticated } = useUserData()
-
-  console.log('isAuthenticated', isAuthenticated)
-
   // Get UMI with the wallet as signer
   const umi = useUmi()
-
   const substeps = ['Create NFT Collection', 'Create Candy Machine']
+
+  const { data: settings } = useGetSettingsQuery()
+  const mintFee = settings?.[SettingKey.PlatformFee]
 
   const handleCreateNFTContract = useCallback(async () => {
     // Ensure wallet is connected
     if (!isAuthenticated) {
-      console.error('Wallet not connected')
+      assertError(new Error('Wallet not connected'), 'Wallet not connected.')
       return
     }
 
@@ -81,7 +85,6 @@ export function ContractsDeploy({
 
       // Create a new signer for the collection NFT
       const collectionSigner = generateSigner(umi)
-
       // Get metadata URL from formData
       const metadataUrl = formData.metadata?.metadata?.srcUrl || ''
 
@@ -97,16 +100,17 @@ export function ContractsDeploy({
       try {
         const signature = await transaction.sendAndConfirm(umi, {
           confirm: {
-            commitment: 'confirmed',
+            commitment: 'finalized',
           },
         })
+
         console.log(
           'Collection NFT transaction signature:',
           signature.signature,
         )
       } catch (err) {
-        console.error('Error sending collection transaction:', err)
-        throw err
+        assertError(err, 'Failed to send collection transaction.')
+        return
       }
 
       // Store the collection address
@@ -117,15 +121,10 @@ export function ContractsDeploy({
         collectionAddress: collectionSigner.publicKey,
       })
 
-      console.log(
-        'Collection NFT created with address:',
-        collectionSigner.publicKey,
-      )
-
       // Move to next substep after completion
       setCurrentSubstep(1)
     } catch (error) {
-      console.error('Error creating NFT contract:', error)
+      assertError(error, 'Failed to create NFT contract.')
       setIsInProgress(false)
     } finally {
       setIsDeploying(false)
@@ -135,19 +134,27 @@ export function ContractsDeploy({
   const handleCreateCandyMachine = useCallback(async () => {
     // Ensure wallet is connected
     if (!isAuthenticated) {
-      console.error('Wallet not connected')
+      assertError(new Error('Wallet not connected'), 'Wallet not connected.')
       return
     }
 
     if (!collectionAddress) {
-      console.error('Collection mint not created yet')
+      assertError(
+        new Error('Collection mint not created yet'),
+        'Collection mint not created yet.',
+      )
       return
     }
 
     const metadataUri = formData.metadata?.metadata?.srcUrl
 
     if (!metadataUri) {
-      console.error('Metadata URI not found')
+      assertError(new Error('Incorrect form data'), 'Incorrect form data. ')
+      return
+    }
+
+    if (!mintFee) {
+      assertError(new Error('Incorrect form data'), 'Incorrect form data. ')
       return
     }
 
@@ -180,7 +187,12 @@ export function ContractsDeploy({
           {
             address: umi.identity.publicKey,
             verified: true,
-            percentageShare: 100,
+            percentageShare: 100 - mintFee,
+          },
+          {
+            address: publicKey(PLATFORM_FEE_ADDRESS),
+            verified: true,
+            percentageShare: mintFee,
           },
         ],
         configLineSettings: none(),
@@ -196,8 +208,8 @@ export function ContractsDeploy({
         const signature = await transaction.sendAndConfirm(umi)
         console.log('Candy Machine transaction signature:', signature.signature)
       } catch (err) {
-        console.error('Error sending candy machine transaction:', err)
-        throw err
+        assertError(err, 'Failed to send candy machine transaction.')
+        return
       }
 
       // Update the form data with the mint address
@@ -210,17 +222,33 @@ export function ContractsDeploy({
       // Set the form data as complete
       setIsComplete(true)
     } catch (error) {
-      console.error('Error creating candy machine contract:', error)
+      assertError(error, 'Failed to create candy machine contract.')
     } finally {
       setIsDeploying(false)
     }
-  }, [collectionAddress, formData, updateFormData, umi, isAuthenticated])
+  }, [
+    isAuthenticated,
+    collectionAddress,
+    formData.metadata?.metadata?.srcUrl,
+    formData.totalCopies,
+    formData.title,
+    formData.mintPrice,
+    formData.mintStartDate,
+    formData.mintEndDate,
+    mintFee,
+    umi,
+    updateFormData,
+  ])
 
   const handleComplete = useCallback(() => {
     if (isComplete) {
       onComplete()
     }
   }, [isComplete, onComplete])
+
+  if (!mintFee) {
+    return <div>Loading...</div>
+  }
 
   const renderSubstep = () => {
     if (isComplete) {

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { UserCounters } from '@/api/user/types'
+import { assertError } from '@/lib/assert-error'
 import http from '@/lib/http'
 
 export const getUserCountersByUserIdCall = async (userId: string) => {
@@ -9,8 +10,6 @@ export const getUserCountersByUserIdCall = async (userId: string) => {
   if (response.status !== 200) {
     throw new Error('Failed to get user counters.')
   }
-
-  console.log('response.data', response.data)
 
   return response.data
 }
@@ -21,5 +20,9 @@ export const useGetUserCountersByUserIdQuery = (userId: string) => {
   return useQuery<UserCounters>({
     queryKey: [GET_USER_COUNTERS_BY_USER_ID_QUERY_KEY, userId],
     queryFn: () => getUserCountersByUserIdCall(userId),
+    throwOnError: (error) => {
+      assertError(error, 'Failed to get user counters.')
+      return true
+    },
   })
 }

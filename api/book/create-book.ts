@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 
 import { Book } from '@/api/book/types'
 import { FileInfo } from '@/api/file/types'
+import { assertError } from '@/lib/assert-error'
 import http from '@/lib/http'
 
 export type CreateBookCallParams = {
@@ -36,5 +37,8 @@ const createBookCall = async (book: CreateBookCallParams) => {
 export const useCreateBookMutation = () => {
   return useMutation<Book, Error, CreateBookCallParams>({
     mutationFn: createBookCall,
+    onError: (error) => {
+      assertError(error, 'Failed to create book.')
+    },
   })
 }

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { Book } from '@/api/book/types'
+import { assertError } from '@/lib/assert-error'
 import http, { getServerHttp } from '@/lib/http'
 import { ListResultBase } from '@/types/list-result-base'
 import { ListQueryBaseParams } from '@/types/llist-query-base'
@@ -53,5 +54,9 @@ export const useGetBooksQuery = (params: GetBooksCallParams) => {
   return useQuery<Book[], Error>({
     queryKey: [GET_BOOKS_QUERY_KEY, params],
     queryFn: () => getBooksCall(params),
+    throwOnError: (error) => {
+      assertError(error, 'Failed to get books.')
+      return true
+    },
   })
 }

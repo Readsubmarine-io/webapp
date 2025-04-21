@@ -4,6 +4,7 @@ import {
   Eye,
   EyeOff,
   MoreVertical,
+  Plus,
   Shield,
   ShieldOff,
 } from 'lucide-react'
@@ -21,6 +22,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Progress } from '@/components/ui/progress'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { useUserData } from '@/hooks/use-user-data'
 
 export type CreatedBooksProps = {
@@ -84,27 +90,42 @@ export function CreatedBooks({ userId }: CreatedBooksProps) {
                 <h3 className="font-semibold text-base sm:text-lg text-power-pump-heading mr-2 mb-1">
                   {book.title}
                 </h3>
-                {book.isApproved ? (
-                  <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-full flex items-center whitespace-nowrap">
-                    <Check className="w-3 h-3 mr-1" />
-                    Verified
-                  </span>
-                ) : (
-                  <span className="bg-power-pump-button/10 text-power-pump-button text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap">
-                    In Review
-                  </span>
-                )}
-                {book.isShown ? (
-                  <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full flex items-center whitespace-nowrap ml-1">
-                    <Eye className="w-3 h-3 mr-1" />
-                    Visible
-                  </span>
-                ) : (
-                  <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-0.5 rounded-full flex items-center whitespace-nowrap ml-1">
-                    <EyeOff className="w-3 h-3 mr-1" />
-                    Hidden
-                  </span>
-                )}
+
+                <Tooltip>
+                  <TooltipTrigger>
+                    {book.isApproved ? (
+                      <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-full flex items-center whitespace-nowrap">
+                        <Check className="w-3 h-3 mr-1" />
+                        Verified
+                      </span>
+                    ) : (
+                      <span className="bg-power-pump-button/10 text-power-pump-button text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap">
+                        In Review
+                      </span>
+                    )}
+                  </TooltipTrigger>
+                  <TooltipContent>Is book approved by the admin</TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger>
+                    {book.isShown ? (
+                      <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full flex items-center whitespace-nowrap ml-1">
+                        <Eye className="w-3 h-3 mr-1" />
+                        Visible
+                      </span>
+                    ) : (
+                      <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-0.5 rounded-full flex items-center whitespace-nowrap ml-1">
+                        <EyeOff className="w-3 h-3 mr-1" />
+                        Hidden
+                      </span>
+                    )}
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    Is book visible in the launchpad and marketpalce
+                  </TooltipContent>
+                </Tooltip>
+
                 {(isCreator || isAdmin) && (
                   <DropdownMenu>
                     <DropdownMenuTrigger className="ml-auto">

@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 
 import { FileAssignment, FileInfo } from '@/api/file/types'
+import { assertError } from '@/lib/assert-error'
 import http from '@/lib/http'
 
 export type CrateFileParams = {
@@ -29,5 +30,8 @@ export const createFileCall = async ({
 export const useCreateFileMutation = () => {
   return useMutation<FileInfo, Error, CrateFileParams>({
     mutationFn: createFileCall,
+    onError: (error) => {
+      assertError(error, 'Failed to create file.')
+    },
   })
 }

@@ -2,7 +2,7 @@
 
 import { sol } from '@metaplex-foundation/js'
 import { PublicKey } from '@solana/web3.js'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 import { BookEdition } from '@/api/book-edition/types'
 import { useCancelSaleMutation } from '@/api/sale/cancel-sale'
@@ -16,10 +16,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
 import { AUCTION_HOUSE_ADDRESS } from '@/constants/env'
 import { useMetaplex } from '@/hooks/use-metaplex'
-import { useNumberInput } from '@/hooks/use-number-input'
+import { assertError } from '@/lib/assert-error'
+
+import { NumberInput } from '../ui/number-input'
 
 interface SetSalePriceDialogProps {
   bookEdition: BookEdition
@@ -37,15 +38,15 @@ export function SetSalePriceDialog({
   isOpen,
   onOpenChange,
 }: SetSalePriceDialogProps) {
-  const {
-    value: userListPrice,
-    inputValue,
-    handleChange,
-  } = useNumberInput(bookEdition.sale?.price)
-
   const { metaplex } = useMetaplex()
   const { mutateAsync: createSale } = useCreateSaleMutation()
   const { mutateAsync: updateSale } = useUpdateSaleMutation()
+
+  const [userListPrice, setUserListPrice] = useState(
+    bookEdition.sale?.price ?? 0,
+  )
+
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleConfirmSale = useCallback(async () => {
     try {
@@ -57,6 +58,8 @@ export function SetSalePriceDialog({
       ) {
         return
       }
+
+      setIsLoading(true)
 
       const auctionHouse = await metaplex.auctionHouse().findByAddress({
         address: new PublicKey(AUCTION_HOUSE_ADDRESS),
@@ -83,6 +86,7 @@ export function SetSalePriceDialog({
         await updateSale({
           saleId: bookEdition.sale.id,
           price: userListPrice,
+          listingReceipt: listing.listing.receiptAddress?.toString() || '',
         })
       } else {
         await createSale({
@@ -94,7 +98,9 @@ export function SetSalePriceDialog({
 
       onOpenChange(false)
     } catch (error) {
-      console.error('Error creating sale:', error)
+      assertError(error, 'Failed to set sale price.')
+    } finally {
+      setIsLoading(false)
     }
   }, [
     bookEdition.address,
@@ -118,6 +124,8 @@ export function SetSalePriceDialog({
       ) {
         return
       }
+
+      setIsLoading(true)
 
       const auctionHouse = await metaplex.auctionHouse().findByAddress({
         address: new PublicKey(AUCTION_HOUSE_ADDRESS),
@@ -152,7 +160,9 @@ export function SetSalePriceDialog({
 
       onOpenChange(false)
     } catch (error) {
-      console.error('Error canceling sale:', error)
+      assertError(error, 'Failed to cancel sale.')
+    } finally {
+      setIsLoading(false)
     }
   }, [
     metaplex,
@@ -169,11 +179,12 @@ export function SetSalePriceDialog({
           <DialogTitle>Set Sale Price</DialogTitle>
         </DialogHeader>
         <div className="py-4 space-y-4">
-          <Input
-            type="number"
-            value={inputValue}
-            onChange={handleChange}
+          <NumberInput
+            initialValue={bookEdition.sale?.price ?? 0}
+            onChange={(value) => setUserListPrice(value)}
+            allowDecimal={true}
             placeholder="Enter sale price in SOL"
+            disabled={isLoading}
           />
           <div className="text-sm text-power-pump-text space-y-1">
             <p>
@@ -193,17 +204,19 @@ export function SetSalePriceDialog({
         <DialogFooter>
           <Button
             onClick={handleConfirmSale}
+            disabled={isLoading}
             className="bg-power-pump-button text-white hover:bg-power-pump-button/90 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-sm sm:text-base font-medium transition-colors duration-200"
           >
-            Confirm
+            {bookEdition.sale ? 'Update Price' : 'Confirm'}
           </Button>
 
           {bookEdition.sale && (
             <Button
               onClick={handleCancelSale}
+              disabled={isLoading}
               className="bg-red-500 text-white hover:bg-red-500/90 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-sm sm:text-base font-medium transition-colors duration-200"
             >
-              Cancel Sale
+              Cances Sale
             </Button>
           )}
         </DialogFooter>

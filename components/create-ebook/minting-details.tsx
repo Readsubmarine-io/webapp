@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
+import { NumberInput } from '../ui/number-input'
+
 interface MintingDetailsProps {
   formData: Partial<CreateBookCallParams>
   updateFormData: (data: Partial<CreateBookCallParams>) => void
@@ -73,6 +75,12 @@ export function MintingDetails({
       isValid = false
     }
 
+    // if mint end date is today or in the past, show error
+    if (formData.mintEndDate && formData.mintEndDate < new Date()) {
+      newErrors.mintEndDate = 'Mint End Date must be in the future'
+      isValid = false
+    }
+
     setErrors(newErrors)
     return isValid
   }
@@ -88,20 +96,12 @@ export function MintingDetails({
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
         <Label htmlFor="mintPrice">Mint Price (SOL)</Label>
-        <Input
+        <NumberInput
           id="mintPrice"
-          type="number"
-          inputMode="decimal"
-          step="0.01"
-          value={formData.mintPrice}
-          onChange={(e) => {
-            if (isNaN(Number(e.target.value))) {
-              return
-            }
-
-            updateFormData({ mintPrice: parseFloat(e.target.value) })
-          }}
-          placeholder="Enter the mint price in SOL"
+          initialValue={formData.mintPrice ?? 0}
+          onChange={(value) => updateFormData({ mintPrice: value })}
+          allowDecimal={true}
+          maxDecimals={5}
         />
         {errors.mintPrice && (
           <p className="text-red-500 text-sm mt-1">{errors.mintPrice}</p>
@@ -113,14 +113,11 @@ export function MintingDetails({
       </div>
       <div>
         <Label htmlFor="totalCopies">Total Copies for Sale</Label>
-        <Input
+        <NumberInput
           id="totalCopies"
-          type="number"
-          value={formData.totalCopies}
-          onChange={(e) =>
-            updateFormData({ totalCopies: Number(e.target.value) })
-          }
-          placeholder="Enter the total number of copies"
+          initialValue={formData.totalCopies ?? 0}
+          onChange={(value) => updateFormData({ totalCopies: value })}
+          allowDecimal={false}
         />
         {errors.totalCopies && (
           <p className="text-red-500 text-sm mt-1">{errors.totalCopies}</p>

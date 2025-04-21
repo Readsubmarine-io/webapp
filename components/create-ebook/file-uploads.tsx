@@ -7,11 +7,12 @@ import { useCallback, useState } from 'react'
 import { CreateBookCallParams } from '@/api/book/create-book'
 import { useCreateFileMutation } from '@/api/file/create-file'
 import { FileAssignment } from '@/api/file/types'
+import { useGetSettingsQuery } from '@/api/setting/get-settings'
+import { SettingKey } from '@/api/setting/types'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-
 interface FileUploadsProps {
   formData: Partial<CreateBookCallParams>
   updateFormData: (data: Partial<CreateBookCallParams>) => void
@@ -34,6 +35,7 @@ export function FileUploads({
   })
   const [acceptTerms, setAcceptTerms] = useState(false)
   const { mutateAsync: createFile } = useCreateFileMutation()
+  const { data: settings } = useGetSettingsQuery()
 
   const validate = () => {
     let isValid = true
@@ -150,6 +152,12 @@ export function FileUploads({
     [createFile, updateFormData],
   )
 
+  const mintFee = settings?.[SettingKey.PlatformFee]
+
+  if (!mintFee) {
+    return <div>Loading...</div>
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {isSubmissionSuccessful && (
@@ -214,7 +222,7 @@ export function FileUploads({
           htmlFor="acceptTerms"
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
-          I accept the platform's terms and confirm a 20% mint fee
+          I accept the platform's terms and confirm a {mintFee}% mint fee
         </label>
       </div>
       {errors.acceptTerms && (
@@ -231,6 +239,7 @@ export function FileUploads({
         </Button>
         <Button
           type="submit"
+          disabled={!acceptTerms}
           className="w-[48%] bg-power-pump-button text-white hover:bg-power-pump-button/90"
         >
           Deploy Contracts

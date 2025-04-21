@@ -20,6 +20,7 @@ import { useGetBookEditionsQuery } from '@/api/book-edition/get-book-editions'
 import { Button } from '@/components/ui/button'
 import { useUmi } from '@/hooks/use-umi'
 import { useUserData } from '@/hooks/use-user-data'
+import { assertError } from '@/lib/assert-error'
 import { buildGuards } from '@/lib/build-guards'
 
 interface MintingSectionProps {
@@ -79,7 +80,10 @@ export function MintingSection({ book }: MintingSectionProps) {
 
   const handleMint = useCallback(async () => {
     if (!umi) {
-      console.error('Wallet connection required')
+      assertError(
+        new Error('Wallet connection required'),
+        'Wallet connection required.',
+      )
       return
     }
 
@@ -88,11 +92,11 @@ export function MintingSection({ book }: MintingSectionProps) {
       !book.collectionAddress ||
       !book.creator?.wallet?.address
     ) {
-      console.error(
-        'Missing required mint address, collection address, or creator address',
-        book.mint?.mintAddress,
-        book.collectionAddress,
-        book.creator?.wallet?.address,
+      assertError(
+        new Error(
+          'Missing required mint address, collection address, or creator address',
+        ),
+        'Unknown error.',
       )
       return
     }
@@ -130,13 +134,10 @@ export function MintingSection({ book }: MintingSectionProps) {
 
       const signature = await transaction.sendAndConfirm(umi)
 
-      setIsMinting(true)
-
       console.log(`Successfully minted!`, signature)
+      setIsMinting(true)
     } catch (error: unknown) {
-      console.error(
-        `Failed to mint: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      )
+      assertError(error, 'Failed to mint.')
     } finally {
       setIsLoading(false)
     }

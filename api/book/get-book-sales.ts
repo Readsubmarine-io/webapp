@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { Sale, SaleStatus } from '@/api/sale/types'
+import { assertError } from '@/lib/assert-error'
 import http from '@/lib/http'
 import { ListResultBase } from '@/types/list-result-base'
 import { ListQueryBaseParams } from '@/types/llist-query-base'
@@ -47,5 +48,9 @@ export const useGetBookSalesQuery = (params: GetBookSalesParams) => {
   return useQuery<Sale[], Error>({
     queryKey: [GET_BOOK_SALES_QUERY_KEY, params],
     queryFn: () => getBookSalesCall(params),
+    throwOnError: (error) => {
+      assertError(error, 'Failed to get book sales.')
+      return true
+    },
   })
 }

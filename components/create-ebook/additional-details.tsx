@@ -3,23 +3,14 @@
 import { useState } from 'react'
 
 import { CreateBookCallParams } from '@/api/book/create-book'
+import { useGetSettingsQuery } from '@/api/setting/get-settings'
+import { SettingKey } from '@/api/setting/types'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { NumberInput } from '@/components/ui/number-input'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
-
-const genres = [
-  'Non-fiction',
-  'Fiction',
-  'Science Fiction',
-  'Fantasy',
-  'Crime',
-  'Romance',
-  'Mystery',
-  'Other',
-]
 
 interface AdditionalDetailsProps {
   formData: Partial<CreateBookCallParams>
@@ -39,6 +30,8 @@ export function AdditionalDetails({
     genres: '',
     pages: '',
   })
+
+  const { data: settings } = useGetSettingsQuery()
 
   const validate = () => {
     let isValid = true
@@ -94,6 +87,11 @@ export function AdditionalDetails({
     updateFormData({ genres: updatedGenres })
   }
 
+  const genres = settings?.[SettingKey.Genres] ?? []
+  if (!genres) {
+    return <div>Loading...</div>
+  }
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
@@ -142,18 +140,13 @@ export function AdditionalDetails({
       </div>
       <div>
         <Label htmlFor="pages">Number of Pages</Label>
-        <Input
+        <NumberInput
           id="pages"
-          type="number"
-          value={formData.pages}
-          onChange={(e) => {
-            if (!e.target.value) {
-              return
-            }
-
-            updateFormData({ pages: Number(e.target.value) })
-          }}
+          initialValue={formData.pages ?? 0}
+          onChange={(value) => updateFormData({ pages: value })}
+          allowDecimal={false}
           placeholder="Enter the number of pages"
+          min={1}
         />
         {errors.pages && (
           <p className="text-red-500 text-sm mt-1">{errors.pages}</p>

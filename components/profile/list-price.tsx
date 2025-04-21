@@ -9,9 +9,10 @@ import { SetSalePriceDialog } from './set-sale-price-dialog'
 
 interface ListPriceProps {
   bookEdition: BookEdition
+  isOwner: boolean
 }
 
-export function ListPrice({ bookEdition }: ListPriceProps) {
+export function ListPrice({ bookEdition, isOwner }: ListPriceProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const displayPrice = bookEdition.sale?.price
@@ -24,12 +25,14 @@ export function ListPrice({ bookEdition }: ListPriceProps) {
         List: <span className="font-semibold">{displayPrice}</span>
         {/* <USDPriceDisplay amount={(price || 0) * 20} /> */}
       </span>
-      <button
-        onClick={() => setIsDialogOpen(true)}
-        className="text-power-pump-button hover:text-power-pump-button/80 transition-colors"
-      >
-        <Edit className="w-4 h-4" />
-      </button>
+      {isOwner && (
+        <button
+          onClick={() => setIsDialogOpen(true)}
+          className="text-power-pump-button hover:text-power-pump-button/80 transition-colors"
+        >
+          <Edit className="w-4 h-4" />
+        </button>
+      )}
       <SetSalePriceDialog
         bookEdition={bookEdition}
         isOpen={isDialogOpen}
