@@ -15,6 +15,7 @@ import {
 
 export type BookEditionCardProps = {
   bookEdition: BookEdition
+  isOwner: boolean
   handleViewBook: (bookEdition: BookEdition) => void
   setSelectedBookForSale: (bookEdition: BookEdition) => void
   setIsSetPriceDialogOpen: (isOpen: boolean) => void
@@ -22,6 +23,7 @@ export type BookEditionCardProps = {
 
 export function BookEditionCard({
   bookEdition,
+  isOwner,
   handleViewBook,
   setSelectedBookForSale,
   setIsSetPriceDialogOpen,
@@ -48,37 +50,39 @@ export function BookEditionCard({
           <span className="text-sm text-power-pump-button font-semibold">
             {bookEdition.name}
           </span>
-          <DropdownMenu>
-            <DropdownMenuTrigger className="focus:outline-none relative z-10">
-              <MoreVertical className="h-4 w-4 sm:h-5 sm:w-5 text-power-pump-text hover:text-power-pump-button transition-colors" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-48 sm:w-56 bg-contextMenu text-contextMenu-foreground">
-              <DropdownMenuItem
-                className="cursor-pointer flex items-center"
-                onSelect={() => handleViewBook(bookEdition)}
-              >
-                <Eye className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="text-sm">View</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer flex items-center"
-                onSelect={() => {
-                  setSelectedBookForSale(bookEdition)
-                  setIsSetPriceDialogOpen(true)
-                }}
-              >
-                <DollarSign className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="text-sm">Sale</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer flex items-center"
-                onSelect={() => window.open(pdfUrl, '_blank')}
-              >
-                <Download className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="text-sm">Download</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {isOwner && (
+            <DropdownMenu>
+              <DropdownMenuTrigger className="focus:outline-none relative z-10">
+                <MoreVertical className="h-4 w-4 sm:h-5 sm:w-5 text-power-pump-text hover:text-power-pump-button transition-colors" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-48 sm:w-56 bg-contextMenu text-contextMenu-foreground">
+                <DropdownMenuItem
+                  className="cursor-pointer flex items-center"
+                  onSelect={() => handleViewBook(bookEdition)}
+                >
+                  <Eye className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="text-sm">View</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer flex items-center"
+                  onSelect={() => {
+                    setSelectedBookForSale(bookEdition)
+                    setIsSetPriceDialogOpen(true)
+                  }}
+                >
+                  <DollarSign className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="text-sm">Sale</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer flex items-center"
+                  onSelect={() => window.open(pdfUrl, '_blank')}
+                >
+                  <Download className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="text-sm">Download</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
         <h3 className="font-semibold text-lg mb-1 text-power-pump-heading line-clamp-2">
           {book?.title}
@@ -88,7 +92,7 @@ export function BookEditionCard({
           <span className="text-sm text-power-pump-text">
             Bought: <span className="font-semibold">-</span>
           </span>
-          <ListPrice bookEdition={bookEdition} />
+          <ListPrice bookEdition={bookEdition} isOwner={isOwner} />
           <span className="text-sm text-power-pump-text">
             Floor price:{' '}
             <span className="font-semibold">

@@ -6,6 +6,7 @@ import { useGetBookEditionsQuery } from '@/api/book-edition/get-book-editions'
 import { BookEdition } from '@/api/book-edition/types'
 import { BookDetailsDrawer } from '@/components/profile/book-details-drawer'
 import { SetSalePriceDialog } from '@/components/profile/set-sale-price-dialog'
+import { useUserData } from '@/hooks/use-user-data'
 
 import { BookEditionCard } from './book-edition-card'
 
@@ -29,6 +30,9 @@ export function CollectedBooks({ userAddress, isOnSale }: CollectedBooksProps) {
     setSelectedBook(book)
   }
 
+  const { user } = useUserData()
+  const isOwner = user?.wallet?.address === userAddress
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       {bookEditions?.length
@@ -36,6 +40,7 @@ export function CollectedBooks({ userAddress, isOnSale }: CollectedBooksProps) {
             <BookEditionCard
               key={bookEdition.id}
               bookEdition={bookEdition}
+              isOwner={isOwner}
               handleViewBook={handleViewBook}
               setSelectedBookForSale={setSelectedBookForSale}
               setIsSetPriceDialogOpen={setIsSetPriceDialogOpen}
