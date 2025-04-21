@@ -99,7 +99,7 @@ export function ContractsDeploy({
       try {
         const signature = await transaction.sendAndConfirm(umi, {
           confirm: {
-            commitment: 'confirmed',
+            commitment: 'finalized',
           },
         })
         console.log(

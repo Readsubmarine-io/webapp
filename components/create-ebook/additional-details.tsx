@@ -7,8 +7,8 @@ import { useGetSettingsQuery } from '@/api/setting/get-settings'
 import { SettingKey } from '@/api/setting/types'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { NumberInput } from '@/components/ui/number-input'
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 
@@ -140,18 +140,13 @@ export function AdditionalDetails({
       </div>
       <div>
         <Label htmlFor="pages">Number of Pages</Label>
-        <Input
+        <NumberInput
           id="pages"
-          type="number"
-          value={formData.pages}
-          onChange={(e) => {
-            if (!e.target.value) {
-              return
-            }
-
-            updateFormData({ pages: Number(e.target.value) })
-          }}
+          initialValue={formData.pages ?? 0}
+          onChange={(value) => updateFormData({ pages: value })}
+          allowDecimal={false}
           placeholder="Enter the number of pages"
+          min={1}
         />
         {errors.pages && (
           <p className="text-red-500 text-sm mt-1">{errors.pages}</p>

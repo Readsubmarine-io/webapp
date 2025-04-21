@@ -2,7 +2,7 @@
 
 import { sol } from '@metaplex-foundation/js'
 import { PublicKey } from '@solana/web3.js'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 import { BookEdition } from '@/api/book-edition/types'
 import { useCancelSaleMutation } from '@/api/sale/cancel-sale'
@@ -16,10 +16,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
 import { AUCTION_HOUSE_ADDRESS } from '@/constants/env'
 import { useMetaplex } from '@/hooks/use-metaplex'
-import { useNumberInput } from '@/hooks/use-number-input'
+
+import { NumberInput } from '../ui/number-input'
 
 interface SetSalePriceDialogProps {
   bookEdition: BookEdition
@@ -37,15 +37,13 @@ export function SetSalePriceDialog({
   isOpen,
   onOpenChange,
 }: SetSalePriceDialogProps) {
-  const {
-    value: userListPrice,
-    inputValue,
-    handleChange,
-  } = useNumberInput(bookEdition.sale?.price)
-
   const { metaplex } = useMetaplex()
   const { mutateAsync: createSale } = useCreateSaleMutation()
   const { mutateAsync: updateSale } = useUpdateSaleMutation()
+
+  const [userListPrice, setUserListPrice] = useState(
+    bookEdition.sale?.price ?? 0,
+  )
 
   const handleConfirmSale = useCallback(async () => {
     try {
@@ -104,7 +102,6 @@ export function SetSalePriceDialog({
     metaplex,
     onOpenChange,
     updateSale,
-    userListPrice,
   ])
 
   const { mutateAsync: cancelSale } = useCancelSaleMutation()
@@ -169,10 +166,10 @@ export function SetSalePriceDialog({
           <DialogTitle>Set Sale Price</DialogTitle>
         </DialogHeader>
         <div className="py-4 space-y-4">
-          <Input
-            type="number"
-            value={inputValue}
-            onChange={handleChange}
+          <NumberInput
+            initialValue={bookEdition.sale?.price ?? 0}
+            onChange={(value) => setUserListPrice(value)}
+            allowDecimal={true}
             placeholder="Enter sale price in SOL"
           />
           <div className="text-sm text-power-pump-text space-y-1">
