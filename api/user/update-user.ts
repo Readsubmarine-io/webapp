@@ -10,6 +10,9 @@ type UpdateUserCallParams = {
   displayName?: string
   bio?: string
   website?: string
+  facebook?: string
+  instagram?: string
+  twitter?: string
   email?: string
 }
 

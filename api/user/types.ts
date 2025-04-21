@@ -6,6 +6,9 @@ export type User = {
   displayName: string
   bio?: string
   website?: string
+  facebook?: string
+  instagram?: string
+  twitter?: string
   avatar?: FileInfo
   email?: string
   isAdmin: boolean

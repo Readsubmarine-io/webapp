@@ -108,27 +108,33 @@ export function ProfileContent({ userName }: ProfileContentProps) {
                 </Link>
               )}
               <div className="flex space-x-4 mb-6">
-                <Link
-                  href="#"
-                  target="_blank"
-                  className="text-power-pump-text hover:text-power-pump-button actionable"
-                >
-                  <Facebook className="w-5 h-5" />
-                </Link>
-                <Link
-                  href="#"
-                  target="_blank"
-                  className="text-power-pump-text hover:text-power-pump-button actionable"
-                >
-                  <Instagram className="w-5 h-5" />
-                </Link>
-                <Link
-                  href="#"
-                  target="_blank"
-                  className="text-power-pump-text hover:text-power-pump-button actionable"
-                >
-                  <Twitter className="w-5 h-5" />
-                </Link>
+                {user?.facebook && (
+                  <Link
+                    href={user.facebook}
+                    target="_blank"
+                    className="text-power-pump-text hover:text-power-pump-button actionable"
+                  >
+                    <Facebook className="w-5 h-5" />
+                  </Link>
+                )}
+                {user?.instagram && (
+                  <Link
+                    href={user.instagram}
+                    target="_blank"
+                    className="text-power-pump-text hover:text-power-pump-button actionable"
+                  >
+                    <Instagram className="w-5 h-5" />
+                  </Link>
+                )}
+                {user?.twitter && (
+                  <Link
+                    href={user.twitter}
+                    target="_blank"
+                    className="text-power-pump-text hover:text-power-pump-button actionable"
+                  >
+                    <Twitter className="w-5 h-5" />
+                  </Link>
+                )}
               </div>
             </div>
           </div>

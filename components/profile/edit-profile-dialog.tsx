@@ -1,7 +1,10 @@
 'use client'
 
+import { Facebook, Globe, Instagram, Twitter } from 'lucide-react'
 import { useCallback, useState } from 'react'
 
+import { useCreateFileMutation } from '@/api/file/create-file'
+import { FileAssignment } from '@/api/file/types'
 import { User } from '@/api/user/types'
 import { useUpdateUserMutation } from '@/api/user/update-user'
 import { Button } from '@/components/ui/button'
@@ -27,9 +30,13 @@ export function EditProfileDialog({
   onOpenChange,
 }: EditProfileDialogProps) {
   const [formData, setFormData] = useState({
+    avatar: user.avatar,
     displayName: user.displayName,
     bio: user.bio,
     website: user.website,
+    facebook: user.facebook,
+    instagram: user.instagram,
+    twitter: user.twitter,
   })
 
   const { mutate: updateUser } = useUpdateUserMutation()
@@ -51,14 +58,27 @@ export function EditProfileDialog({
     onOpenChange(false)
   }
 
-  const getFieldName = useCallback((key: string) => {
-    switch (key) {
-      case 'displayName':
-        return 'Display Name'
-      case 'bio':
-        return key.charAt(0).toUpperCase() + key.slice(1)
-    }
-  }, [])
+  const { mutateAsync: uploadFile } = useCreateFileMutation()
+  const handleFileChange = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0]
+
+      if (!file) {
+        return
+      }
+
+      const uploadedFile = await uploadFile({
+        file,
+        assignment: FileAssignment.UserAvatar,
+      })
+
+      setFormData((prevData) => ({
+        ...prevData,
+        avatar: uploadedFile,
+      }))
+    },
+    [uploadFile],
+  )
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -69,33 +89,95 @@ export function EditProfileDialog({
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 mt-4">
-          {Object.entries(formData).map(([key, value]) => (
-            <div key={key} className="space-y-2">
-              <Label
-                htmlFor={key}
-                className="text-power-pump-text text-sm sm:text-base font-medium"
-              >
-                {getFieldName(key)}
-              </Label>
-              {key === 'bio' ? (
-                <Textarea
-                  id={key}
-                  value={value}
-                  onChange={handleChange}
-                  className="w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button resize-none text-sm sm:text-base h-20 sm:h-24"
-                  placeholder="Tell us about yourself"
-                />
-              ) : (
-                <Input
-                  id={key}
-                  value={value}
-                  onChange={handleChange}
-                  className="w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button text-sm sm:text-base h-9 sm:h-10"
-                  placeholder={`Enter your ${key}`}
-                />
-              )}
-            </div>
-          ))}
+          <div>
+            <Label htmlFor="avatar">Upload Avatar</Label>
+            <Input
+              id="avatar"
+              type="file"
+              accept="image/jpeg, image/png"
+              onChange={(e) => handleFileChange(e)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="displayName">Display Name</Label>
+            <Input
+              id="displayName"
+              value={formData.displayName}
+              onChange={handleChange}
+              className="w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button text-sm sm:text-base h-9 sm:h-10"
+              placeholder="Display Name"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="bio">Bio</Label>
+            <Textarea
+              id="bio"
+              value={formData.bio}
+              onChange={handleChange}
+              className="w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button resize-none text-sm sm:text-base h-20 sm:h-24"
+              placeholder="Tell us about yourself"
+            />
+          </div>
+          <div className="space-y-2 flex items-center relative">
+            <Label
+              htmlFor="website"
+              className="absolute left-2 bottom-0 h-9 sm:h-10 flex items-center"
+            >
+              <Globe className="w-4 h-4 mr-2" />
+            </Label>
+            <Input
+              id="website"
+              value={formData.website}
+              onChange={handleChange}
+              className="pl-8 w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button text-sm sm:text-base h-9 sm:h-10"
+              placeholder="Enter your website url"
+            />
+          </div>
+          <div className="space-y-2 flex items-center relative">
+            <Label
+              htmlFor="facebook"
+              className="absolute left-2 bottom-0 h-9 sm:h-10 flex items-center"
+            >
+              <Facebook className="w-4 h-4 mr-2" />
+            </Label>
+            <Input
+              id="facebook"
+              value={formData.facebook}
+              onChange={handleChange}
+              className="pl-8 w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button text-sm sm:text-base h-9 sm:h-10"
+              placeholder="Enter your facebook url"
+            />
+          </div>
+          <div className="space-y-2 flex items-center relative">
+            <Label
+              htmlFor="instagram"
+              className="absolute left-2 bottom-0 h-9 sm:h-10 flex items-center"
+            >
+              <Instagram className="w-4 h-4 mr-2" />
+            </Label>
+            <Input
+              id="instagram"
+              value={formData.instagram}
+              onChange={handleChange}
+              className="pl-8 w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button text-sm sm:text-base h-9 sm:h-10"
+              placeholder="Enter your instagram url"
+            />
+          </div>
+          <div className="space-y-2 flex items-center relative">
+            <Label
+              htmlFor="twitter"
+              className="absolute left-2 bottom-0 h-9 sm:h-10 flex items-center"
+            >
+              <Twitter className="w-4 h-4 mr-2" />
+            </Label>
+            <Input
+              id="twitter"
+              value={formData.twitter}
+              onChange={handleChange}
+              className="pl-8 w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button text-sm sm:text-base h-9 sm:h-10"
+              placeholder="Enter your twitter url"
+            />
+          </div>
           <div className="flex justify-end pt-4">
             <Button
               type="submit"
