@@ -26,6 +26,7 @@ import { Separator } from '@/components/ui/separator'
 import { PLATFORM_FEE_ADDRESS } from '@/constants/env'
 import { useUmi } from '@/hooks/use-umi'
 import { useUserData } from '@/hooks/use-user-data'
+import { assertError } from '@/lib/assert-error'
 import { buildGuards } from '@/lib/build-guards'
 
 const createNftsHash = async (amount: number, uri: string, title: string) => {
@@ -73,7 +74,7 @@ export function ContractsDeploy({
   const handleCreateNFTContract = useCallback(async () => {
     // Ensure wallet is connected
     if (!isAuthenticated) {
-      console.error('Wallet not connected')
+      assertError(new Error('Wallet not connected'), 'Wallet not connected.')
       return
     }
 
@@ -102,13 +103,14 @@ export function ContractsDeploy({
             commitment: 'finalized',
           },
         })
+
         console.log(
           'Collection NFT transaction signature:',
           signature.signature,
         )
       } catch (err) {
-        console.error('Error sending collection transaction:', err)
-        throw err
+        assertError(err, 'Failed to send collection transaction.')
+        return
       }
 
       // Store the collection address
@@ -119,15 +121,10 @@ export function ContractsDeploy({
         collectionAddress: collectionSigner.publicKey,
       })
 
-      console.log(
-        'Collection NFT created with address:',
-        collectionSigner.publicKey,
-      )
-
       // Move to next substep after completion
       setCurrentSubstep(1)
     } catch (error) {
-      console.error('Error creating NFT contract:', error)
+      assertError(error, 'Failed to create NFT contract.')
       setIsInProgress(false)
     } finally {
       setIsDeploying(false)
@@ -137,24 +134,27 @@ export function ContractsDeploy({
   const handleCreateCandyMachine = useCallback(async () => {
     // Ensure wallet is connected
     if (!isAuthenticated) {
-      console.error('Wallet not connected')
+      assertError(new Error('Wallet not connected'), 'Wallet not connected.')
       return
     }
 
     if (!collectionAddress) {
-      console.error('Collection mint not created yet')
+      assertError(
+        new Error('Collection mint not created yet'),
+        'Collection mint not created yet.',
+      )
       return
     }
 
     const metadataUri = formData.metadata?.metadata?.srcUrl
 
     if (!metadataUri) {
-      console.error('Metadata URI not found')
+      assertError(new Error('Incorrect form data'), 'Incorrect form data. ')
       return
     }
 
     if (!mintFee) {
-      console.error('Mint fee not found')
+      assertError(new Error('Incorrect form data'), 'Incorrect form data. ')
       return
     }
 
@@ -208,8 +208,8 @@ export function ContractsDeploy({
         const signature = await transaction.sendAndConfirm(umi)
         console.log('Candy Machine transaction signature:', signature.signature)
       } catch (err) {
-        console.error('Error sending candy machine transaction:', err)
-        throw err
+        assertError(err, 'Failed to send candy machine transaction.')
+        return
       }
 
       // Update the form data with the mint address
@@ -222,7 +222,7 @@ export function ContractsDeploy({
       // Set the form data as complete
       setIsComplete(true)
     } catch (error) {
-      console.error('Error creating candy machine contract:', error)
+      assertError(error, 'Failed to create candy machine contract.')
     } finally {
       setIsDeploying(false)
     }

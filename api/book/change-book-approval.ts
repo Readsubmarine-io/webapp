@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { Book } from '@/api/book/types'
+import { assertError } from '@/lib/assert-error'
 import http from '@/lib/http'
 
 import { GET_BOOK_BY_ID_QUERY_KEY } from './get-book-by-id'
@@ -35,6 +36,9 @@ export const useChangeBookApprovalMutation = () => {
       // Invalidate books queries to refresh the data
       queryClient.invalidateQueries({ queryKey: [GET_BOOKS_QUERY_KEY] })
       queryClient.invalidateQueries({ queryKey: [GET_BOOK_BY_ID_QUERY_KEY] })
+    },
+    onError: (error) => {
+      assertError(error, 'Failed to change book approval status.')
     },
   })
 }

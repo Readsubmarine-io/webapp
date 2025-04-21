@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { AUCTION_HOUSE_ADDRESS } from '@/constants/env'
 import { useMetaplex } from '@/hooks/use-metaplex'
 import { useUserData } from '@/hooks/use-user-data'
+import { assertError } from '@/lib/assert-error'
 
 interface PurchaseButtonProps {
   bookId: string
@@ -74,7 +75,7 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
 
       setPurchaseState('success')
     } catch (error) {
-      console.error(error)
+      assertError(error, 'Failed to purchase eBook.')
     }
   }, [completeSale, metaplex, sale])
 

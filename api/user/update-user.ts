@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
+import { assertError } from '@/lib/assert-error'
 import http from '@/lib/http'
 
 import { GET_USER_QUERY_KEY } from './get-user'
@@ -36,6 +37,9 @@ export const useUpdateUserMutation = () => {
       queryClient.invalidateQueries({
         queryKey: [GET_USER_BY_USERNAME_QUERY_KEY],
       })
+    },
+    onError: (error) => {
+      assertError(error, 'Failed to update user.')
     },
   })
 }

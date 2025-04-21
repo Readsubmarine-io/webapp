@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { GET_BOOK_EDITIONS_QUERY_KEY } from '@/api/book-edition/get-book-editions'
+import { assertError } from '@/lib/assert-error'
 import http from '@/lib/http'
 
 import { GET_BOOK_SALES_QUERY_KEY } from '../book/get-book-sales'
@@ -37,6 +38,9 @@ export const useCompleteSaleMutation = () => {
       queryClient.invalidateQueries({
         queryKey: [GET_BOOK_SALES_QUERY_KEY],
       })
+    },
+    onError: (error) => {
+      assertError(error, 'Failed to complete sale.')
     },
   })
 }

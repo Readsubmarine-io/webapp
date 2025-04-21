@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { BookEdition } from '@/api/book-edition/types'
+import { assertError } from '@/lib/assert-error'
 import http, { getServerHttp } from '@/lib/http'
 import { ListResultBase } from '@/types/list-result-base'
 import { ListQueryBaseParams } from '@/types/llist-query-base'
@@ -59,5 +60,9 @@ export const useGetBookEditionsQuery = (params: GetBookEditionsCallParams) => {
   return useQuery<BookEdition[], Error>({
     queryKey: [GET_BOOK_EDITIONS_QUERY_KEY, params],
     queryFn: () => getBookEditionsCall(params),
+    throwOnError: (error) => {
+      assertError(error, 'Failed to get book editions.')
+      return true
+    },
   })
 }

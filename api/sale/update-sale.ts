@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { GET_BOOK_EDITIONS_QUERY_KEY } from '@/api/book-edition/get-book-editions'
 import { Sale } from '@/api/sale/types'
+import { assertError } from '@/lib/assert-error'
 import http from '@/lib/http'
 
 export type UpdateSaleCallParams = {
@@ -31,6 +32,9 @@ export const useUpdateSaleMutation = () => {
       queryClient.invalidateQueries({
         queryKey: [GET_BOOK_EDITIONS_QUERY_KEY],
       })
+    },
+    onError: (error) => {
+      assertError(error, 'Failed to update sale.')
     },
   })
 }

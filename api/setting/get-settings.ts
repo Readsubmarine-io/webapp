@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { SettingsResponseDto } from '@/api/setting/types'
+import { assertError } from '@/lib/assert-error'
 import http, { getServerHttp } from '@/lib/http'
 
 export const getSettingsCall = async () => {
@@ -37,5 +38,9 @@ export const useGetSettingsQuery = () => {
   return useQuery<SettingsResponseDto, Error>({
     queryKey: [GET_SETTINGS_QUERY_KEY],
     queryFn: () => getSettingsCall(),
+    throwOnError: (error) => {
+      assertError(error, 'Failed to get settings.')
+      return true
+    },
   })
 }

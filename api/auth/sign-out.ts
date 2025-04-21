@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
+import { assertError } from '@/lib/assert-error'
 import { signOut } from '@/lib/sign-out'
 
 export const useSignOutMutation = () => {
@@ -8,6 +9,9 @@ export const useSignOutMutation = () => {
   return useMutation({
     mutationFn: async () => {
       signOut(queryClient)
+    },
+    onError: (error) => {
+      assertError(error, 'Failed to sign out.')
     },
   })
 }

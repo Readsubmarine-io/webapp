@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dialog'
 import { AUCTION_HOUSE_ADDRESS } from '@/constants/env'
 import { useMetaplex } from '@/hooks/use-metaplex'
+import { assertError } from '@/lib/assert-error'
 
 import { NumberInput } from '../ui/number-input'
 
@@ -92,7 +93,7 @@ export function SetSalePriceDialog({
 
       onOpenChange(false)
     } catch (error) {
-      console.error('Error creating sale:', error)
+      assertError(error, 'Failed to set sale price.')
     }
   }, [
     bookEdition.address,
@@ -102,6 +103,7 @@ export function SetSalePriceDialog({
     metaplex,
     onOpenChange,
     updateSale,
+    userListPrice,
   ])
 
   const { mutateAsync: cancelSale } = useCancelSaleMutation()
@@ -149,7 +151,7 @@ export function SetSalePriceDialog({
 
       onOpenChange(false)
     } catch (error) {
-      console.error('Error canceling sale:', error)
+      assertError(error, 'Failed to cancel sale.')
     }
   }, [
     metaplex,

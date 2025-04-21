@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { User } from '@/api/user/types'
+import { assertError } from '@/lib/assert-error'
 import http, { getServerHttp } from '@/lib/http'
 
 export const getUserCall = async () => {
@@ -27,18 +28,22 @@ export const getUserPrefetchCall = async () => {
 
 export const GET_USER_QUERY_KEY = 'user'
 
+export const getUserPrefetchQuery = () => {
+  return {
+    queryKey: [GET_USER_QUERY_KEY],
+    queryFn: getUserPrefetchCall,
+  }
+}
+
 export const useGetUserQuery = () => {
   return useQuery<User>({
     queryKey: [GET_USER_QUERY_KEY],
     queryFn: getUserCall,
     enabled: false,
     retry: false,
+    throwOnError: (error) => {
+      assertError(error, 'Failed to get user.')
+      return true
+    },
   })
-}
-
-export const getUserPrefetchQuery = () => {
-  return {
-    queryKey: [GET_USER_QUERY_KEY],
-    queryFn: getUserPrefetchCall,
-  }
 }

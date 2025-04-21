@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { Book } from '@/api/book/types'
+import { assertError } from '@/lib/assert-error'
 import http, { getServerHttp } from '@/lib/http'
 
 export const getBookByIdCall = async (id: string) => {
@@ -37,5 +38,9 @@ export const useGetBookByIdQuery = (id: string) => {
   return useQuery<Book, Error>({
     queryKey: [GET_BOOK_BY_ID_QUERY_KEY, id],
     queryFn: () => getBookByIdCall(id),
+    throwOnError: (error) => {
+      assertError(error, 'Failed to get book by id.')
+      return true
+    },
   })
 }
