@@ -16,11 +16,7 @@ export const useWallet = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [supportedWallets, setSupportedWallets] =
     useState<MessageSignerWalletAdapter[]>(getAdapters())
-
   const [wallet, setWallet] = useState<MessageSignerWalletAdapter | null>(null)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [refetchWalletInterval, setRefetchWalletInterval] =
-    useState<NodeJS.Timeout | null>(null)
 
   const getWallet = useCallback(async () => {
     const availableWallet = supportedWallets?.find(
@@ -30,7 +26,6 @@ export const useWallet = () => {
     )
 
     if (!availableWallet) {
-      toast.error('No supported wallet found.')
       return
     }
 
@@ -39,24 +34,6 @@ export const useWallet = () => {
 
   useEffect(() => {
     getWallet()
-
-    const interval = setInterval(() => {
-      setSupportedWallets(getAdapters())
-    }, 1000)
-
-    setRefetchWalletInterval((prev) => {
-      if (prev) {
-        clearInterval(prev)
-      }
-
-      return interval
-    })
-
-    return () => {
-      if (refetchWalletInterval) {
-        clearInterval(refetchWalletInterval)
-      }
-    }
   }, [getWallet])
 
   return {
