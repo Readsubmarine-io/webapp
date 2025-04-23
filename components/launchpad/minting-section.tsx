@@ -22,6 +22,7 @@ import { useUmi } from '@/hooks/use-umi'
 import { useUserData } from '@/hooks/use-user-data'
 import { assertError } from '@/lib/assert-error'
 import { buildGuards } from '@/lib/build-guards'
+import { usePublicKey } from '@/hooks/use-public-key'
 
 interface MintingSectionProps {
   book: Book
@@ -31,7 +32,8 @@ export function MintingSection({ book }: MintingSectionProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [isMinting, setIsMinting] = useState(false)
   const totalPrice = Number(book.mint?.price)
-  const umi = useUmi()
+  const { umi } = useUmi()
+  const { publicKey: walletPublicKey } = usePublicKey()
 
   const { isAuthenticated, user } = useUserData()
   const { data: editions } = useGetBookEditionsQuery({
@@ -83,6 +85,14 @@ export function MintingSection({ book }: MintingSectionProps) {
       assertError(
         new Error('Wallet connection required'),
         'Wallet connection required.',
+      )
+      return
+    }
+
+    if (walletPublicKey !== user?.wallet?.address) {
+      assertError(
+        new Error('User and wallet address mismatch'),
+        'User and wallet address mismatch.',
       )
       return
     }
@@ -143,6 +153,7 @@ export function MintingSection({ book }: MintingSectionProps) {
     }
   }, [
     umi,
+    user,
     book.mint?.mintAddress,
     book.mint?.price,
     book.collectionAddress,

@@ -45,7 +45,9 @@ http.interceptors.response.use(
     return response
   },
   (error) => {
-    if (error.response.status === 401) {
+    console.log(error)
+
+    if (error?.response?.status === 401) {
       signOut(queryClient)
     }
 
