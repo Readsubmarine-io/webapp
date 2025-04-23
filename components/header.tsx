@@ -31,9 +31,14 @@ const StyledContent = styled(DropdownMenuContent, {
   backgroundColor: 'hsl(var(--background))',
 })
 
-export function Header() {
+type HeaderProps = {
+  homeRedirect?: boolean
+}
+
+export function Header({ homeRedirect }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false)
-  const { signIn, signOut, isSigningIn, isSignedIn } = useAuthentication()
+  const { signIn, signOut, isSigningIn, isSignedIn } =
+    useAuthentication(homeRedirect)
   const { user } = useUserData()
   const { balance } = useAccountBalance()
 

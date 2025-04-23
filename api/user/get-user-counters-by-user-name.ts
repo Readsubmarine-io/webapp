@@ -5,6 +5,14 @@ import { assertError } from '@/lib/assert-error'
 import http from '@/lib/http'
 
 export const getUserCountersByUserIdCall = async (userId: string) => {
+  if (!userId) {
+    return {
+      createdBooks: 0,
+      ownedEditions: 0,
+      activeSales: 0,
+    }
+  }
+
   const response = await http.get<UserCounters>(`/v1/user/${userId}/counters`)
 
   if (response.status !== 200) {

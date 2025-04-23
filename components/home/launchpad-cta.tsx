@@ -5,6 +5,8 @@ import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { useUserData } from '@/hooks/use-user-data'
+import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
+import { IncoorectAccountText } from '@/constants/textings'
 
 interface LaunchpadCTAProps {
   createEbookLink: string
@@ -12,15 +14,22 @@ interface LaunchpadCTAProps {
 
 export function LaunchpadCTA({ createEbookLink }: LaunchpadCTAProps) {
   const { isAuthenticated } = useUserData()
+  const { checkWalletsMissmatch } = useCheckWalletsMissmatch()
 
   const handleCreateEbook = useCallback(() => {
-    if (isAuthenticated) {
-      window.location.href = createEbookLink
-    } else {
-      // handleConnect()
+    if (!isAuthenticated) {
       toast.warning('Please connect your wallet to create your NFT ebook')
+      return
     }
-  }, [isAuthenticated, createEbookLink])
+
+    if (checkWalletsMissmatch()) {
+      return
+    }
+
+    console.log('createEbookLink', createEbookLink)
+
+    window.location.href = createEbookLink
+  }, [isAuthenticated, createEbookLink, checkWalletsMissmatch])
 
   return (
     <div className="text-center py-8 sm:py-12 px-4 max-w-[90%] sm:max-w-[468px] mx-auto">

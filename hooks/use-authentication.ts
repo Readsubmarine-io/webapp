@@ -3,9 +3,10 @@ import { useCallback, useEffect } from 'react'
 import { useSignInMutation } from '@/api/auth/sign-in'
 import { useSignOutMutation } from '@/api/auth/sign-out'
 import { useGetUserQuery } from '@/api/user/get-user'
-import { useCheckWalletsMissmatch } from './use-check-wallets-missmatch'
+import { useRouter } from 'next/navigation'
 
-export const useAuthentication = () => {
+export const useAuthentication = (homeRedirect: boolean = false) => {
+  const router = useRouter()
   const {
     refetch: refetchUser,
     isFetching: isFetchingUser,
@@ -21,7 +22,11 @@ export const useAuthentication = () => {
 
   const signOut = useCallback(async () => {
     await callSignOut()
-  }, [callSignOut])
+
+    if (homeRedirect) {
+      router.push('/')
+    }
+  }, [callSignOut, homeRedirect, router])
 
   useEffect(() => {
     const checkToken = async () => {

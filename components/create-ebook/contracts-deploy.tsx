@@ -30,6 +30,8 @@ import { assertError } from '@/lib/assert-error'
 import { buildGuards } from '@/lib/build-guards'
 import { usePublicKey } from '@/hooks/use-public-key'
 import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
+import { toast } from 'sonner'
+import { IncoorectAccountText } from '@/constants/textings'
 
 const createNftsHash = async (amount: number, uri: string, title: string) => {
   const nfts = []
@@ -136,7 +138,7 @@ export function ContractsDeploy({
     } finally {
       setIsDeploying(false)
     }
-  }, [formData, updateFormData, umi, isAuthenticated])
+  }, [formData, updateFormData, umi, isAuthenticated, checkWalletsMissmatch])
 
   const handleCreateCandyMachine = useCallback(async () => {
     // Ensure wallet is connected
@@ -254,6 +256,7 @@ export function ContractsDeploy({
     mintFee,
     umi,
     updateFormData,
+    checkWalletsMissmatch,
   ])
 
   const handleComplete = useCallback(() => {

@@ -17,6 +17,8 @@ import { assertError } from '@/lib/assert-error'
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
 import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
+import { toast } from 'sonner'
+import { IncoorectAccountText } from '@/constants/textings'
 
 interface PurchaseButtonProps {
   bookId: string
@@ -89,7 +91,7 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
     } finally {
       setPurchaseState('idle')
     }
-  }, [completeSale, metaplex, sale])
+  }, [completeSale, metaplex, sale, checkWalletsMissmatch])
 
   const isDisabled = !sale
   const userSales = sales?.find((sale) => sale.seller?.id === user?.id)

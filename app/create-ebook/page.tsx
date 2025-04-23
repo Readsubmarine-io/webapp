@@ -3,7 +3,7 @@ import { CreateEbookContent } from '@/components/create-ebook/create-ebook-conte
 
 export default function CreateEbook() {
   return (
-    <StatefullLayout>
+    <StatefullLayout homeRedirect={true}>
       <CreateEbookContent />
     </StatefullLayout>
   )

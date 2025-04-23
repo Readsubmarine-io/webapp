@@ -47,7 +47,7 @@ export function ProfileContent({ userName }: ProfileContentProps) {
                 Edit
               </button>
             )}
-            {user && (
+            {user && user?.wallet?.address === currentUser?.wallet?.address && (
               <EditProfileDialog
                 user={user}
                 open={isDialogOpen}

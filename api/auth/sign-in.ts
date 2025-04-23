@@ -6,6 +6,7 @@ import { useWallet } from '@/hooks/use-wallet'
 import { assertError } from '@/lib/assert-error'
 import { checkWalletConnection } from '@/lib/check-wallet-connection'
 import http from '@/lib/http'
+import { usePublicKey } from '@/hooks/use-public-key'
 
 type SignInStartCallParams = {
   walletAddress: string
@@ -48,6 +49,7 @@ const signInCompleteCall = async (
 
 export const useSignInMutation = () => {
   const { wallet } = useWallet()
+  const { publicKey } = usePublicKey()
 
   return useMutation({
     mutationFn: async (checkToken: boolean = false) => {
@@ -61,7 +63,7 @@ export const useSignInMutation = () => {
         return
       }
 
-      if (!wallet) {
+      if (!wallet || !publicKey) {
         assertError(
           new Error('No supported wallet found.'),
           'No supported wallet found.',
@@ -69,18 +71,17 @@ export const useSignInMutation = () => {
         return
       }
 
-      const { wallet: connectedWallet, address } =
-        await checkWalletConnection(wallet)
+      const { wallet: connectedWallet } = await checkWalletConnection(wallet)
 
       const { nonce } = await signInStartCall({
-        walletAddress: address,
+        walletAddress: publicKey,
       })
 
       const message = `Sign in with Solana. ${nonce}`
       const signature = await connectedWallet.signMessage(Buffer.from(message))
 
       const { authToken } = await signInCompleteCall({
-        walletAddress: address,
+        walletAddress: publicKey,
         message,
         signature: getBase58Decoder().decode(signature),
       })

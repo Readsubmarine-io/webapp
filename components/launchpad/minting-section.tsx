@@ -24,6 +24,8 @@ import { assertError } from '@/lib/assert-error'
 import { buildGuards } from '@/lib/build-guards'
 import { usePublicKey } from '@/hooks/use-public-key'
 import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
+import { toast } from 'sonner'
+import { IncoorectAccountText } from '@/constants/textings'
 
 interface MintingSectionProps {
   book: Book
@@ -155,6 +157,7 @@ export function MintingSection({ book }: MintingSectionProps) {
     book.mint?.price,
     book.collectionAddress,
     book.creator?.wallet?.address,
+    checkWalletsMissmatch,
   ])
 
   const getMintButtonText = useCallback(() => {

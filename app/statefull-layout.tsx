@@ -15,20 +15,22 @@ import { PublicKeyProvider } from '@/components/public-key-provider'
 export type StatefullLayoutProps = {
   children: ReactNode
   queryClient?: QueryClient
+  homeRedirect?: boolean
 }
 
 export default function StatefullLayout({
   children,
   queryClient,
+  homeRedirect = false,
 }: StatefullLayoutProps) {
   const state = queryClient ? dehydrate(queryClient) : undefined
 
   return (
     <Providers>
       <Toaster />
-      <PublicKeyProvider>
+      <PublicKeyProvider homeRedirect={homeRedirect}>
         <HydrationBoundary state={state}>
-          <Header />
+          <Header homeRedirect={homeRedirect} />
           <main className="flex-1 mx-auto w-full max-w-[1128px] pt-[6rem]">
             {children}
           </main>

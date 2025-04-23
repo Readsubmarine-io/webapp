@@ -22,6 +22,8 @@ import { assertError } from '@/lib/assert-error'
 
 import { NumberInput } from '../ui/number-input'
 import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
+import { toast } from 'sonner'
+import { IncoorectAccountText } from '@/constants/textings'
 
 interface SetSalePriceDialogProps {
   bookEdition: BookEdition
@@ -116,6 +118,7 @@ export function SetSalePriceDialog({
     onOpenChange,
     updateSale,
     userListPrice,
+    checkWalletsMissmatch,
   ])
 
   const { mutateAsync: cancelSale } = useCancelSaleMutation()
@@ -179,6 +182,7 @@ export function SetSalePriceDialog({
     bookEdition.sale?.id,
     cancelSale,
     onOpenChange,
+    checkWalletsMissmatch,
   ])
 
   return (
