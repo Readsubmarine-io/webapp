@@ -11,14 +11,12 @@ import { useCompleteSaleMutation } from '@/api/sale/complete-sale'
 import { SaleStatus } from '@/api/sale/types'
 import { Button } from '@/components/ui/button'
 import { AUCTION_HOUSE_ADDRESS } from '@/constants/env'
+import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 import { useMetaplex } from '@/hooks/use-metaplex'
 import { useUserData } from '@/hooks/use-user-data'
 import { assertError } from '@/lib/assert-error'
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
-import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
-import { toast } from 'sonner'
-import { IncoorectAccountText } from '@/constants/textings'
 
 interface PurchaseButtonProps {
   bookId: string
@@ -38,7 +36,7 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
   >('idle')
   const { metaplex } = useMetaplex()
   const { mutateAsync: completeSale } = useCompleteSaleMutation()
-  const { user } = useUserData()
+  const { user, isAuthenticated } = useUserData()
   const { checkWalletsMissmatch } = useCheckWalletsMissmatch()
 
   const sale = user
@@ -93,20 +91,40 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
     }
   }, [completeSale, metaplex, sale, checkWalletsMissmatch])
 
-  const isDisabled = !sale
+  const isDisabled = !sale || !isAuthenticated
   const userSales = sales?.find((sale) => sale.seller?.id === user?.id)
 
-  const getTooltipText = useCallback(() => {
-    if (isDisabled && userSales) {
-      return 'Only your copies are available for purchase.'
+  const getButtonState = useCallback(() => {
+    if (!isAuthenticated) {
+      return {
+        text: 'Login to purchase eBook',
+        tooltip: 'Login to purchase eBook',
+        disabled: true,
+      }
     }
 
-    if (isDisabled && !userSales) {
-      return 'No active sales currently available.'
+    if (!sales?.length) {
+      return {
+        text: 'No active sales',
+        tooltip: 'No active sales',
+        disabled: true,
+      }
     }
 
-    return 'Click to purchase eBook.'
-  }, [isDisabled, userSales])
+    if (!sale) {
+      return {
+        text: 'No suitable sales',
+        tooltip: 'No suitable sales',
+        disabled: true,
+      }
+    }
+
+    return {
+      text: `Buy eBook for ${sale.price} SOL`,
+      tooltip: `Buy eBook for ${sale.price} SOL`,
+      disabled: false,
+    }
+  }, [isAuthenticated, sale, sales?.length])
 
   if (isLoadingSales) {
     return (
@@ -158,19 +176,15 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
         <TooltipTrigger>
           <Button
             onClick={handlePurchase}
-            disabled={isDisabled}
+            disabled={getButtonState().disabled}
             className="w-full md:w-auto bg-power-pump-button text-white hover:bg-power-pump-button/90 flex items-center justify-center rounded-lg"
           >
             <ShoppingCart className="mr-2 h-5 w-5" />
-            {isDisabled
-              ? userSales
-                ? 'No suitable sales'
-                : 'No active sales'
-              : `Buy eBook for ${sale?.price} SOL`}
+            {getButtonState().text}
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>{getTooltipText()}</p>
+          <p>{getButtonState().tooltip}</p>
         </TooltipContent>
       </Tooltip>
     </>

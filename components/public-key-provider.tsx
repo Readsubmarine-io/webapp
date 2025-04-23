@@ -1,11 +1,11 @@
 'use client'
 
-import { useSignOutMutation } from '@/api/auth/sign-out'
-import { useUserData } from '@/hooks/use-user-data'
-import { el, tr } from 'date-fns/locale'
 import { useRouter } from 'next/navigation'
 import { createContext, useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
+
+import { useSignOutMutation } from '@/api/auth/sign-out'
+import { useUserData } from '@/hooks/use-user-data'
 
 type PublicKeyProviderProps = {
   children: React.ReactNode
