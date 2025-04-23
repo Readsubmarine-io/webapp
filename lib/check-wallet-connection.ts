@@ -7,7 +7,6 @@ export const checkWalletConnection = async (
   address: string
 }> => {
   if (!wallet.connected) {
-    await window.solana.connect({ onlyIfTrusted: true })
     await wallet.connect()
   }
 

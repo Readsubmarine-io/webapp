@@ -8,9 +8,9 @@ import { ReactNode } from 'react'
 import { Footer } from '@/components/footer'
 import { Header } from '@/components/header'
 import { Toaster } from '@/components/ui/toaster'
-import { WalletProvider } from '@/components/wallet-provider'
 
 import Providers from './providers'
+import { PublicKeyProvider } from '@/components/public-key-provider'
 
 export type StatefullLayoutProps = {
   children: ReactNode
@@ -26,7 +26,7 @@ export default function StatefullLayout({
   return (
     <Providers>
       <Toaster />
-      <WalletProvider>
+      <PublicKeyProvider>
         <HydrationBoundary state={state}>
           <Header />
           <main className="flex-1 mx-auto w-full max-w-[1128px] pt-[6rem]">
@@ -34,7 +34,7 @@ export default function StatefullLayout({
           </main>
           <Footer />
         </HydrationBoundary>
-      </WalletProvider>
+      </PublicKeyProvider>
     </Providers>
   )
 }

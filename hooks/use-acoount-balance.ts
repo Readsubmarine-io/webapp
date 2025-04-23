@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useWallet } from '@/hooks/use-wallet'
 import { useRpc } from '@/hooks/use-rpc'
 import { checkWalletConnection } from '@/lib/check-wallet-connection'
@@ -12,22 +12,27 @@ export const useAccountBalance = () => {
   const { wallet } = useWallet()
   const { rpc } = useRpc()
 
+  const getBalance = useCallback(async () => {
+    if (!wallet) {
+      return
+    }
+
+    const { wallet: connectedWallet } = await checkWalletConnection(wallet)
+
+    if (!connectedWallet || !connectedWallet.publicKey) {
+      return
+    }
+
+    const balance = await rpc.getBalance(connectedWallet.publicKey)
+
+    setBalance((balance / LAMPORTS_PER_SOL).toFixed(2))
+  }, [wallet])
+
   useEffect(() => {
+    getBalance()
     const interval = setInterval(async () => {
-      if (!wallet) {
-        return
-      }
-
-      const { wallet: connectedWallet } = await checkWalletConnection(wallet)
-
-      if (!connectedWallet || !connectedWallet.publicKey) {
-        return
-      }
-
-      const balance = await rpc.getBalance(connectedWallet.publicKey)
-
-      setBalance((balance / LAMPORTS_PER_SOL).toFixed(2))
-    }, 1000)
+      await getBalance()
+    }, 10000)
 
     setBalanceInterval((prev) => {
       if (prev) {
@@ -42,7 +47,7 @@ export const useAccountBalance = () => {
         clearInterval(balanceInterval)
       }
     }
-  }, [wallet])
+  }, [getBalance])
 
   return {
     balance,

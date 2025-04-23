@@ -21,6 +21,7 @@ import { useMetaplex } from '@/hooks/use-metaplex'
 import { assertError } from '@/lib/assert-error'
 
 import { NumberInput } from '../ui/number-input'
+import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 
 interface SetSalePriceDialogProps {
   bookEdition: BookEdition
@@ -45,7 +46,7 @@ export function SetSalePriceDialog({
   const [userListPrice, setUserListPrice] = useState(
     bookEdition.sale?.price ?? 0,
   )
-
+  const { checkWalletsMissmatch } = useCheckWalletsMissmatch()
   const [isLoading, setIsLoading] = useState(false)
 
   const handleConfirmSale = useCallback(async () => {
@@ -56,6 +57,10 @@ export function SetSalePriceDialog({
         !bookEdition?.address ||
         !AUCTION_HOUSE_ADDRESS
       ) {
+        return
+      }
+
+      if (checkWalletsMissmatch()) {
         return
       }
 
@@ -122,6 +127,10 @@ export function SetSalePriceDialog({
         !bookEdition.sale?.listingReceipt ||
         !bookEdition.sale?.id
       ) {
+        return
+      }
+
+      if (checkWalletsMissmatch()) {
         return
       }
 

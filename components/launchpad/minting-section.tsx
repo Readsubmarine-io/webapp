@@ -23,6 +23,7 @@ import { useUserData } from '@/hooks/use-user-data'
 import { assertError } from '@/lib/assert-error'
 import { buildGuards } from '@/lib/build-guards'
 import { usePublicKey } from '@/hooks/use-public-key'
+import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 
 interface MintingSectionProps {
   book: Book
@@ -33,7 +34,7 @@ export function MintingSection({ book }: MintingSectionProps) {
   const [isMinting, setIsMinting] = useState(false)
   const totalPrice = Number(book.mint?.price)
   const { umi } = useUmi()
-  const { publicKey: walletPublicKey } = usePublicKey()
+  const { checkWalletsMissmatch } = useCheckWalletsMissmatch()
 
   const { isAuthenticated, user } = useUserData()
   const { data: editions } = useGetBookEditionsQuery({
@@ -89,11 +90,7 @@ export function MintingSection({ book }: MintingSectionProps) {
       return
     }
 
-    if (walletPublicKey !== user?.wallet?.address) {
-      assertError(
-        new Error('User and wallet address mismatch'),
-        'User and wallet address mismatch.',
-      )
+    if (checkWalletsMissmatch()) {
       return
     }
 

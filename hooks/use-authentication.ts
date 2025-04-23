@@ -3,6 +3,7 @@ import { useCallback, useEffect } from 'react'
 import { useSignInMutation } from '@/api/auth/sign-in'
 import { useSignOutMutation } from '@/api/auth/sign-out'
 import { useGetUserQuery } from '@/api/user/get-user'
+import { useCheckWalletsMissmatch } from './use-check-wallets-missmatch'
 
 export const useAuthentication = () => {
   const {

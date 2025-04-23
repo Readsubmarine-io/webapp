@@ -28,6 +28,8 @@ import { useUmi } from '@/hooks/use-umi'
 import { useUserData } from '@/hooks/use-user-data'
 import { assertError } from '@/lib/assert-error'
 import { buildGuards } from '@/lib/build-guards'
+import { usePublicKey } from '@/hooks/use-public-key'
+import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 
 const createNftsHash = async (amount: number, uri: string, title: string) => {
   const nfts = []
@@ -63,9 +65,10 @@ export function ContractsDeploy({
   )
 
   // Get the user's wallet
-  const { isAuthenticated } = useUserData()
+  const { user, isAuthenticated } = useUserData()
   // Get UMI with the wallet as signer
-  const umi = useUmi()
+  const { umi } = useUmi()
+  const { checkWalletsMissmatch } = useCheckWalletsMissmatch()
   const substeps = ['Create NFT Collection', 'Create Candy Machine']
 
   const { data: settings } = useGetSettingsQuery()
@@ -73,8 +76,12 @@ export function ContractsDeploy({
 
   const handleCreateNFTContract = useCallback(async () => {
     // Ensure wallet is connected
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !umi) {
       assertError(new Error('Wallet not connected'), 'Wallet not connected.')
+      return
+    }
+
+    if (checkWalletsMissmatch()) {
       return
     }
 
@@ -161,6 +168,15 @@ export function ContractsDeploy({
     setIsDeploying(true)
     try {
       console.log('Creating candy machine contract...')
+
+      if (!umi) {
+        assertError(new Error('Wallet not connected'), 'Wallet not connected.')
+        return
+      }
+
+      if (checkWalletsMissmatch()) {
+        return
+      }
 
       // Create a new signer for the candy machine
       const candyMachine = generateSigner(umi)
