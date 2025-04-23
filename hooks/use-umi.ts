@@ -1,28 +1,40 @@
 import { mplCandyMachine } from '@metaplex-foundation/mpl-candy-machine'
 import { mplTokenMetadata } from '@metaplex-foundation/mpl-token-metadata'
+import { Umi } from '@metaplex-foundation/umi'
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults'
 import { walletAdapterIdentity } from '@metaplex-foundation/umi-signer-wallet-adapters'
-import { useMemo } from 'react'
+import { useEffect, useState } from 'react'
 
-import { useGetWalletQuery } from '@/api/auth/get-wallet'
 import { useRpc } from '@/hooks/use-rpc'
+import { useWallet } from '@/hooks/use-wallet'
+import { checkWalletConnection } from '@/lib/check-wallet-connection'
+import { usePublicKey } from './use-public-key'
 
 export const useUmi = () => {
   const { rpc } = useRpc()
-  const { data } = useGetWalletQuery()
-  const wallet = data?.wallet
+  const { wallet } = useWallet()
+  const [umi, setUmi] = useState<Umi | null>(null)
 
-  const umi = useMemo(() => {
-    const baseUmi = createUmi(rpc)
-      .use(mplCandyMachine())
-      .use(mplTokenMetadata())
+  useEffect(() => {
+    const initializeUmi = async () => {
+      if (!wallet) {
+        return
+      }
 
-    if (wallet && wallet.connected) {
-      return baseUmi.use(walletAdapterIdentity(wallet))
+      const { wallet: connectedWallet } = await checkWalletConnection(wallet)
+
+      const baseUmi = createUmi(rpc)
+        .use(mplCandyMachine())
+        .use(mplTokenMetadata())
+        .use(walletAdapterIdentity(connectedWallet))
+
+      setUmi(baseUmi)
     }
 
-    return baseUmi
+    initializeUmi()
   }, [rpc, wallet])
 
-  return umi
+  return {
+    umi,
+  }
 }

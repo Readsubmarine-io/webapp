@@ -1,10 +1,7 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
-
 import { useGetBooksQuery } from '@/api/book/get-books'
 import { BooksListings } from '@/components/home/books-listings'
-import { CategoryFilter } from '@/components/home/category-filter'
 import { FeaturedBooks } from '@/components/home/featured-books'
 import { LaunchpadCTA } from '@/components/home/launchpad-cta'
 import { ShowTop } from '@/components/home/show-top'
@@ -16,8 +13,8 @@ type HomeContentProps = {
 export function HomeContent({ showTop }: HomeContentProps) {
   const { data: listedBooks } = useGetBooksQuery({
     isOnSale: true,
+    sortBy: 'sold24h',
     limit: showTop,
-    sortBy: 'floorPrice',
   })
   const { data: featuredBooks } = useGetBooksQuery({
     isFeatured: true,

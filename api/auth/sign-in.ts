@@ -2,8 +2,9 @@ import { getBase58Decoder } from '@solana/kit'
 import { useMutation } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
 
-import { useGetWalletQuery } from '@/api/auth/get-wallet'
+import { useWallet } from '@/hooks/use-wallet'
 import { assertError } from '@/lib/assert-error'
+import { checkWalletConnection } from '@/lib/check-wallet-connection'
 import http from '@/lib/http'
 
 type SignInStartCallParams = {
@@ -46,32 +47,40 @@ const signInCompleteCall = async (
 }
 
 export const useSignInMutation = () => {
-  const { data: walletData } = useGetWalletQuery()
-
-  const wallet = walletData?.wallet
-  const walletAddress = walletData?.wallet.publicKey?.toString()
+  const { wallet } = useWallet()
 
   return useMutation({
-    mutationFn: async () => {
+    mutationFn: async (checkToken: boolean = false) => {
       const token = Cookies.get('authToken')
 
       if (token) {
         return token
       }
 
-      if (!wallet || !walletAddress) {
-        throw new Error('Wallet not connected')
+      if (checkToken) {
+        return
       }
 
+      if (!wallet) {
+        assertError(
+          new Error('No supported wallet found.'),
+          'No supported wallet found.',
+        )
+        return
+      }
+
+      const { wallet: connectedWallet, address } =
+        await checkWalletConnection(wallet)
+
       const { nonce } = await signInStartCall({
-        walletAddress,
+        walletAddress: address,
       })
 
       const message = `Sign in with Solana. ${nonce}`
-      const signature = await wallet.signMessage(Buffer.from(message))
+      const signature = await connectedWallet.signMessage(Buffer.from(message))
 
       const { authToken } = await signInCompleteCall({
-        walletAddress: walletAddress!,
+        walletAddress: address,
         message,
         signature: getBase58Decoder().decode(signature),
       })

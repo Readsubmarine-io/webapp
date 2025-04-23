@@ -21,6 +21,8 @@ import {
   SheetTrigger,
 } from '@/components/ui/sheet'
 import { useAuthentication } from '@/hooks/use-authentication'
+import { useUserData } from '@/hooks/use-user-data'
+import { useAccountBalance } from '@/hooks/use-acoount-balance'
 const StyledContent = styled(DropdownMenuContent, {
   zIndex: 1000,
   fontFamily: 'var(--font-dm-sans)',
@@ -31,14 +33,9 @@ const StyledContent = styled(DropdownMenuContent, {
 
 export function Header() {
   const [isOpen, setIsOpen] = useState(false)
-  const {
-    isConnected,
-    isConnecting,
-    user,
-    balance,
-    handleDisconnect,
-    handleConnect,
-  } = useAuthentication()
+  const { signIn, signOut, isSigningIn, isSignedIn } = useAuthentication()
+  const { user } = useUserData()
+  const { balance } = useAccountBalance()
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 w-full border-b bg-white py-3 sm:py-5 shadow-[0_4px_6px_rgba(0,0,0,0.05)] rounded-none">
@@ -91,7 +88,7 @@ export function Header() {
               <NavLink href="/about">About Us</NavLink>
             </nav>
 
-            {isConnected ? (
+            {isSignedIn ? (
               <div className="flex items-center space-x-2">
                 <span className="text-sm font-medium text-power-pump-text">
                   {balance} SOL
@@ -126,7 +123,7 @@ export function Header() {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={handleDisconnect}
+                        onClick={signOut}
                         className="text-power-pump-text hover:bg-gray-100 flex items-center actionable"
                       >
                         <LogOut className="w-4 h-4 mr-2" />
@@ -139,10 +136,9 @@ export function Header() {
             ) : (
               <Button
                 className="bg-power-pump-button text-white hover:bg-power-pump-button/90 rounded-full px-3 sm:px-5 py-1 sm:py-[5px] text-sm sm:text-base font-bold transition-colors min-w-[100px] actionable"
-                onClick={handleConnect}
-                disabled={isConnecting}
+                onClick={signIn}
               >
-                {isConnecting ? (
+                {isSigningIn ? (
                   <div className="flex justify-center items-center w-full">
                     <Loader2 className="w-5 h-5 animate-spin" />
                   </div>

@@ -16,6 +16,7 @@ import { useUserData } from '@/hooks/use-user-data'
 import { assertError } from '@/lib/assert-error'
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
+import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 
 interface PurchaseButtonProps {
   bookId: string
@@ -36,6 +37,7 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
   const { metaplex } = useMetaplex()
   const { mutateAsync: completeSale } = useCompleteSaleMutation()
   const { user } = useUserData()
+  const { checkWalletsMissmatch } = useCheckWalletsMissmatch()
 
   const sale = user
     ? sales?.find((sale) => sale.seller?.id !== user?.id)
@@ -45,6 +47,10 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
     try {
       if (!sale || !metaplex || !AUCTION_HOUSE_ADDRESS) {
         throw new Error('No active sales')
+      }
+
+      if (checkWalletsMissmatch()) {
+        return
       }
 
       setPurchaseState('processing')
