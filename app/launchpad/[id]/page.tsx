@@ -4,6 +4,8 @@ import { getBookByIdPrefetchQuery } from '@/api/book/get-book-by-id'
 import StatefullLayout from '@/app/statefull-layout'
 import { LaunchpadBookContent } from '@/components/launchpad/launchpad-book-content'
 import { getQueryClient } from '@/lib/get-query-client'
+import { cookies } from 'next/headers'
+
 export default async function ProjectPage({
   params,
 }: {
@@ -13,8 +15,10 @@ export default async function ProjectPage({
 
   const { id } = await params
 
+  const token = cookies().get('authToken')?.value
+
   try {
-    await queryClient.fetchQuery(getBookByIdPrefetchQuery(id))
+    await queryClient.fetchQuery(getBookByIdPrefetchQuery(id, token))
   } catch (error) {
     console.error(error)
     notFound()

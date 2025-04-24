@@ -2,7 +2,7 @@
 
 import { LAMPORTS_PER_SOL } from '@solana/web3.js'
 import { styled } from '@stitches/react'
-import { Loader2, LogOut, Menu, User } from 'lucide-react'
+import { Loader2, LogOut, Menu, User, Shield } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type React from 'react'
@@ -102,6 +102,11 @@ export function Header({ homeRedirect }: HeaderProps) {
                   <NavLink href="/about" onClick={() => setIsOpen(false)}>
                     About Us
                   </NavLink>
+                  {user?.isAdmin && (
+                    <NavLink href="/admin" onClick={() => setIsOpen(false)}>
+                      Admin
+                    </NavLink>
+                  )}
                 </nav>
               </SheetContent>
             </Sheet>
@@ -160,6 +165,14 @@ export function Header({ homeRedirect }: HeaderProps) {
                           My Profile
                         </Link>
                       </DropdownMenuItem>
+                      {user?.isAdmin && (
+                        <DropdownMenuItem className="text-power-pump-text hover:bg-gray-100 flex items-center actionable">
+                          <Shield className="w-4 h-4 mr-2" />
+                          <Link href="/admin" className="w-full">
+                            Admin
+                          </Link>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem
                         onClick={signOut}
                         className="text-power-pump-text hover:bg-gray-100 flex items-center actionable"

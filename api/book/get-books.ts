@@ -13,6 +13,7 @@ export type GetBooksCallParams = {
   isFeatured?: boolean
   genres?: string[]
   showHidden?: boolean
+  isApproved?: boolean
   sortBy?: 'createdAt' | 'featured' | 'floorPrice' | 'sold24h' | 'totalSold'
 } & ListQueryBaseParams
 
@@ -56,7 +57,7 @@ export const useGetBooksQuery = (params: GetBooksCallParams) => {
     queryFn: () => getBooksCall(params),
     throwOnError: (error) => {
       assertError(error, 'Failed to get books.')
-      return true
+      return false
     },
   })
 }

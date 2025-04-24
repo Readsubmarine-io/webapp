@@ -14,8 +14,8 @@ export const getBookByIdCall = async (id: string) => {
   return response.data
 }
 
-export const getBookByIdPrefetchCall = async (id: string) => {
-  const http = getServerHttp()
+export const getBookByIdPrefetchCall = async (id: string, token?: string) => {
+  const http = getServerHttp(token)
   const response = await http.get<Book>(`/v1/book/${id}`)
 
   if (response.status !== 200) {
@@ -27,10 +27,10 @@ export const getBookByIdPrefetchCall = async (id: string) => {
 
 export const GET_BOOK_BY_ID_QUERY_KEY = 'GET_BOOK_BY_ID_QUERY_KEY'
 
-export const getBookByIdPrefetchQuery = (id: string) => {
+export const getBookByIdPrefetchQuery = (id: string, token?: string) => {
   return {
     queryKey: [GET_BOOK_BY_ID_QUERY_KEY, id],
-    queryFn: () => getBookByIdPrefetchCall(id),
+    queryFn: () => getBookByIdPrefetchCall(id, token),
   }
 }
 
