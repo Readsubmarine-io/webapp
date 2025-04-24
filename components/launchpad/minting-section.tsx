@@ -18,14 +18,16 @@ import { useCallback, useEffect, useState } from 'react'
 import { Book } from '@/api/book/types'
 import { useGetBookEditionsQuery } from '@/api/book-edition/get-book-editions'
 import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 import { useUmi } from '@/hooks/use-umi'
 import { useUserData } from '@/hooks/use-user-data'
 import { assertError } from '@/lib/assert-error'
 import { buildGuards } from '@/lib/build-guards'
-import { usePublicKey } from '@/hooks/use-public-key'
-import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
-import { toast } from 'sonner'
-import { IncoorectAccountText } from '@/constants/textings'
 
 interface MintingSectionProps {
   book: Book
@@ -152,7 +154,6 @@ export function MintingSection({ book }: MintingSectionProps) {
     }
   }, [
     umi,
-    user,
     book.mint?.mintAddress,
     book.mint?.price,
     book.collectionAddress,
@@ -178,8 +179,25 @@ export function MintingSection({ book }: MintingSectionProps) {
 
   if (!isAuthenticated) {
     return (
-      <div className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg shadow-md">
-        <p>Connect your wallet to mint</p>
+      <div className=" flex items-center mb-6 bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg shadow-md">
+        <div className="flex justify-start flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+          <Tooltip>
+            <TooltipTrigger>
+              {' '}
+              <Button
+                disabled={true}
+                className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 rounded-full px-6 py-2 sm:py-3 text-sm sm:text-base font-bold transition-colors w-full sm:w-auto"
+              >
+                Mint
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Connect your wallet to mint</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <p>Connect your wallet to mint</p>
+        </div>
       </div>
     )
   }

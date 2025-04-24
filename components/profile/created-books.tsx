@@ -4,12 +4,11 @@ import {
   Eye,
   EyeOff,
   MoreVertical,
-  Plus,
   Shield,
   ShieldOff,
 } from 'lucide-react'
 import Image from 'next/image'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import { useChangeBookApprovalMutation } from '@/api/book/change-book-approval'
 import { useChangeBookVisibilityMutation } from '@/api/book/change-book-visibility'
@@ -34,11 +33,15 @@ export type CreatedBooksProps = {
 }
 
 export function CreatedBooks({ userId }: CreatedBooksProps) {
-  const { data: books } = useGetBooksQuery({
+  const { data: books, refetch: refetchBooks } = useGetBooksQuery({
     creatorId: userId,
     showHidden: true,
   })
   const { user } = useUserData()
+
+  useEffect(() => {
+    refetchBooks()
+  }, [user, refetchBooks])
 
   const { mutate: changeBookVisibility } = useChangeBookVisibilityMutation()
   const handleToggleVisibility = useCallback(

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useGetBookEditionsQuery } from '@/api/book-edition/get-book-editions'
 import { BookEdition } from '@/api/book-edition/types'
@@ -16,10 +16,11 @@ type CollectedBooksProps = {
 }
 
 export function CollectedBooks({ userAddress, isOnSale }: CollectedBooksProps) {
-  const { data: bookEditions } = useGetBookEditionsQuery({
-    ownerAddress: userAddress,
-    isOnSale: isOnSale || undefined,
-  })
+  const { data: bookEditions, refetch: refetchBookEditions } =
+    useGetBookEditionsQuery({
+      ownerAddress: userAddress,
+      isOnSale: isOnSale || undefined,
+    })
 
   const [selectedBook, setSelectedBook] = useState<BookEdition | null>(null)
   const [isSetPriceDialogOpen, setIsSetPriceDialogOpen] = useState(false)
@@ -32,6 +33,10 @@ export function CollectedBooks({ userAddress, isOnSale }: CollectedBooksProps) {
 
   const { user } = useUserData()
   const isOwner = user?.wallet?.address === userAddress
+
+  useEffect(() => {
+    refetchBookEditions()
+  }, [user, refetchBookEditions])
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">

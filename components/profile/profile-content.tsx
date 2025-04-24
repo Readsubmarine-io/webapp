@@ -3,7 +3,7 @@
 import { Copy, Facebook, Globe, Instagram, Twitter } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useGetUserQuery } from '@/api/user/get-user'
 import { useGetUserByUsernameQuery } from '@/api/user/get-user-by-user-name'
@@ -29,9 +29,19 @@ export function ProfileContent({ userName }: ProfileContentProps) {
   const [showTooltip, setShowTooltip] = useState(false)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const { data: user } = useGetUserByUsernameQuery(userName)
+  const { data: user, refetch: refetchProfile } =
+    useGetUserByUsernameQuery(userName)
   const { data: currentUser } = useGetUserQuery()
-  const { data: userCounters } = useGetUserCountersByUserIdQuery(user?.id || '')
+  const { data: userCounters, refetch: refetchUserCounters } =
+    useGetUserCountersByUserIdQuery(user?.id || '')
+
+  useEffect(() => {
+    setActiveTab('collected')
+    refetchProfile()
+    refetchUserCounters()
+  }, [currentUser, user?.id, refetchProfile, refetchUserCounters])
+
+  console.log(userCounters)
 
   return (
     <div className="container mx-auto py-4 sm:py-8 px-4 sm:px-0">

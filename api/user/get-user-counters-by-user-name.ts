@@ -5,6 +5,8 @@ import { assertError } from '@/lib/assert-error'
 import http from '@/lib/http'
 
 export const getUserCountersByUserIdCall = async (userId: string) => {
+  console.log('userId', userId)
+
   if (!userId) {
     return {
       createdBooks: 0,
