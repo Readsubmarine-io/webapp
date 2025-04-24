@@ -24,14 +24,11 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { PLATFORM_FEE_ADDRESS } from '@/constants/env'
+import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 import { useUmi } from '@/hooks/use-umi'
 import { useUserData } from '@/hooks/use-user-data'
 import { assertError } from '@/lib/assert-error'
 import { buildGuards } from '@/lib/build-guards'
-import { usePublicKey } from '@/hooks/use-public-key'
-import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
-import { toast } from 'sonner'
-import { IncoorectAccountText } from '@/constants/textings'
 
 const createNftsHash = async (amount: number, uri: string, title: string) => {
   const nfts = []
@@ -67,7 +64,7 @@ export function ContractsDeploy({
   )
 
   // Get the user's wallet
-  const { user, isAuthenticated } = useUserData()
+  const { isAuthenticated } = useUserData()
   // Get UMI with the wallet as signer
   const { umi } = useUmi()
   const { checkWalletsMissmatch } = useCheckWalletsMissmatch()

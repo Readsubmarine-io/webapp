@@ -3,8 +3,7 @@
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
-import { toast } from 'sonner'
+import { useCallback, useState } from 'react'
 
 import {
   CreateBookCallParams,
@@ -15,7 +14,6 @@ import { ContractsDeploy } from '@/components/create-ebook/contracts-deploy'
 import { FileUploads } from '@/components/create-ebook/file-uploads'
 import { InitialInformation } from '@/components/create-ebook/initial-information'
 import { MintingDetails } from '@/components/create-ebook/minting-details'
-import { useUserData } from '@/hooks/use-user-data'
 
 const steps = [
   'Initial Information',
@@ -46,18 +44,7 @@ export function CreateEbookContent() {
     mintAddress: '',
     contactEmail: '',
   })
-
-  const { isAuthenticated } = useUserData()
   const router = useRouter()
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      toast.warning('Please connect your wallet to create an eBook.')
-      setTimeout(() => {
-        router.push('/')
-      }, 500)
-    }
-  }, [isAuthenticated, router])
 
   const updateFormData = (newData: Partial<typeof formData>) => {
     setFormData((prevData) => ({ ...prevData, ...newData }))

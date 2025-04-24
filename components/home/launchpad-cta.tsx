@@ -4,9 +4,8 @@ import { useCallback } from 'react'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
-import { useUserData } from '@/hooks/use-user-data'
 import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
-import { IncoorectAccountText } from '@/constants/textings'
+import { useUserData } from '@/hooks/use-user-data'
 
 interface LaunchpadCTAProps {
   createEbookLink: string
@@ -25,8 +24,6 @@ export function LaunchpadCTA({ createEbookLink }: LaunchpadCTAProps) {
     if (checkWalletsMissmatch()) {
       return
     }
-
-    console.log('createEbookLink', createEbookLink)
 
     window.location.href = createEbookLink
   }, [isAuthenticated, createEbookLink, checkWalletsMissmatch])
