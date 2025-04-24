@@ -7,10 +7,10 @@ import { ReactNode } from 'react'
 
 import { Footer } from '@/components/footer'
 import { Header } from '@/components/header'
+import { PublicKeyProvider } from '@/components/public-key-provider'
 import { Toaster } from '@/components/ui/toaster'
 
 import Providers from './providers'
-import { PublicKeyProvider } from '@/components/public-key-provider'
 
 export type StatefullLayoutProps = {
   children: ReactNode

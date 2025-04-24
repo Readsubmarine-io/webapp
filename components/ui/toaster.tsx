@@ -8,6 +8,8 @@ export function Toaster() {
       richColors
       position="top-right"
       visibleToasts={1}
+      closeButton={true}
+      duration={3000}
       style={{
         top: '100px',
       }}
