@@ -1,11 +1,12 @@
 'use client'
 
+import { LAMPORTS_PER_SOL } from '@solana/web3.js'
 import { styled } from '@stitches/react'
 import { Loader2, LogOut, Menu, User } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type React from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -20,9 +21,10 @@ import {
   SheetDescription,
   SheetTrigger,
 } from '@/components/ui/sheet'
+import { useAccountBalance } from '@/hooks/use-acoount-balance'
 import { useAuthentication } from '@/hooks/use-authentication'
 import { useUserData } from '@/hooks/use-user-data'
-import { useAccountBalance } from '@/hooks/use-acoount-balance'
+
 const StyledContent = styled(DropdownMenuContent, {
   zIndex: 1000,
   fontFamily: 'var(--font-dm-sans)',
@@ -40,7 +42,38 @@ export function Header({ homeRedirect }: HeaderProps) {
   const { signIn, signOut, isSigningIn, isSignedIn } =
     useAuthentication(homeRedirect)
   const { user } = useUserData()
-  const { balance } = useAccountBalance()
+  const { getBalance } = useAccountBalance()
+  const [balance, setBalance] = useState<string | null>(null)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setBalanceInterval] = useState<NodeJS.Timeout | null>()
+
+  useEffect(() => {
+    const updateBalance = async () => {
+      const balance = await getBalance()
+      setBalance((balance / LAMPORTS_PER_SOL).toFixed(2))
+    }
+
+    updateBalance()
+    const interval = setInterval(updateBalance, 10000)
+
+    setBalanceInterval((prev) => {
+      if (prev) {
+        clearInterval(prev)
+      }
+
+      return interval
+    })
+
+    return () => {
+      setBalanceInterval((prev) => {
+        if (prev) {
+          clearInterval(prev)
+        }
+
+        return null
+      })
+    }
+  }, [getBalance])
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 w-full border-b bg-white py-3 sm:py-5 shadow-[0_4px_6px_rgba(0,0,0,0.05)] rounded-none">

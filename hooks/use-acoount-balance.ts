@@ -1,55 +1,24 @@
-import { useCallback, useEffect, useState } from 'react'
-import { useWallet } from '@/hooks/use-wallet'
+import { PublicKey } from '@solana/web3.js'
+import { useCallback } from 'react'
+
+import { usePublicKey } from '@/hooks/use-public-key'
 import { useRpc } from '@/hooks/use-rpc'
-import { checkWalletConnection } from '@/lib/check-wallet-connection'
-import { LAMPORTS_PER_SOL } from '@solana/web3.js'
 
 export const useAccountBalance = () => {
-  const [balance, setBalance] = useState<string | null>('0.00')
-  const [balanceInterval, setBalanceInterval] = useState<NodeJS.Timeout | null>(
-    null,
-  )
-  const { wallet } = useWallet()
   const { rpc } = useRpc()
+  const { publicKey } = usePublicKey()
 
   const getBalance = useCallback(async () => {
-    if (!wallet) {
-      return
+    if (!publicKey) {
+      return 0
     }
 
-    const { wallet: connectedWallet } = await checkWalletConnection(wallet)
+    const balance = await rpc.getBalance(new PublicKey(publicKey))
 
-    if (!connectedWallet || !connectedWallet.publicKey) {
-      return
-    }
-
-    const balance = await rpc.getBalance(connectedWallet.publicKey)
-
-    setBalance((balance / LAMPORTS_PER_SOL).toFixed(2))
-  }, [wallet])
-
-  useEffect(() => {
-    getBalance()
-    const interval = setInterval(async () => {
-      await getBalance()
-    }, 10000)
-
-    setBalanceInterval((prev) => {
-      if (prev) {
-        clearInterval(prev)
-      }
-
-      return interval
-    })
-
-    return () => {
-      if (balanceInterval) {
-        clearInterval(balanceInterval)
-      }
-    }
-  }, [getBalance])
+    return balance
+  }, [publicKey, rpc])
 
   return {
-    balance,
+    getBalance,
   }
 }

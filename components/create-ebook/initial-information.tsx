@@ -37,8 +37,8 @@ export function InitialInformation({
     if (!trimmedTitle) {
       newErrors.title = 'eBook Title is required'
       isValid = false
-    } else if (trimmedTitle.length > 22) {
-      newErrors.title = 'eBook Title must be 22 characters or less'
+    } else if (trimmedTitle.length > 21) {
+      newErrors.title = 'eBook Title must be 21 characters or less'
       isValid = false
     }
 
@@ -47,8 +47,8 @@ export function InitialInformation({
     if (!trimmedAuthor) {
       newErrors.author = 'Author Name is required'
       isValid = false
-    } else if (trimmedAuthor.length > 255) {
-      newErrors.author = 'Author Name must be 255 characters or less'
+    } else if (trimmedAuthor.length > 40) {
+      newErrors.author = 'Author Name must be 40 characters or less'
       isValid = false
     } else if (trimmedAuthor.length < 5) {
       newErrors.author = 'Author Name must be 5 characters or more'
@@ -90,6 +90,7 @@ export function InitialInformation({
           value={formData.title}
           onChange={(e) => updateFormData({ title: e.target.value })}
           placeholder="Enter the title of your eBook"
+          maxLength={21}
         />
         {errors.title && (
           <p className="text-red-500 text-sm mt-1">{errors.title}</p>
@@ -102,6 +103,7 @@ export function InitialInformation({
           value={formData.author}
           onChange={(e) => updateFormData({ author: e.target.value })}
           placeholder="Enter your name"
+          maxLength={40}
         />
         {errors.author && (
           <p className="text-red-500 text-sm mt-1">{errors.author}</p>
