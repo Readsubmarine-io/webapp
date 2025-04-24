@@ -8,12 +8,14 @@ import { useEffect, useState } from 'react'
 import { useRpc } from '@/hooks/use-rpc'
 import { useWallet } from '@/hooks/use-wallet'
 import { checkWalletConnection } from '@/lib/check-wallet-connection'
+
 import { usePublicKey } from './use-public-key'
 
 export const useUmi = () => {
   const { rpc } = useRpc()
   const { wallet } = useWallet()
   const [umi, setUmi] = useState<Umi | null>(null)
+  const { publicKey } = usePublicKey()
 
   useEffect(() => {
     const initializeUmi = async () => {
@@ -32,7 +34,7 @@ export const useUmi = () => {
     }
 
     initializeUmi()
-  }, [rpc, wallet])
+  }, [rpc, wallet, publicKey])
 
   return {
     umi,

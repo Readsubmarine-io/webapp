@@ -5,10 +5,13 @@ import { useRpc } from '@/hooks/use-rpc'
 import { useWallet } from '@/hooks/use-wallet'
 import { checkWalletConnection } from '@/lib/check-wallet-connection'
 
+import { usePublicKey } from './use-public-key'
+
 export const useMetaplex = () => {
   const { wallet } = useWallet()
   const { rpc } = useRpc()
   const [metaplex, setMetaplex] = useState<Metaplex | null>(null)
+  const { publicKey } = usePublicKey()
 
   useEffect(() => {
     const createMetaplex = async () => {
@@ -24,7 +27,7 @@ export const useMetaplex = () => {
     }
 
     createMetaplex()
-  }, [rpc, wallet, wallet?.publicKey])
+  }, [rpc, wallet, wallet?.publicKey, publicKey])
 
   return {
     metaplex,

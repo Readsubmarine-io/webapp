@@ -10,13 +10,16 @@ import { useGetBookSalesQuery } from '@/api/book/get-book-sales'
 import { useCompleteSaleMutation } from '@/api/sale/complete-sale'
 import { SaleStatus } from '@/api/sale/types'
 import { Button } from '@/components/ui/button'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { AUCTION_HOUSE_ADDRESS } from '@/constants/env'
 import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 import { useMetaplex } from '@/hooks/use-metaplex'
 import { useUserData } from '@/hooks/use-user-data'
 import { assertError } from '@/lib/assert-error'
-
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
 
 interface PurchaseButtonProps {
   bookId: string
@@ -90,9 +93,6 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
       setPurchaseState('idle')
     }
   }, [completeSale, metaplex, sale, checkWalletsMissmatch])
-
-  const isDisabled = !sale || !isAuthenticated
-  const userSales = sales?.find((sale) => sale.seller?.id === user?.id)
 
   const getButtonState = useCallback(() => {
     if (!isAuthenticated) {
