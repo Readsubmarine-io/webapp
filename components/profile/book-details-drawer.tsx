@@ -1,8 +1,10 @@
 'use client'
 
-import { DollarSign, Download, XCircle } from 'lucide-react'
+import { DollarSign, Download, Edit2Icon } from 'lucide-react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 import { BookEdition } from '@/api/book-edition/types'
 import { Badge } from '@/components/ui/badge'
@@ -23,27 +25,18 @@ interface BookDetailsDrawerProps {
   bookEdition: BookEdition
   isOpen: boolean
   setIsOpen: (isOpen: boolean) => void
-  isOnSale?: boolean
 }
 
 export function BookDetailsDrawer({
   bookEdition,
   isOpen,
   setIsOpen,
-  isOnSale = false,
 }: BookDetailsDrawerProps) {
   const book = bookEdition.book
 
   const [isSetPriceDialogOpen, setIsSetPriceDialogOpen] = useState(false)
 
-  const handleSaleClick = () => {
-    if (isOnSale) {
-      console.log('Canceling sale for book:', bookEdition.id)
-      setIsOpen(false)
-    } else {
-      setIsSetPriceDialogOpen(true)
-    }
-  }
+  const isOnSale = !!bookEdition.sale
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -78,7 +71,9 @@ export function BookDetailsDrawer({
                 <p className="text-sm text-power-pump-text">
                   Bought: <span className="font-semibold">-</span>
                 </p>
-                {isOnSale && <ListPrice bookEdition={bookEdition} />}
+                {isOnSale && (
+                  <ListPrice isOwner={true} bookEdition={bookEdition} />
+                )}
                 <p className="text-sm text-power-pump-text">
                   Floor Price:{' '}
                   <span className="font-semibold">
@@ -150,12 +145,28 @@ export function BookDetailsDrawer({
                   className="rounded-full"
                 />
                 <div>
-                  <h4 className="font-semibold text-power-pump-heading">
-                    {book?.author}
-                  </h4>
-                  <p className="text-sm text-power-pump-text">
-                    {book?.creator?.displayName}
-                  </p>
+                  <Link
+                    href={`/profile/${book?.creator?.userName}`}
+                    replace={true}
+                    className="text-sm text-power-pump-text hover:opacity-70"
+                    onClick={() => {
+                      setIsOpen(false)
+                    }}
+                  >
+                    <h4 className="font-semibold text-power-pump-heading">
+                      {book?.author}
+                    </h4>
+                  </Link>
+                  <Link
+                    href={`/profile/${book?.creator?.userName}`}
+                    replace={true}
+                    className="text-sm text-power-pump-text hover:opacity-70"
+                    onClick={() => {
+                      setIsOpen(false)
+                    }}
+                  >
+                    @{book?.creator?.userName}
+                  </Link>
                 </div>
               </div>
               <p className="text-sm text-power-pump-text">
@@ -177,23 +188,31 @@ export function BookDetailsDrawer({
           <div className="flex justify-between gap-4">
             <Button
               className="flex-1 bg-blue-600 text-white hover:bg-blue-700"
-              onClick={() => console.log('Download clicked')}
+              onClick={() => {
+                if (!bookEdition.book?.pdf?.metadata?.srcUrl) {
+                  toast.error('No PDF available')
+                  return
+                }
+
+                window.open(
+                  bookEdition.book?.pdf?.metadata?.srcUrl || '',
+                  '_blank',
+                )
+              }}
             >
               <Download className="w-4 h-4 mr-2" />
               Download
             </Button>
             <Button
-              className={`flex-1 ${
-                isOnSale
-                  ? 'bg-red-600 hover:bg-red-700'
-                  : 'bg-green-600 hover:bg-green-700'
-              } text-white`}
-              onClick={handleSaleClick}
+              className={`flex-1 bg-green-600 hover:bg-green-700 text-white`}
+              onClick={() => {
+                setIsSetPriceDialogOpen(true)
+              }}
             >
               {isOnSale ? (
                 <>
-                  <XCircle className="w-4 h-4 mr-2" />
-                  Cancel Sale
+                  <Edit2Icon className="w-4 h-4 mr-2" />
+                  Update Sale
                 </>
               ) : (
                 <>

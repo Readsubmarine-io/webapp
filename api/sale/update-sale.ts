@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 import { GET_BOOK_EDITIONS_QUERY_KEY } from '@/api/book-edition/get-book-editions'
 import { Sale } from '@/api/sale/types'
@@ -40,6 +41,12 @@ export const useUpdateSaleMutation = () => {
     },
     onError: (error) => {
       assertError(error, 'Failed to update sale.')
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: [GET_BOOK_EDITIONS_QUERY_KEY],
+      })
+      toast.success('Sale updated')
     },
   })
 }

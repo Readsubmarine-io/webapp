@@ -189,12 +189,22 @@ export function LaunchpadBookContent({ bookId }: LaunchpadBookContentProps) {
                     className="rounded-full"
                   />
                   <div>
-                    <h3 className="font-semibold text-power-pump-heading">
-                      {book.creator?.displayName}
-                    </h3>
-                    <p className="text-sm text-power-pump-text">
-                      {book.creator?.email}
-                    </p>
+                    <Link
+                      href={`/profile/${book.creator?.userName}`}
+                      className="hover:opacity-70"
+                    >
+                      <h3 className="font-semibold text-power-pump-heading">
+                        {book.creator?.displayName}
+                      </h3>
+                    </Link>
+                    <Link
+                      href={`/profile/${book.creator?.userName}`}
+                      className="hover:opacity-70"
+                    >
+                      <p className="text-sm text-power-pump-text">
+                        @{book.creator?.userName}
+                      </p>
+                    </Link>
                   </div>
                 </div>
                 <p className="text-sm text-power-pump-text leading-relaxed">

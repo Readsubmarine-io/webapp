@@ -1,4 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 import { Book } from '@/api/book/types'
 import { FileInfo } from '@/api/file/types'
@@ -39,6 +40,9 @@ export const useCreateBookMutation = () => {
     mutationFn: createBookCall,
     onError: (error) => {
       assertError(error, 'Failed to create book.')
+    },
+    onSettled: () => {
+      toast.success('Book created successfully')
     },
   })
 }

@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 import { assertError } from '@/lib/assert-error'
 import http from '@/lib/http'
@@ -43,6 +44,9 @@ export const useUpdateUserMutation = () => {
     },
     onError: (error) => {
       assertError(error, 'Failed to update user.')
+    },
+    onSettled: () => {
+      toast.success('Profile updated successfully')
     },
   })
 }

@@ -31,7 +31,7 @@ export const useCreateFileMutation = () => {
   return useMutation<FileInfo, Error, CrateFileParams>({
     mutationFn: createFileCall,
     onError: (error) => {
-      assertError(error, 'Failed to create file.')
+      assertError(error, 'Failed to upload file.')
     },
   })
 }

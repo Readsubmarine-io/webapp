@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 import { Sale } from '@/api/sale/types'
 import { assertError } from '@/lib/assert-error'
@@ -39,6 +40,9 @@ export const useCreateSaleMutation = () => {
     },
     onError: (error) => {
       assertError(error, 'Failed to create sale.')
+    },
+    onSettled: () => {
+      toast.success('Sale created')
     },
   })
 }

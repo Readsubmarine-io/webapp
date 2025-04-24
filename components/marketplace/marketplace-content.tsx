@@ -83,10 +83,7 @@ export function MarketplaceContent({ bookId }: MarketplaceContentProps) {
             </header>
 
             <div className="mb-6">
-              <PurchaseButton
-                bookId={bookId}
-                isDisabled={!book.metrics?.floorPrice}
-              />
+              <PurchaseButton bookId={bookId} />
               {/* {collection.userCopies > 0 && (
                 <p className="mt-2 text-sm text-power-pump-text">
                   You own {collection.userCopies}{' '}
@@ -208,12 +205,22 @@ export function MarketplaceContent({ bookId }: MarketplaceContentProps) {
                       className="rounded-full"
                     />
                     <div>
-                      <h3 className="font-semibold text-power-pump-heading">
-                        {book.creator?.displayName}
-                      </h3>
-                      <p className="text-sm text-power-pump-text">
-                        {book.creator?.userName}
-                      </p>
+                      <Link
+                        href={`/profile/${book.creator?.userName}`}
+                        className="hover:text-power-pump-button"
+                      >
+                        <h3 className="font-semibold text-power-pump-heading hover:text-power-pump-heading hover:opacity-70">
+                          {book.creator?.displayName}
+                        </h3>
+                      </Link>
+                      <Link
+                        href={`/profile/${book.creator?.userName}`}
+                        className="hover:text-power-pump-button"
+                      >
+                        <p className="text-sm text-power-pump-text hover:opacity-70">
+                          {book.creator?.userName}
+                        </p>
+                      </Link>
                     </div>
                   </div>
                   <p className="text-sm text-power-pump-text leading-relaxed">

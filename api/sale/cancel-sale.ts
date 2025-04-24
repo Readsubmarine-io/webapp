@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 import { GET_BOOK_EDITIONS_QUERY_KEY } from '@/api/book-edition/get-book-editions'
 import { assertError } from '@/lib/assert-error'
@@ -37,6 +38,9 @@ export const useCancelSaleMutation = () => {
     },
     onError: (error) => {
       assertError(error, 'Failed to cancel sale.')
+    },
+    onSettled: () => {
+      toast.success('Sale cancelled')
     },
   })
 }
