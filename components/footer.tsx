@@ -1,8 +1,26 @@
+'use client'
+
 import { Linkedin, Twitter } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+
+import { useUserData } from '@/hooks/use-user-data'
 
 export function Footer() {
+  const { isAuthenticated } = useUserData()
+
+  const router = useRouter()
+  const handleCreateClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    if (isAuthenticated) {
+      router.push('/create-ebook')
+    } else {
+      toast.warning('Please connect your wallet to create an eBook.')
+    }
+  }
+
   return (
     <footer className="bg-[#1E1B4B] text-white/80 font-sans">
       <div className="max-w-container mx-auto py-8 sm:py-10 px-4 lg:px-6 xl:px-0">
@@ -39,7 +57,8 @@ export function Footer() {
               <ul className="space-y-2 sm:space-y-3">
                 <li>
                   <Link
-                    href="/create"
+                    onClick={handleCreateClick}
+                    href="#"
                     className="text-sm sm:text-base text-power-pump-text leading-relaxed sm:leading-[30px] font-normal hover:text-white transition-colors font-sans"
                   >
                     Create
@@ -47,18 +66,10 @@ export function Footer() {
                 </li>
                 <li>
                   <Link
-                    href="/discover"
-                    className="text-sm sm:text-base text-power-pump-text leading-relaxed sm:leading-[30px] font-normal hover:text-white transition-colors font-sans"
-                  >
-                    Discover
-                  </Link>
-                </li>
-                <li>
-                  <Link
                     href="/launchpad"
                     className="text-sm sm:text-base text-power-pump-text leading-relaxed sm:leading-[30px] font-normal hover:text-white transition-colors font-sans"
                   >
-                    Explore
+                    Mint
                   </Link>
                 </li>
               </ul>
@@ -72,7 +83,7 @@ export function Footer() {
               <ul className="space-y-2 sm:space-y-3">
                 <li>
                   <Link
-                    href="/explore"
+                    href="/"
                     className="text-sm sm:text-base text-power-pump-text leading-relaxed sm:leading-[30px] font-normal hover:text-white transition-colors font-sans"
                   >
                     Explore
