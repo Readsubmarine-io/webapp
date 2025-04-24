@@ -1,10 +1,11 @@
 'use client'
 
 import { sol } from '@metaplex-foundation/js'
-import { PublicKey } from '@solana/web3.js'
+import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js'
 import { CheckCircle, Loader2, ShoppingCart } from 'lucide-react'
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
+import { toast } from 'sonner'
 
 import { useGetBookSalesQuery } from '@/api/book/get-book-sales'
 import { useCompleteSaleMutation } from '@/api/sale/complete-sale'
@@ -18,6 +19,7 @@ import {
 import { AUCTION_HOUSE_ADDRESS } from '@/constants/env'
 import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 import { useMetaplex } from '@/hooks/use-metaplex'
+import { useRpc } from '@/hooks/use-rpc'
 import { useUserData } from '@/hooks/use-user-data'
 import { assertError } from '@/lib/assert-error'
 
@@ -38,6 +40,7 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
     'idle' | 'processing' | 'success'
   >('idle')
   const { metaplex } = useMetaplex()
+  const { rpc } = useRpc()
   const { mutateAsync: completeSale } = useCompleteSaleMutation()
   const { user, isAuthenticated } = useUserData()
   const { checkWalletsMissmatch } = useCheckWalletsMissmatch()
@@ -57,6 +60,13 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
       }
 
       setPurchaseState('processing')
+
+      const balance = await rpc.getBalance(metaplex.identity().publicKey)
+
+      if (balance < Number(sale.price) * LAMPORTS_PER_SOL) {
+        toast.warning('Insufficient balance')
+        return
+      }
 
       const auctionHouse = await metaplex.auctionHouse().findByAddress({
         address: new PublicKey(AUCTION_HOUSE_ADDRESS),

@@ -13,7 +13,9 @@ import {
   publicKey,
   transactionBuilder,
 } from '@metaplex-foundation/umi'
+import { LAMPORTS_PER_SOL } from '@solana/web3.js'
 import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 import { Book } from '@/api/book/types'
 import { useGetBookEditionsQuery } from '@/api/book-edition/get-book-editions'
@@ -45,41 +47,6 @@ export function MintingSection({ book }: MintingSectionProps) {
     bookId: book.id,
     ownerAddress: user?.wallet?.address,
   })
-
-  // const increaseTokenCount = useCallback(() => {
-  //   if (!book.metrics?.totalSupply) {
-  //     return
-  //   }
-
-  //   if (tokenCount < book.metrics?.totalSupply) {
-  //     setTokenCount(tokenCount + 1)
-  //   }
-  // }, [tokenCount, book.metrics?.totalSupply])
-
-  // const decreaseTokenCount = useCallback(() => {
-  //   if (tokenCount > 1) {
-  //     setTokenCount(Math.max(1, tokenCount - 1))
-  //   }
-  // }, [tokenCount])
-
-  // const handleTokenCountChange = useCallback(
-  //   (e: React.ChangeEvent<HTMLInputElement>) => {
-  //     if (!book.metrics?.totalSupply) {
-  //       return
-  //     }
-
-  //     const value = +e.target.value.replace(/[^0-9]/g, '')
-
-  //     if (value > book.metrics?.totalSupply) {
-  //       setTokenCount(book.metrics?.totalSupply)
-  //     } else if (value < 1) {
-  //       setTokenCount(1)
-  //     } else {
-  //       setTokenCount(value)
-  //     }
-  //   },
-  //   [book.metrics?.totalSupply],
-  // )
 
   useEffect(() => {
     setIsMinting(false)
@@ -122,6 +89,13 @@ export function MintingSection({ book }: MintingSectionProps) {
 
       const nftMint = generateSigner(umi)
 
+      const balance = await umi.rpc.getBalance(umi.identity.publicKey)
+
+      if (balance.basisPoints < Number(book.mint?.price) * LAMPORTS_PER_SOL) {
+        toast.warning('Insufficient balance')
+        return
+      }
+
       const guards = buildGuards({
         mintPrice: Number(book.mint?.price),
         mintPriceReceiver: creatorPublicKey,
@@ -143,9 +117,9 @@ export function MintingSection({ book }: MintingSectionProps) {
           }),
         )
 
-      const signature = await transaction.sendAndConfirm(umi)
+      await transaction.sendAndConfirm(umi)
 
-      console.log(`Successfully minted!`, signature)
+      toast.success('Minted successfully!')
       setIsMinting(true)
     } catch (error: unknown) {
       assertError(error, 'Failed to mint.')
@@ -162,6 +136,10 @@ export function MintingSection({ book }: MintingSectionProps) {
   ])
 
   const getMintButtonText = useCallback(() => {
+    if (isLoading) {
+      return <p>Mint transaction in progress...</p>
+    }
+
     if (isMinting) {
       return <p>Your new copy is on the way!</p>
     }
@@ -175,7 +153,7 @@ export function MintingSection({ book }: MintingSectionProps) {
     }
 
     return <p>You don't have any copies of this eBook yet</p>
-  }, [editions, isMinting])
+  }, [editions?.length, isLoading, isMinting])
 
   if (!isAuthenticated) {
     return (
@@ -205,36 +183,12 @@ export function MintingSection({ book }: MintingSectionProps) {
   return (
     <div className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg shadow-md">
       <div className="flex justify-start flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
-        {/* <div className="flex items-center space-x-2">
-          <Button
-            onClick={decreaseTokenCount}
-            className="bg-blue-500 text-white hover:bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center"
-            disabled={isLoading}
-          >
-            -
-          </Button>
-          <Input
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            value={tokenCount}
-            onChange={handleTokenCountChange}
-            className="w-20 text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            disabled={isLoading}
-          />
-          <Button
-            onClick={increaseTokenCount}
-            className="bg-blue-500 text-white hover:bg-blue-600 rounded-full w-8 h-8 flex items-center justify-center"
-            disabled={isLoading}
-          >
-            +
-          </Button>
-        </div> */}
         <Button
           onClick={handleMint}
           disabled={isLoading}
           className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 rounded-full px-6 py-2 sm:py-3 text-sm sm:text-base font-bold transition-colors w-full sm:w-auto"
         >
+          {/* {isLoading ? <Loader2 /> : <></>} */}
           {isLoading
             ? 'Minting...'
             : `Mint new copy for ${totalPrice.toFixed(2)} SOL`}
