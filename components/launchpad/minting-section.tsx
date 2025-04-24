@@ -87,6 +87,15 @@ export function MintingSection({ book }: MintingSectionProps) {
       // Fetch candy machine and candy guard data to verify constraints
       const candyMachine = await fetchCandyMachine(umi, candyMachinePublicKey)
 
+      if (!candyMachine) {
+        throw new Error('Candy machine not found')
+      }
+
+      if ((book.metrics?.totalSupply || 0) <= candyMachine.itemsRedeemed) {
+        toast.warning('All copies have been minted')
+        return
+      }
+
       const nftMint = generateSigner(umi)
 
       const balance = await umi.rpc.getBalance(umi.identity.publicKey)
@@ -128,11 +137,12 @@ export function MintingSection({ book }: MintingSectionProps) {
     }
   }, [
     umi,
+    checkWalletsMissmatch,
     book.mint?.mintAddress,
     book.mint?.price,
     book.collectionAddress,
     book.creator?.wallet?.address,
-    checkWalletsMissmatch,
+    book.metrics?.totalSupply,
   ])
 
   const getMintButtonText = useCallback(() => {
