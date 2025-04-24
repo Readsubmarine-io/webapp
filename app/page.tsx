@@ -19,6 +19,7 @@ export default async function Home({
       getBooksPrefetchQuery({
         isOnSale: true,
         sortBy: 'sold24h',
+        order: 'DESC',
         limit: showTop,
       }),
     ),

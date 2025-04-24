@@ -70,7 +70,7 @@ export function ProfileContent({ userName }: ProfileContentProps) {
                 alt={user?.displayName || ''}
                 width={120}
                 height={120}
-                className="rounded-full mb-4"
+                className="rounded-full mb-4 object-cover aspect-square"
               />
               <h2 className="text-xl font-bold text-power-pump-heading">
                 {user?.displayName}

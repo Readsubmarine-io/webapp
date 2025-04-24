@@ -14,6 +14,7 @@ export function HomeContent({ showTop }: HomeContentProps) {
   const { data: listedBooks } = useGetBooksQuery({
     isOnSale: true,
     sortBy: 'sold24h',
+    order: 'DESC',
     limit: showTop,
   })
   const { data: featuredBooks } = useGetBooksQuery({

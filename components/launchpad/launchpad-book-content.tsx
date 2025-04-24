@@ -186,7 +186,7 @@ export function LaunchpadBookContent({ bookId }: LaunchpadBookContentProps) {
                     alt={book.creator?.displayName || 'Author avatar'}
                     width={64}
                     height={64}
-                    className="rounded-full"
+                    className="rounded-full object-cover aspect-square"
                   />
                   <div>
                     <Link

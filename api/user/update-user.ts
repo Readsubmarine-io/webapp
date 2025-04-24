@@ -46,6 +46,9 @@ export const useUpdateUserMutation = () => {
       assertError(error, 'Failed to update user.')
     },
     onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: [GET_USER_QUERY_KEY],
+      })
       toast.success('Profile updated successfully')
     },
   })

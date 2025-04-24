@@ -142,7 +142,7 @@ export function Header({ homeRedirect }: HeaderProps) {
                         alt="User Avatar"
                         width={40}
                         height={40}
-                        className="rounded-full"
+                        className="rounded-full object-cover aspect-square"
                       />
                     </div>
                   </DropdownMenuTrigger>
