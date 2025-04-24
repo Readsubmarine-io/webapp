@@ -2,8 +2,7 @@
 
 import { sol } from '@metaplex-foundation/js'
 import { PublicKey } from '@solana/web3.js'
-import { useCallback, useState } from 'react'
-import { toast } from 'sonner'
+import { useCallback, useEffect, useState } from 'react'
 
 import { BookEdition } from '@/api/book-edition/types'
 import { useCancelSaleMutation } from '@/api/sale/cancel-sale'
@@ -18,12 +17,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { AUCTION_HOUSE_ADDRESS } from '@/constants/env'
-import { IncoorectAccountText } from '@/constants/textings'
 import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 import { useMetaplex } from '@/hooks/use-metaplex'
 import { assertError } from '@/lib/assert-error'
 
-import { NumberInput } from '../ui/number-input'
+import { NumberInput } from '@/components/ui/number-input'
+import { toast } from 'sonner'
 
 interface SetSalePriceDialogProps {
   bookEdition: BookEdition
@@ -45,7 +44,7 @@ export function SetSalePriceDialog({
   const { mutateAsync: createSale } = useCreateSaleMutation()
   const { mutateAsync: updateSale } = useUpdateSaleMutation()
 
-  const [userListPrice, setUserListPrice] = useState(
+  const [userListPrice, setUserListPrice] = useState<number>(
     bookEdition.sale?.price ?? 0,
   )
   const { checkWalletsMissmatch } = useCheckWalletsMissmatch()
@@ -53,6 +52,11 @@ export function SetSalePriceDialog({
 
   const handleConfirmSale = useCallback(async () => {
     try {
+      if (!validatePrice()) {
+        toast.error('Invalid price.')
+        return
+      }
+
       if (
         userListPrice <= 0 ||
         !metaplex ||
@@ -185,8 +189,38 @@ export function SetSalePriceDialog({
     checkWalletsMissmatch,
   ])
 
+  const [error, setError] = useState('')
+
+  const validatePrice = useCallback(() => {
+    if (userListPrice <= 0 || !userListPrice) {
+      return false
+    }
+
+    return true
+  }, [userListPrice])
+
+  const [isTouched, setIsTouched] = useState(false)
+
+  useEffect(() => {
+    if (!isTouched) {
+      return
+    }
+
+    if (!validatePrice()) {
+      setError('Price is required. Please enter a valid price.')
+    } else {
+      setError('')
+    }
+  }, [validatePrice, isTouched])
+
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(change) => {
+        onOpenChange(change)
+        setError('')
+      }}
+    >
       <DialogContent className="bg-dialog">
         <DialogHeader>
           <DialogTitle>Set Sale Price</DialogTitle>
@@ -198,7 +232,18 @@ export function SetSalePriceDialog({
             allowDecimal={true}
             placeholder="Enter sale price in SOL"
             disabled={isLoading}
+            onClick={() => setIsTouched(true)}
           />
+          {error && (
+            <p
+              className="text-sm text-red-500 mt-0"
+              style={{
+                marginTop: 3,
+              }}
+            >
+              {error}
+            </p>
+          )}
           <div className="text-sm text-power-pump-text space-y-1">
             <p>
               Seller fee (2.5%):{' '}
