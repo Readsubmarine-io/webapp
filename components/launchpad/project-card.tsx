@@ -109,7 +109,10 @@ export function ProjectCard({ book }: ProjectCardProps) {
           <h2 className="text-lg font-bold text-power-pump-heading truncate">
             {book.title}
           </h2>
-          <p className="text-sm text-power-pump-text">{book.author}</p>
+          <p className="text-sm text-power-pump-text">
+            {book.author.slice(0, 20)}
+            {book.author.length > 20 && '...'}
+          </p>
         </div>
 
         <div className="grid grid-cols-3 gap-2">

@@ -3,6 +3,7 @@
 import { sol } from '@metaplex-foundation/js'
 import { PublicKey } from '@solana/web3.js'
 import { useCallback, useState } from 'react'
+import { toast } from 'sonner'
 
 import { BookEdition } from '@/api/book-edition/types'
 import { useCancelSaleMutation } from '@/api/sale/cancel-sale'
@@ -17,13 +18,12 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { AUCTION_HOUSE_ADDRESS } from '@/constants/env'
+import { IncoorectAccountText } from '@/constants/textings'
+import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 import { useMetaplex } from '@/hooks/use-metaplex'
 import { assertError } from '@/lib/assert-error'
 
 import { NumberInput } from '../ui/number-input'
-import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
-import { toast } from 'sonner'
-import { IncoorectAccountText } from '@/constants/textings'
 
 interface SetSalePriceDialogProps {
   bookEdition: BookEdition
@@ -229,7 +229,7 @@ export function SetSalePriceDialog({
               disabled={isLoading}
               className="bg-red-500 text-white hover:bg-red-500/90 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-sm sm:text-base font-medium transition-colors duration-200"
             >
-              Cances Sale
+              Cancel Sale
             </Button>
           )}
         </DialogFooter>
