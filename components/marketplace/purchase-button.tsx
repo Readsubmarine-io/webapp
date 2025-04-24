@@ -102,7 +102,7 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
     } finally {
       setPurchaseState('idle')
     }
-  }, [completeSale, metaplex, sale, checkWalletsMissmatch])
+  }, [sale, metaplex, checkWalletsMissmatch, rpc, completeSale])
 
   const getButtonState = useCallback(() => {
     if (!isAuthenticated) {
@@ -124,7 +124,7 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
     if (!sale) {
       return {
         text: 'No suitable sales',
-        tooltip: 'No suitable sales',
+        tooltip: 'Only your copies are available for purchase',
         disabled: true,
       }
     }
