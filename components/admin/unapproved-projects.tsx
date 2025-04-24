@@ -1,29 +1,25 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 import { useGetBooksQuery } from '@/api/book/get-books'
-import { Book } from '@/api/book/types'
 import { ProjectApprovalCard } from '@/components/admin/project-approval-card'
 
 export function UnapprovedProjects() {
-  const { data: books, refetch: refetchBooks } = useGetBooksQuery({
-    isApproved: false,
-  })
+  const { data: unapprovedBooks, refetch: refetchUnapprovedBooks } =
+    useGetBooksQuery({
+      isApproved: false,
+    })
 
-  const [unapprovedBooks, setUnapprovedBooks] = useState<Book[]>([])
+  const { data: approvedBooks, refetch: refetchApprovedBooks } =
+    useGetBooksQuery({
+      isApproved: true,
+    })
 
   useEffect(() => {
-    refetchBooks()
-  }, [refetchBooks])
-
-  useEffect(() => {
-    if (books) {
-      // Filter unapproved books on the client side since API doesn't support isApproved filter
-      const filtered = books.filter((book) => !book.isApproved)
-      setUnapprovedBooks(filtered)
-    }
-  }, [books])
+    refetchUnapprovedBooks()
+    refetchApprovedBooks()
+  }, [refetchUnapprovedBooks, refetchApprovedBooks])
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -41,7 +37,27 @@ export function UnapprovedProjects() {
             <ProjectApprovalCard
               key={book.id}
               book={book}
-              onApprove={() => refetchBooks()}
+              onApprove={() => refetchUnapprovedBooks()}
+            />
+          ))}
+        </div>
+      )}
+
+      <h1 className="text-3xl font-bold text-power-pump-heading my-6">
+        Approved Projects
+      </h1>
+
+      {!approvedBooks || approvedBooks.length === 0 ? (
+        <div className="text-center py-12 text-power-pump-text">
+          No approved projects at this time.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {approvedBooks.map((book) => (
+            <ProjectApprovalCard
+              key={book.id}
+              book={book}
+              onApprove={() => refetchApprovedBooks()}
             />
           ))}
         </div>

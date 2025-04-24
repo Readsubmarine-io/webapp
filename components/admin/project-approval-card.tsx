@@ -1,8 +1,10 @@
 'use client'
 
+import { Download } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 import { useChangeBookApprovalMutation } from '@/api/book/change-book-approval'
 import { Book } from '@/api/book/types'
@@ -22,12 +24,12 @@ export function ProjectApprovalCard({
 
   const { mutate: changeBookApproval } = useChangeBookApprovalMutation()
 
-  const handleApprove = () => {
+  const handleChangeApprove = () => {
     setIsApproving(true)
     changeBookApproval(
       {
         bookId: book.id,
-        isApproved: true,
+        isApproved: !book.isApproved,
       },
       {
         onSuccess: () => {
@@ -43,6 +45,14 @@ export function ProjectApprovalCard({
     )
   }
 
+  const handleDownloadPdf = () => {
+    if (!book.pdf?.metadata?.srcUrl) {
+      toast.error('No PDF available')
+      return
+    }
+    window.open(book.pdf.metadata.srcUrl, '_blank')
+  }
+
   return (
     <Card className="block max-w-sm mx-auto w-full overflow-hidden border border-container-border shadow-content-container relative flex flex-col">
       <div
@@ -50,15 +60,25 @@ export function ProjectApprovalCard({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className="absolute top-2 left-2 z-10 bg-yellow-100 bg-opacity-90 rounded-full px-3 py-1.5 text-xs font-medium flex items-center space-x-2 shadow-md">
-          <div className="relative w-2 h-2">
-            <div className="absolute w-full h-full bg-yellow-500 rounded-full opacity-75 animate-ping"></div>
-            <div className="absolute w-full h-full bg-yellow-500 rounded-full"></div>
+        {book.isApproved ? (
+          <div className="absolute top-2 left-2 z-10 bg-green-100 bg-opacity-90 rounded-full px-3 py-1.5 text-xs font-medium flex items-center space-x-2 shadow-md">
+            <div className="relative w-2 h-2">
+              <div className="absolute w-full h-full bg-green-500 rounded-full opacity-75"></div>
+              <div className="absolute w-full h-full bg-green-500 rounded-full"></div>
+            </div>
+            <span className="text-green-800 font-semibold">Approved</span>
           </div>
-          <span className="text-yellow-800 font-semibold">
-            Pending Approval
-          </span>
-        </div>
+        ) : (
+          <div className="absolute top-2 left-2 z-10 bg-yellow-100 bg-opacity-90 rounded-full px-3 py-1.5 text-xs font-medium flex items-center space-x-2 shadow-md">
+            <div className="relative w-2 h-2">
+              <div className="absolute w-full h-full bg-yellow-500 rounded-full opacity-75 animate-ping"></div>
+              <div className="absolute w-full h-full bg-yellow-500 rounded-full"></div>
+            </div>
+            <span className="text-yellow-800 font-semibold">
+              Pending Approval
+            </span>
+          </div>
+        )}
         <Image
           src={book.coverImage.metadata.srcUrl || '/placeholder.svg'}
           alt={book.title}
@@ -112,13 +132,34 @@ export function ProjectApprovalCard({
           </div>
         </div>
 
-        <button
-          onClick={handleApprove}
-          disabled={isApproving}
-          className="bg-green-600 text-white py-2 px-6 rounded-[100px] font-bold transition-colors hover:bg-green-700 w-full text-center block disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isApproving ? 'Approving...' : 'Approve Project'}
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleDownloadPdf}
+            className="bg-blue-600 text-white py-2 px-4 rounded-[100px] font-bold transition-colors hover:bg-blue-700 flex-1 flex items-center justify-center"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Download PDF
+          </button>
+        </div>
+        <div className="flex gap-2">
+          {book.isApproved ? (
+            <button
+              onClick={handleChangeApprove}
+              disabled={isApproving}
+              className="bg-red-600 text-white py-2 px-4 rounded-[100px] font-bold transition-colors hover:bg-red-700 flex-1 text-center block disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isApproving ? 'Updating...' : 'Unapprove Project'}
+            </button>
+          ) : (
+            <button
+              onClick={handleChangeApprove}
+              disabled={isApproving}
+              className="bg-green-600 text-white py-2 px-4 rounded-[100px] font-bold transition-colors hover:bg-green-700 flex-1 text-center block disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isApproving ? 'Approving...' : 'Approve Project'}
+            </button>
+          )}
+        </div>
       </CardContent>
     </Card>
   )
