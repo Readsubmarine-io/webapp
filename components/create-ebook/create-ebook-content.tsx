@@ -2,13 +2,9 @@
 
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 
-import {
-  CreateBookCallParams,
-  useCreateBookMutation,
-} from '@/api/book/create-book'
+import { CreateBookCallParams } from '@/api/book/create-book'
 import { AdditionalDetails } from '@/components/create-ebook/additional-details'
 import { ContractsDeploy } from '@/components/create-ebook/contracts-deploy'
 import { FileUploads } from '@/components/create-ebook/file-uploads'
@@ -44,7 +40,6 @@ export function CreateEbookContent() {
     mintAddress: '',
     contactEmail: '',
   })
-  const router = useRouter()
 
   const updateFormData = (newData: Partial<typeof formData>) => {
     setFormData((prevData) => ({ ...prevData, ...newData }))
@@ -53,13 +48,6 @@ export function CreateEbookContent() {
   const nextStep = () =>
     setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1))
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0))
-
-  const { mutateAsync: createBook } = useCreateBookMutation()
-
-  const completeBookCreation = useCallback(async () => {
-    await createBook(formData as CreateBookCallParams)
-    router.push(`/create-ebook/confirmation`)
-  }, [createBook, formData, router])
 
   const renderStep = () => {
     switch (currentStep) {
@@ -104,7 +92,6 @@ export function CreateEbookContent() {
             formData={formData}
             updateFormData={updateFormData}
             onPrev={prevStep}
-            onComplete={completeBookCreation}
           />
         )
       default:

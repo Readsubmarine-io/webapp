@@ -176,31 +176,39 @@ export function FileUploads({
         </div>
       )}
       <div>
-        <Label htmlFor="coverImage">Upload eBook Cover (JPEG)</Label>
+        <Label htmlFor="coverImage">
+          Upload eBook Cover (JPEG) <span className="text-red-600">*</span>
+        </Label>
         <Input
           id="coverImage"
           type="file"
           accept="image/jpeg, image/png"
           onChange={(e) => handleFileChange(e, 'coverImage')}
+          className="hover:cursor-pointer file:cursor-pointer"
         />
         {errors.coverImage && (
           <p className="text-red-500 text-sm mt-1">{errors.coverImage}</p>
         )}
       </div>
       <div>
-        <Label htmlFor="pdf">Upload eBook PDF</Label>
+        <Label htmlFor="pdf">
+          Upload eBook PDF <span className="text-red-600">*</span>
+        </Label>
         <Input
           id="pdf"
           type="file"
           accept="application/pdf"
           onChange={(e) => handleFileChange(e, 'pdf')}
+          className="hover:cursor-pointer file:cursor-pointer"
         />
         {errors.pdf && (
           <p className="text-red-500 text-sm mt-1">{errors.pdf}</p>
         )}
       </div>
       <div>
-        <Label htmlFor="email">Email Address</Label>
+        <Label htmlFor="email">
+          Email Address <span className="text-red-600">*</span>
+        </Label>
         <Input
           id="contactEmail"
           type="email"

@@ -14,10 +14,14 @@ import {
 } from '@metaplex-foundation/umi'
 import { none } from '@solana/kit'
 import { createHash } from 'crypto'
+import { useRouter } from 'next/navigation'
 import type React from 'react'
 import { useCallback, useState } from 'react'
 
-import { CreateBookCallParams } from '@/api/book/create-book'
+import {
+  CreateBookCallParams,
+  useCreateBookMutation,
+} from '@/api/book/create-book'
 import { useGetSettingsQuery } from '@/api/setting/get-settings'
 import { SettingKey } from '@/api/setting/types'
 import { Button } from '@/components/ui/button'
@@ -46,14 +50,12 @@ interface ContractsDeployProps {
   formData: Partial<CreateBookCallParams>
   updateFormData: (data: Partial<CreateBookCallParams>) => void
   onPrev: () => void
-  onComplete: () => void
 }
 
 export function ContractsDeploy({
   formData,
   updateFormData,
   onPrev,
-  onComplete,
 }: ContractsDeployProps) {
   const [currentSubstep, setCurrentSubstep] = useState(0)
   const [isInProgress, setIsInProgress] = useState(false)
@@ -100,7 +102,7 @@ export function ContractsDeploy({
         authority: umi.identity,
         name: `${formData.title} Collection`,
         uri: metadataUrl,
-        sellerFeeBasisPoints: percentAmount(9.99, 2), // 9.99%
+        sellerFeeBasisPoints: percentAmount(5, 2), // 5%
       })
 
       try {
@@ -196,18 +198,18 @@ export function ContractsDeploy({
         collectionMint: collectionAddress,
         collectionUpdateAuthority: umi.identity,
         tokenStandard: TokenStandard.NonFungible,
-        sellerFeeBasisPoints: percentAmount(9.99, 2), // 9.99%
+        sellerFeeBasisPoints: percentAmount(5, 2), // 5%
         itemsAvailable: totalCopies,
         creators: [
           {
             address: umi.identity.publicKey,
             verified: true,
-            percentageShare: 100 - mintFee,
+            percentageShare: 80,
           },
           {
             address: publicKey(PLATFORM_FEE_ADDRESS),
             verified: true,
-            percentageShare: mintFee,
+            percentageShare: 20,
           },
         ],
         configLineSettings: none(),
@@ -256,11 +258,21 @@ export function ContractsDeploy({
     checkWalletsMissmatch,
   ])
 
-  const handleComplete = useCallback(() => {
-    if (isComplete) {
-      onComplete()
+  const [isCreatingBook, setIsCreatingBook] = useState(false)
+
+  const { mutateAsync: createBook } = useCreateBookMutation()
+  const router = useRouter()
+
+  const completeBookCreation = useCallback(async () => {
+    try {
+      setIsCreatingBook(true)
+      await createBook(formData as CreateBookCallParams)
+      router.push(`/create-ebook/confirmation`)
+    } catch (error) {
+      console.error(error)
+      setIsCreatingBook(false)
     }
-  }, [isComplete, onComplete])
+  }, [createBook, formData, router])
 
   if (!mintFee) {
     return <div>Loading...</div>
@@ -383,11 +395,11 @@ export function ContractsDeploy({
         </Button>
         <Button
           type="submit"
-          disabled={!isComplete}
+          disabled={!isComplete || isCreatingBook}
           className="w-[48%] bg-power-pump-button text-white hover:bg-power-pump-button/90"
-          onClick={handleComplete}
+          onClick={completeBookCreation}
         >
-          Complete
+          {isCreatingBook ? 'Creating...' : 'Complete'}
         </Button>
       </div>
     </div>

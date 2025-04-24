@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { CreateBookCallParams } from '@/api/book/create-book'
 import { useGetSettingsQuery } from '@/api/setting/get-settings'
@@ -33,7 +33,9 @@ export function AdditionalDetails({
 
   const { data: settings } = useGetSettingsQuery()
 
-  const validate = () => {
+  const [isTouched, setIsTouched] = useState(false)
+
+  const validate = useCallback(() => {
     let isValid = true
     const newErrors = {
       longDescription: '',
@@ -71,7 +73,15 @@ export function AdditionalDetails({
 
     setErrors(newErrors)
     return isValid
-  }
+  }, [formData])
+
+  useEffect(() => {
+    if (!isTouched) {
+      return
+    }
+
+    validate()
+  }, [formData, isTouched, validate])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -93,9 +103,16 @@ export function AdditionalDetails({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form
+      onSubmit={handleSubmit}
+      onChange={() => setIsTouched(true)}
+      onClick={() => setIsTouched(true)}
+      className="space-y-6"
+    >
       <div>
-        <Label htmlFor="longDescription">Long Description</Label>
+        <Label htmlFor="longDescription">
+          Long Description <span className="text-red-600">*</span>
+        </Label>
         <Textarea
           id="longDescription"
           value={formData.longDescription}
@@ -111,7 +128,9 @@ export function AdditionalDetails({
         )}
       </div>
       <div>
-        <Label>Genres</Label>
+        <Label>
+          Genres <span className="text-red-600">*</span>
+        </Label>
         <div className="grid grid-cols-2 gap-4 mt-2">
           {genres.map((genre) => (
             <div key={genre} className="flex items-center space-x-2">
@@ -139,7 +158,9 @@ export function AdditionalDetails({
         )}
       </div>
       <div>
-        <Label htmlFor="pages">Number of Pages</Label>
+        <Label htmlFor="pages">
+          Number of Pages <span className="text-red-600">*</span>
+        </Label>
         <NumberInput
           id="pages"
           initialValue={formData.pages ?? 0}

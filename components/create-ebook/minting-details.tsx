@@ -38,7 +38,7 @@ export function MintingDetails({
       mintEndDate: '',
     }
 
-    if (!formData.mintPrice) {
+    if (!formData.mintPrice && formData.mintPrice !== 0) {
       newErrors.mintPrice = 'Mint Price is required'
       isValid = false
     } else if (
@@ -95,7 +95,9 @@ export function MintingDetails({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <Label htmlFor="mintPrice">Mint Price (SOL)</Label>
+        <Label htmlFor="mintPrice">
+          Mint Price (SOL) <span className="text-red-600">*</span>
+        </Label>
         <NumberInput
           id="mintPrice"
           initialValue={formData.mintPrice ?? 0}
@@ -112,7 +114,9 @@ export function MintingDetails({
         </p>
       </div>
       <div>
-        <Label htmlFor="totalCopies">Total Copies for Sale</Label>
+        <Label htmlFor="totalCopies">
+          Total Copies for Sale <span className="text-red-600">*</span>
+        </Label>
         <NumberInput
           id="totalCopies"
           initialValue={formData.totalCopies ?? 0}
@@ -124,7 +128,9 @@ export function MintingDetails({
         )}
       </div>
       <div>
-        <Label htmlFor="mintDate">Mint Start Date</Label>
+        <Label htmlFor="mintDate">
+          Mint Start Date <span className="text-red-600">*</span>
+        </Label>
         <Input
           id="mintStartDate"
           type="date"

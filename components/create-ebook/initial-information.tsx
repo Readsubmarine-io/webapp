@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { CreateBookCallParams } from '@/api/book/create-book'
 import { Button } from '@/components/ui/button'
@@ -24,7 +24,7 @@ export function InitialInformation({
     shortDescription: '',
   })
 
-  const validate = () => {
+  const validate = useCallback(() => {
     let isValid = true
     const newErrors = {
       title: '',
@@ -72,7 +72,11 @@ export function InitialInformation({
 
     setErrors(newErrors)
     return isValid
-  }
+  }, [formData])
+
+  useEffect(() => {
+    validate()
+  }, [formData, validate])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -84,7 +88,9 @@ export function InitialInformation({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <Label htmlFor="title">eBook Title</Label>
+        <Label htmlFor="title">
+          eBook Title <span className="text-red-600">*</span>
+        </Label>
         <Input
           id="title"
           value={formData.title}
@@ -97,7 +103,9 @@ export function InitialInformation({
         )}
       </div>
       <div>
-        <Label htmlFor="author">Author Name</Label>
+        <Label htmlFor="author">
+          Author Name <span className="text-red-600">*</span>
+        </Label>
         <Input
           id="author"
           value={formData.author}
@@ -110,7 +118,9 @@ export function InitialInformation({
         )}
       </div>
       <div>
-        <Label htmlFor="shortDescription">Short Description</Label>
+        <Label htmlFor="shortDescription">
+          Short Description <span className="text-red-600">*</span>
+        </Label>
         <Textarea
           id="shortDescription"
           value={formData.shortDescription}
