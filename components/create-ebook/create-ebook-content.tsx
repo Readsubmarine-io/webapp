@@ -22,23 +22,22 @@ const steps = [
 export function CreateEbookContent() {
   const [currentStep, setCurrentStep] = useState(0)
   const [formData, setFormData] = useState<Partial<CreateBookCallParams>>({
-    title: 'Test Book',
-    author: 'Test Author',
-    shortDescription: 'Test Short Description',
-    longDescription:
-      'Test Long Description of the book. This is a test description for the book.',
+    title: undefined,
+    author: undefined,
+    shortDescription: undefined,
+    longDescription: undefined,
     genres: [],
-    pages: 100,
-    mintPrice: 0,
-    totalCopies: 0,
-    mintStartDate: new Date(),
+    pages: undefined,
+    mintPrice: undefined,
+    totalCopies: undefined,
+    mintStartDate: undefined,
     mintEndDate: undefined,
     coverImage: undefined,
     pdf: undefined,
     metadata: undefined,
-    collectionAddress: '',
-    mintAddress: '',
-    contactEmail: '',
+    collectionAddress: undefined,
+    mintAddress: undefined,
+    contactEmail: undefined,
   })
 
   const updateFormData = (newData: Partial<typeof formData>) => {

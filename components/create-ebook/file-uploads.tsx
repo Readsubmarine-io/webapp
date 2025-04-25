@@ -1,5 +1,6 @@
 'use client'
 
+import { useForm } from '@tanstack/react-form'
 import { CheckCircle } from 'lucide-react'
 import type React from 'react'
 import { useCallback, useState } from 'react'
@@ -13,6 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+
 interface FileUploadsProps {
   formData: Partial<CreateBookCallParams>
   updateFormData: (data: Partial<CreateBookCallParams>) => void
@@ -27,65 +29,27 @@ export function FileUploads({
   onNext,
 }: FileUploadsProps) {
   const [isSubmissionSuccessful, setIsSubmissionSuccessful] = useState(false)
-  const [errors, setErrors] = useState({
-    coverImage: '',
-    pdf: '',
-    contactEmail: '',
-    acceptTerms: '',
-  })
-  const [acceptTerms, setAcceptTerms] = useState(false)
   const { mutateAsync: createFile } = useCreateFileMutation()
   const { data: settings } = useGetSettingsQuery()
 
-  const validate = () => {
-    let isValid = true
-    const newErrors = {
-      coverImage: '',
-      pdf: '',
-      contactEmail: '',
-      acceptTerms: '',
-    }
-
-    if (!formData.coverImage) {
-      newErrors.coverImage = 'Cover image is required'
-      isValid = false
-    }
-
-    if (!formData.pdf) {
-      newErrors.pdf = 'eBook PDF is required'
-      isValid = false
-    }
-
-    if (!formData.contactEmail?.trim()) {
-      newErrors.contactEmail = 'Email is required'
-      isValid = false
-    } else if (!/\S+@\S+\.\S+/.test(formData.contactEmail)) {
-      newErrors.contactEmail = 'Please enter a valid email address'
-      isValid = false
-    }
-
-    if (!acceptTerms) {
-      newErrors.acceptTerms = 'You must accept the terms to proceed'
-      isValid = false
-    }
-
-    setErrors(newErrors)
-    return isValid
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (validate()) {
-      // Create metadata file
-      await handleMetadataUpload()
-      // Here you would typically send the form data to your backend
-      console.log('Form submitted:', formData)
-      // Set submission as successful
-      setIsSubmissionSuccessful(true)
-      // Reset the form or perform any other necessary actions
-      onNext()
-    }
-  }
+  const form = useForm({
+    defaultValues: {
+      coverImage: formData.coverImage,
+      pdf: formData.pdf,
+      contactEmail: formData.contactEmail || '',
+      acceptTerms: false,
+    },
+    onSubmit: async ({ value }) => {
+      try {
+        await handleMetadataUpload()
+        console.log('Form submitted:', { ...formData, ...value })
+        setIsSubmissionSuccessful(true)
+        onNext()
+      } catch (error) {
+        console.error('Error submitting form:', error)
+      }
+    },
+  })
 
   const handleMetadataUpload = useCallback(async () => {
     const coverImage = formData.coverImage
@@ -143,13 +107,14 @@ export function FileUploads({
           })
 
           updateFormData({ [field]: fileInfo })
+          form.setFieldValue(field, fileInfo)
         } catch (error) {
           console.error(error)
           e.target.value = ''
         }
       }
     },
-    [createFile, updateFormData],
+    [createFile, updateFormData, form],
   )
 
   const mintFee = settings?.[SettingKey.PlatformFee]
@@ -159,7 +124,14 @@ export function FileUploads({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        form.handleSubmit()
+      }}
+      className="space-y-6"
+    >
       {isSubmissionSuccessful && (
         <div
           className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6"
@@ -175,84 +147,153 @@ export function FileUploads({
           </p>
         </div>
       )}
-      <div>
-        <Label htmlFor="coverImage">
-          Upload eBook Cover (JPEG) <span className="text-red-600">*</span>
-        </Label>
-        <Input
-          id="coverImage"
-          type="file"
-          accept="image/jpeg, image/png"
-          onChange={(e) => handleFileChange(e, 'coverImage')}
-          className="hover:cursor-pointer file:cursor-pointer"
-        />
-        {errors.coverImage && (
-          <p className="text-red-500 text-sm mt-1">{errors.coverImage}</p>
+
+      <form.Field
+        name="coverImage"
+        validators={{
+          onChange: ({ value }) =>
+            !value ? 'Cover image is required' : undefined,
+        }}
+      >
+        {(field) => (
+          <div>
+            <Label htmlFor="coverImage">
+              Upload eBook Cover (JPEG) <span className="text-red-600">*</span>
+            </Label>
+            <Input
+              id="coverImage"
+              type="file"
+              accept="image/jpeg, image/png"
+              onChange={(e) => handleFileChange(e, 'coverImage')}
+              className="hover:cursor-pointer file:cursor-pointer"
+            />
+            {field.state.meta.errors.length > 0 && (
+              <p className="text-red-500 text-sm mt-1">
+                {field.state.meta.errors[0]}
+              </p>
+            )}
+          </div>
         )}
-      </div>
-      <div>
-        <Label htmlFor="pdf">
-          Upload eBook PDF <span className="text-red-600">*</span>
-        </Label>
-        <Input
-          id="pdf"
-          type="file"
-          accept="application/pdf"
-          onChange={(e) => handleFileChange(e, 'pdf')}
-          className="hover:cursor-pointer file:cursor-pointer"
-        />
-        {errors.pdf && (
-          <p className="text-red-500 text-sm mt-1">{errors.pdf}</p>
+      </form.Field>
+
+      <form.Field
+        name="pdf"
+        validators={{
+          onChange: ({ value }) =>
+            !value ? 'eBook PDF is required' : undefined,
+        }}
+      >
+        {(field) => (
+          <div>
+            <Label htmlFor="pdf">
+              Upload eBook PDF <span className="text-red-600">*</span>
+            </Label>
+            <Input
+              id="pdf"
+              type="file"
+              accept="application/pdf"
+              onChange={(e) => handleFileChange(e, 'pdf')}
+              className="hover:cursor-pointer file:cursor-pointer"
+            />
+            {field.state.meta.errors.length > 0 && (
+              <p className="text-red-500 text-sm mt-1">
+                {field.state.meta.errors[0]}
+              </p>
+            )}
+          </div>
         )}
-      </div>
-      <div>
-        <Label htmlFor="email">
-          Email Address <span className="text-red-600">*</span>
-        </Label>
-        <Input
-          id="contactEmail"
-          type="email"
-          value={formData.contactEmail}
-          onChange={(e) => updateFormData({ contactEmail: e.target.value })}
-          placeholder="Enter your email address"
-        />
-        {errors.contactEmail && (
-          <p className="text-red-500 text-sm mt-1">{errors.contactEmail}</p>
+      </form.Field>
+
+      <form.Field
+        name="contactEmail"
+        validators={{
+          onChange: ({ value }) => {
+            if (!value?.trim()) return 'Email is required'
+            if (!/\S+@\S+\.\S+/.test(value)) {
+              return 'Please enter a valid email address'
+            }
+            return undefined
+          },
+        }}
+      >
+        {(field) => (
+          <div>
+            <Label htmlFor="email">
+              Email Address <span className="text-red-600">*</span>
+            </Label>
+            <Input
+              id="contactEmail"
+              type="email"
+              value={field.state.value}
+              onChange={(e) => {
+                field.handleChange(e.target.value)
+                updateFormData({ contactEmail: e.target.value })
+              }}
+              placeholder="Enter your email address"
+            />
+            {field.state.meta.errors.length > 0 && (
+              <p className="text-red-500 text-sm mt-1">
+                {field.state.meta.errors[0]}
+              </p>
+            )}
+          </div>
         )}
-      </div>
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="acceptTerms"
-          checked={acceptTerms}
-          onCheckedChange={(checked) => setAcceptTerms(checked as boolean)}
-        />
-        <label
-          htmlFor="acceptTerms"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-        >
-          I accept the platform's terms and confirm a {mintFee}% mint fee
-        </label>
-      </div>
-      {errors.acceptTerms && (
-        <p className="text-red-500 text-sm mt-1">{errors.acceptTerms}</p>
-      )}
-      <div className="flex justify-between items-center mt-6">
-        <Button
-          type="button"
-          onClick={onPrev}
-          variant="outline"
-          className="w-[48%]"
-        >
-          Previous
-        </Button>
-        <Button
-          type="submit"
-          disabled={!acceptTerms}
-          className="w-[48%] bg-power-pump-button text-white hover:bg-power-pump-button/90"
-        >
-          Deploy Contracts
-        </Button>
-      </div>
+      </form.Field>
+
+      <form.Field
+        name="acceptTerms"
+        validators={{
+          onChange: ({ value }) =>
+            !value ? 'You must accept the terms to proceed' : undefined,
+        }}
+      >
+        {(field) => (
+          <>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="acceptTerms"
+                checked={field.state.value}
+                onCheckedChange={(checked) => field.handleChange(!!checked)}
+              />
+              <label
+                htmlFor="acceptTerms"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                I accept the platform's terms and confirm a {mintFee}% mint fee
+              </label>
+            </div>
+            {field.state.meta.errors.length > 0 && (
+              <p className="text-red-500 text-sm mt-1">
+                {field.state.meta.errors[0]}
+              </p>
+            )}
+          </>
+        )}
+      </form.Field>
+
+      <form.Subscribe
+        selector={(state) => [state.canSubmit, state.isSubmitting]}
+      >
+        {([canSubmit, isSubmitting]) => (
+          <div className="flex justify-between items-center mt-6">
+            <Button
+              type="button"
+              onClick={onPrev}
+              variant="outline"
+              className="w-[48%]"
+            >
+              Previous
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting || !canSubmit}
+              className="w-[48%] bg-power-pump-button text-white hover:bg-power-pump-button/90"
+            >
+              {isSubmitting ? 'Submitting...' : 'Deploy Contracts'}
+            </Button>
+          </div>
+        )}
+      </form.Subscribe>
     </form>
   )
 }

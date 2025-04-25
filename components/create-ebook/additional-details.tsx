@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useForm } from '@tanstack/react-form'
 
 import { CreateBookCallParams } from '@/api/book/create-book'
 import { useGetSettingsQuery } from '@/api/setting/get-settings'
@@ -25,77 +25,19 @@ export function AdditionalDetails({
   onNext,
   onPrev,
 }: AdditionalDetailsProps) {
-  const [errors, setErrors] = useState({
-    longDescription: '',
-    genres: '',
-    pages: '',
-  })
-
   const { data: settings } = useGetSettingsQuery()
 
-  const [isTouched, setIsTouched] = useState(false)
-
-  const validate = useCallback(() => {
-    let isValid = true
-    const newErrors = {
-      longDescription: '',
-      genres: '',
-      pages: '',
-    }
-
-    const trimmedLongDescription = formData.longDescription?.trim()
-
-    if (!trimmedLongDescription) {
-      newErrors.longDescription = 'Long Description is required'
-      isValid = false
-    } else if (trimmedLongDescription.length > 1500) {
-      newErrors.longDescription =
-        'Long Description must be 1500 characters or less'
-      isValid = false
-    } else if (trimmedLongDescription.length < 100) {
-      newErrors.longDescription =
-        'Long Description must be 100 characters or more'
-      isValid = false
-    }
-
-    if (formData.genres?.length === 0) {
-      newErrors.genres = 'Please select at least one genre'
-      isValid = false
-    }
-
-    if (!formData.pages) {
-      newErrors.pages = 'Number of pages is required'
-      isValid = false
-    } else if (isNaN(Number(formData.pages)) || Number(formData.pages) <= 0) {
-      newErrors.pages = 'Please enter a valid number of pages'
-      isValid = false
-    }
-
-    setErrors(newErrors)
-    return isValid
-  }, [formData])
-
-  useEffect(() => {
-    if (!isTouched) {
-      return
-    }
-
-    validate()
-  }, [formData, isTouched, validate])
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (validate()) {
+  const form = useForm({
+    defaultValues: {
+      longDescription: formData.longDescription || '',
+      genres: formData.genres || [],
+      pages: formData.pages || 0,
+    },
+    onSubmit: async ({ value }) => {
+      updateFormData(value)
       onNext()
-    }
-  }
-
-  const handleGenreChange = (genre: string) => {
-    const updatedGenres = formData.genres?.includes(genre)
-      ? formData.genres?.filter((g) => g !== genre)
-      : [...(formData.genres ?? []), genre]
-    updateFormData({ genres: updatedGenres })
-  }
+    },
+  })
 
   const genres = settings?.[SettingKey.Genres] ?? []
   if (!genres) {
@@ -104,74 +46,144 @@ export function AdditionalDetails({
 
   return (
     <form
-      onSubmit={handleSubmit}
-      onChange={() => setIsTouched(true)}
-      onClick={() => setIsTouched(true)}
+      onSubmit={(e) => {
+        e.preventDefault()
+        form.handleSubmit()
+      }}
       className="space-y-6"
     >
       <div>
         <Label htmlFor="longDescription">
           Long Description <span className="text-red-600">*</span>
         </Label>
-        <Textarea
-          id="longDescription"
-          value={formData.longDescription}
-          onChange={(e) => updateFormData({ longDescription: e.target.value })}
-          placeholder="Enter a detailed description (max 1500 characters)"
-          maxLength={1500}
-        />
-        <p className="text-sm text-gray-500 mt-1">
-          {formData.longDescription?.length ?? 0}/1500 characters
-        </p>
-        {errors.longDescription && (
-          <p className="text-red-500 text-sm mt-1">{errors.longDescription}</p>
-        )}
+        <form.Field
+          name="longDescription"
+          validators={{
+            onChange: ({ value }) => {
+              const trimmed = value.trim()
+              if (!trimmed) return 'Long Description is required'
+              if (trimmed.length > 1500)
+                return 'Long Description must be 1500 characters or less'
+              if (trimmed.length < 100)
+                return 'Long Description must be 100 characters or more'
+              return undefined
+            },
+          }}
+        >
+          {(field) => (
+            <>
+              <Textarea
+                id="longDescription"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                onBlur={() => field.handleBlur()}
+                placeholder="Enter a detailed description (max 1500 characters)"
+                maxLength={1500}
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                {field.state.value.length}/1500 characters
+              </p>
+              {field.state.meta.isTouched &&
+                field.state.meta.errors.length > 0 && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {field.state.meta.errors[0]}
+                  </p>
+                )}
+            </>
+          )}
+        </form.Field>
       </div>
       <div>
         <Label>
           Genres <span className="text-red-600">*</span>
         </Label>
-        <div className="grid grid-cols-2 gap-4 mt-2">
-          {genres.map((genre) => (
-            <div key={genre} className="flex items-center space-x-2">
-              <Checkbox
-                id={genre}
-                checked={formData.genres?.includes(genre)}
-                onCheckedChange={() => handleGenreChange(genre)}
-                className={cn(
-                  'border-gray-300 focus:ring-power-pump-button',
-                  (formData.genres?.includes(genre) ?? false) &&
-                    'bg-power-pump-button border-power-pump-button text-white',
+        <form.Field
+          name="genres"
+          validators={{
+            onChange: ({ value }) => {
+              if (!value || value.length === 0)
+                return 'Please select at least one genre'
+              return undefined
+            },
+          }}
+        >
+          {(field) => (
+            <>
+              <div className="grid grid-cols-2 gap-4 mt-2">
+                {genres.map((genre) => (
+                  <div key={genre} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={genre}
+                      checked={field.state.value.includes(genre)}
+                      onCheckedChange={() => {
+                        const updatedGenres = field.state.value.includes(genre)
+                          ? field.state.value.filter((g) => g !== genre)
+                          : [...field.state.value, genre]
+                        field.handleChange(updatedGenres)
+                        field.handleBlur()
+                      }}
+                      className={cn(
+                        'border-gray-300 focus:ring-power-pump-button',
+                        field.state.value.includes(genre) &&
+                          'bg-power-pump-button border-power-pump-button text-white',
+                      )}
+                    />
+                    <label
+                      htmlFor={genre}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                    >
+                      {genre}
+                    </label>
+                  </div>
+                ))}
+              </div>
+              {field.state.meta.isTouched &&
+                field.state.meta.errors.length > 0 && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {field.state.meta.errors[0]}
+                  </p>
                 )}
-              />
-              <label
-                htmlFor={genre}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                {genre}
-              </label>
-            </div>
-          ))}
-        </div>
-        {errors.genres && (
-          <p className="text-red-500 text-sm mt-1">{errors.genres}</p>
-        )}
+            </>
+          )}
+        </form.Field>
       </div>
       <div>
         <Label htmlFor="pages">
           Number of Pages <span className="text-red-600">*</span>
         </Label>
-        <NumberInput
-          id="pages"
-          initialValue={formData.pages ?? 0}
-          onChange={(value) => updateFormData({ pages: value })}
-          allowDecimal={false}
-          placeholder="Enter the number of pages"
-          min={1}
-        />
-        {errors.pages && (
-          <p className="text-red-500 text-sm mt-1">{errors.pages}</p>
-        )}
+        <form.Field
+          name="pages"
+          validators={{
+            onChange: ({ value }) => {
+              if (!value) return 'Number of pages is required'
+              if (isNaN(Number(value)) || Number(value) <= 0)
+                return 'Please enter a valid number of pages'
+              return undefined
+            },
+          }}
+        >
+          {(field) => (
+            <>
+              <NumberInput
+                id="pages"
+                initialValue={Number(field.state.value)}
+                onChange={(value) => {
+                  field.handleChange(value)
+                  field.handleBlur()
+                }}
+                allowDecimal={false}
+                placeholder="Enter the number of pages"
+                min={1}
+              />
+              {field.state.meta.isTouched &&
+                field.state.meta.errors.length > 0 && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {field.state.meta.errors[0]}
+                  </p>
+                )}
+            </>
+          )}
+        </form.Field>
       </div>
       <div className="flex justify-between items-center mt-6 space-x-2 sm:space-x-4">
         <Button
@@ -182,12 +194,19 @@ export function AdditionalDetails({
         >
           Previous
         </Button>
-        <Button
-          type="submit"
-          className="w-[48%] sm:w-auto h-9 sm:h-10 px-3 sm:px-4 text-sm bg-power-pump-button text-white hover:bg-power-pump-button/90"
+        <form.Subscribe
+          selector={(state) => [state.canSubmit, state.isSubmitting]}
         >
-          Next
-        </Button>
+          {([canSubmit, isSubmitting]) => (
+            <Button
+              type="submit"
+              disabled={!canSubmit || isSubmitting}
+              className="w-[48%] sm:w-auto h-9 sm:h-10 px-3 sm:px-4 text-sm bg-power-pump-button text-white hover:bg-power-pump-button/90"
+            >
+              {isSubmitting ? 'Submitting...' : 'Next'}
+            </Button>
+          )}
+        </form.Subscribe>
       </div>
     </form>
   )
