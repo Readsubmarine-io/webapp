@@ -105,6 +105,7 @@ export function EditProfileDialog({
               type="file"
               accept="image/jpeg, image/png"
               onChange={handleFileChange}
+              className="file:cursor-pointer"
             />
           </div>
           <div className="space-y-2">
