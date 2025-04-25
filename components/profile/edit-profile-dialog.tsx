@@ -1,7 +1,8 @@
 'use client'
 
+import { useForm } from '@tanstack/react-form'
 import { Facebook, Globe, Instagram, Twitter } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 
 import { useCreateFileMutation } from '@/api/file/create-file'
 import { FileAssignment, FileInfo } from '@/api/file/types'
@@ -24,162 +25,30 @@ interface EditProfileDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-type FormData = {
-  avatar: FileInfo | null
-  displayName: string
-  bio?: string
-  website?: string
-  facebook?: string
-  instagram?: string
-  twitter?: string
-}
-
 export function EditProfileDialog({
   user,
   open,
   onOpenChange,
 }: EditProfileDialogProps) {
-  const [formData, setFormData] = useState<FormData>({
-    avatar: user.avatar ?? null,
-    displayName: user.displayName,
-    bio: user.bio,
-    website: user.website,
-    facebook: user.facebook,
-    instagram: user.instagram,
-    twitter: user.twitter,
-  })
-
-  const [errors, setErrors] = useState({
-    displayName: '',
-    bio: '',
-    website: '',
-    facebook: '',
-    instagram: '',
-    twitter: '',
-  })
-
   const { mutateAsync: updateUser } = useUpdateUserMutation()
-
-  const validate = useCallback(
-    (value?: FormData) => {
-      const data = value ?? formData
-
-      let isValid = true
-      const newErrors = {
-        displayName: '',
-        bio: '',
-        website: '',
-        facebook: '',
-        instagram: '',
-        twitter: '',
-      }
-
-      // Validate display name
-      if (
-        !data.displayName?.trim().length ||
-        data.displayName.length < 5 ||
-        data.displayName.length > 30
-      ) {
-        newErrors.displayName =
-          'Display Name is required and must be between 5 and 30 characters'
-        isValid = false
-      }
-
-      if (data.bio && data.bio.length > 500) {
-        newErrors.bio = 'Bio must be less than 500 characters'
-        isValid = false
-      }
-
-      // URL validation helper function
-      const isValidUrl = (url: string) => {
-        if (!url) return true // Empty URLs are valid
-        try {
-          const urlObj = new URL(url)
-          return urlObj.protocol === 'https:' || urlObj.protocol === 'http:'
-        } catch {
-          return false
-        }
-      }
-
-      const checkUrlDomain = (url: string, domain: string) => {
-        try {
-          const urlObj = new URL(url)
-          return urlObj.hostname === domain
-        } catch {
-          return false
-        }
-      }
-
-      // Validate URLs
-      if (data.website && !isValidUrl(data.website)) {
-        newErrors.website = 'Please enter a valid URL with protocol specified'
-        isValid = false
-      }
-
-      if (data.facebook && !isValidUrl(data.facebook)) {
-        newErrors.facebook = 'Please enter a valid URL with protocol specified'
-        isValid = false
-      }
-
-      if (data.facebook && !checkUrlDomain(data.facebook, 'facebook.com')) {
-        newErrors.facebook = 'Please enter a valid facebook URL'
-        isValid = false
-      }
-
-      if (data.instagram && !isValidUrl(data.instagram)) {
-        newErrors.instagram = 'Please enter a valid URL with protocol specified'
-        isValid = false
-      }
-
-      if (data.instagram && !checkUrlDomain(data.instagram, 'instagram.com')) {
-        newErrors.instagram = 'Please enter a valid instagram URL'
-        isValid = false
-      }
-
-      if (data.twitter && !isValidUrl(data.twitter)) {
-        newErrors.twitter = 'Please enter a valid URL with protocol specified'
-        isValid = false
-      }
-
-      if (
-        data.twitter &&
-        !checkUrlDomain(data.twitter, 'twitter.com') &&
-        !data.twitter.includes('x.com')
-      ) {
-        newErrors.twitter = 'Please enter a valid twitter URL'
-        isValid = false
-      }
-
-      setErrors(newErrors)
-      return isValid
-    },
-    [formData, setErrors],
-  )
-
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const { id, value } = e.target
-      setFormData((prevData) => {
-        const newData = { ...prevData, [id]: value }
-        validate(newData)
-        return newData
-      })
-    },
-    [validate],
-  )
-
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault()
-      if (validate()) {
-        await updateUser(formData)
-        onOpenChange(false)
-      }
-    },
-    [formData, updateUser, onOpenChange, validate],
-  )
-
   const { mutateAsync: uploadFile } = useCreateFileMutation()
+
+  const form = useForm({
+    defaultValues: {
+      avatar: user.avatar ?? (null as FileInfo | null),
+      displayName: user.displayName,
+      bio: user.bio ?? '',
+      website: user.website ?? '',
+      facebook: user.facebook ?? '',
+      instagram: user.instagram ?? '',
+      twitter: user.twitter ?? '',
+    },
+    onSubmit: async ({ value }) => {
+      await updateUser(value)
+      onOpenChange(false)
+    },
+  })
+
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0]
@@ -193,12 +62,9 @@ export function EditProfileDialog({
         assignment: FileAssignment.UserAvatar,
       })
 
-      setFormData((prevData) => ({
-        ...prevData,
-        avatar: uploadedFile,
-      }))
+      form.setFieldValue('avatar', uploadedFile)
     },
-    [uploadFile],
+    [uploadFile, form],
   )
 
   return (
@@ -206,20 +72,17 @@ export function EditProfileDialog({
       open={open}
       onOpenChange={(state: boolean) => {
         onOpenChange(state)
-        setFormData({
-          avatar: user.avatar ?? null,
-          displayName: user.displayName,
-          bio: user.bio,
-          website: user.website,
-        })
-        setErrors({
-          displayName: '',
-          bio: '',
-          website: '',
-          facebook: '',
-          instagram: '',
-          twitter: '',
-        })
+        if (state) {
+          form.reset({
+            avatar: user.avatar ?? (null as FileInfo | null),
+            displayName: user.displayName,
+            bio: user.bio ?? '',
+            website: user.website ?? '',
+            facebook: user.facebook ?? '',
+            instagram: user.instagram ?? '',
+            twitter: user.twitter ?? '',
+          })
+        }
       }}
     >
       <DialogContent className="sm:max-w-[425px] w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)] overflow-y-auto font-sans p-4 sm:p-6 bg-dialog">
@@ -228,131 +91,306 @@ export function EditProfileDialog({
             Edit Profile
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 mt-4">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            form.handleSubmit()
+          }}
+          className="space-y-3 sm:space-y-4 mt-4"
+        >
           <div>
             <Label htmlFor="avatar">Upload Avatar</Label>
             <Input
               id="avatar"
               type="file"
               accept="image/jpeg, image/png"
-              onChange={(e) => handleFileChange(e)}
+              onChange={handleFileChange}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="displayName">Display Name</Label>
-            <Input
-              id="displayName"
-              value={formData.displayName}
-              onChange={handleChange}
-              className="w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button text-sm sm:text-base h-9 sm:h-10"
-              placeholder="Display Name"
-            />
-            {errors.displayName && (
-              <p className="text-red-500 text-sm mt-1">{errors.displayName}</p>
-            )}
+            <form.Field
+              name="displayName"
+              validators={{
+                onChange: ({ value }) => {
+                  const trimmed = value.trim()
+                  if (!trimmed) return 'Display Name is required'
+                  if (trimmed.length < 5)
+                    return 'Display Name must be at least 5 characters'
+                  if (trimmed.length > 30)
+                    return 'Display Name must be less than 30 characters'
+                  return undefined
+                },
+              }}
+            >
+              {(field) => (
+                <>
+                  <Input
+                    id="displayName"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={() => field.handleBlur()}
+                    className="w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button text-sm sm:text-base h-9 sm:h-10"
+                    placeholder="Display Name"
+                  />
+                  {field.state.meta.isTouched &&
+                    field.state.meta.errors.length > 0 && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {field.state.meta.errors[0]}
+                      </p>
+                    )}
+                </>
+              )}
+            </form.Field>
           </div>
           <div>
             <div className="space-y-2">
               <Label htmlFor="bio">Bio</Label>
-              <Textarea
-                id="bio"
-                value={formData.bio}
-                onChange={handleChange}
-                className="w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button resize-none text-sm sm:text-base h-20 sm:h-24"
-                placeholder="Tell us about yourself"
-              />
-            </div>
-            {errors.bio && (
-              <p className="text-red-500 text-sm mt-1">{errors.bio}</p>
-            )}
-          </div>
-          <div>
-            <div className="space-y-2 flex items-center relative">
-              <Label
-                htmlFor="website"
-                className="absolute left-2 bottom-0 h-9 sm:h-10 flex items-center"
+              <form.Field
+                name="bio"
+                validators={{
+                  onChange: ({ value }) => {
+                    if (value && value.length > 500)
+                      return 'Bio must be less than 500 characters'
+                    return undefined
+                  },
+                }}
               >
-                <Globe className="w-4 h-4 mr-2" />
-              </Label>
-              <Input
-                id="website"
-                value={formData.website}
-                onChange={handleChange}
-                className="pl-8 w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button text-sm sm:text-base h-9 sm:h-10"
-                placeholder="Enter your website url"
-              />
+                {(field) => (
+                  <>
+                    <Textarea
+                      id="bio"
+                      value={field.state.value}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      onBlur={() => field.handleBlur()}
+                      className="w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button resize-none text-sm sm:text-base h-20 sm:h-24"
+                      placeholder="Tell us about yourself"
+                    />
+                    {field.state.meta.isTouched &&
+                      field.state.meta.errors.length > 0 && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {field.state.meta.errors[0]}
+                        </p>
+                      )}
+                  </>
+                )}
+              </form.Field>
             </div>
-            {errors.website && (
-              <p className="text-red-500 text-sm mt-1">{errors.website}</p>
-            )}
           </div>
-          <div>
-            <div className="space-y-2 flex items-center relative">
-              <Label
-                htmlFor="facebook"
-                className="absolute left-2 bottom-0 h-9 sm:h-10 flex items-center"
-              >
-                <Facebook className="w-4 h-4 mr-2" />
-              </Label>
-              <Input
-                id="facebook"
-                value={formData.facebook}
-                onChange={handleChange}
-                className="pl-8 w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button text-sm sm:text-base h-9 sm:h-10"
-                placeholder="Enter your facebook url"
-              />
-            </div>
-            {errors.facebook && (
-              <p className="text-red-500 text-sm mt-1">{errors.facebook}</p>
+          <form.Field
+            name="website"
+            validators={{
+              onChange: ({ value }) => {
+                if (!value) return undefined
+                try {
+                  const urlObj = new URL(value)
+                  if (
+                    urlObj.protocol !== 'https:' &&
+                    urlObj.protocol !== 'http:'
+                  ) {
+                    return 'Please enter a valid URL with protocol specified'
+                  }
+                  return undefined
+                } catch {
+                  return 'Please enter a valid URL with protocol specified'
+                }
+              },
+            }}
+          >
+            {(field) => (
+              <div>
+                <div className="space-y-2 flex items-center relative">
+                  <Label
+                    htmlFor="website"
+                    className="absolute left-2 bottom-0 h-9 sm:h-10 flex items-center"
+                  >
+                    <Globe className="w-4 h-4 mr-2" />
+                  </Label>
+                  <Input
+                    id="website"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={() => field.handleBlur()}
+                    className="pl-8 w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button text-sm sm:text-base h-9 sm:h-10"
+                    placeholder="Enter your website url"
+                  />
+                </div>
+                {field.state.meta.isTouched &&
+                  field.state.meta.errors.length > 0 && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {field.state.meta.errors[0]}
+                    </p>
+                  )}
+              </div>
             )}
-          </div>
-          <div>
-            <div className="space-y-2 flex items-center relative">
-              <Label
-                htmlFor="instagram"
-                className="absolute left-2 bottom-0 h-9 sm:h-10 flex items-center"
-              >
-                <Instagram className="w-4 h-4 mr-2" />
-              </Label>
-              <Input
-                id="instagram"
-                value={formData.instagram}
-                onChange={handleChange}
-                className="pl-8 w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button text-sm sm:text-base h-9 sm:h-10"
-                placeholder="Enter your instagram url"
-              />
-            </div>
-            {errors.instagram && (
-              <p className="text-red-500 text-sm mt-1">{errors.instagram}</p>
+          </form.Field>
+          <form.Field
+            name="facebook"
+            validators={{
+              onChange: ({ value }) => {
+                if (!value) return undefined
+                try {
+                  const urlObj = new URL(value)
+                  if (
+                    urlObj.protocol !== 'https:' &&
+                    urlObj.protocol !== 'http:'
+                  ) {
+                    return 'Please enter a valid URL with protocol specified'
+                  }
+                  if (urlObj.hostname !== 'facebook.com') {
+                    return 'Please enter a valid facebook.com URL'
+                  }
+                  return undefined
+                } catch {
+                  return 'Please enter a valid URL with protocol specified'
+                }
+              },
+            }}
+          >
+            {(field) => (
+              <div>
+                <div className="space-y-2 flex items-center relative">
+                  <Label
+                    htmlFor="facebook"
+                    className="absolute left-2 bottom-0 h-9 sm:h-10 flex items-center"
+                  >
+                    <Facebook className="w-4 h-4 mr-2" />
+                  </Label>
+                  <Input
+                    id="facebook"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={() => field.handleBlur()}
+                    className="pl-8 w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button text-sm sm:text-base h-9 sm:h-10"
+                    placeholder="Enter your facebook url"
+                  />
+                </div>
+                {field.state.meta.isTouched &&
+                  field.state.meta.errors.length > 0 && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {field.state.meta.errors[0]}
+                    </p>
+                  )}
+              </div>
             )}
-          </div>
-          <div>
-            <div className="space-y-2 flex items-center relative">
-              <Label
-                htmlFor="twitter"
-                className="absolute left-2 bottom-0 h-9 sm:h-10 flex items-center"
-              >
-                <Twitter className="w-4 h-4 mr-2" />
-              </Label>
-              <Input
-                id="twitter"
-                value={formData.twitter}
-                onChange={handleChange}
-                className="pl-8 w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button text-sm sm:text-base h-9 sm:h-10"
-                placeholder="Enter your twitter url"
-              />
-            </div>
-            {errors.twitter && (
-              <p className="text-red-500 text-sm mt-1">{errors.twitter}</p>
+          </form.Field>
+          <form.Field
+            name="instagram"
+            validators={{
+              onChange: ({ value }) => {
+                if (!value) return undefined
+                try {
+                  const urlObj = new URL(value)
+                  if (
+                    urlObj.protocol !== 'https:' &&
+                    urlObj.protocol !== 'http:'
+                  ) {
+                    return 'Please enter a valid URL with protocol specified'
+                  }
+                  if (urlObj.hostname !== 'instagram.com') {
+                    return 'Please enter a valid instagram.com URL'
+                  }
+                  return undefined
+                } catch {
+                  return 'Please enter a valid URL with protocol specified'
+                }
+              },
+            }}
+          >
+            {(field) => (
+              <div>
+                <div className="space-y-2 flex items-center relative">
+                  <Label
+                    htmlFor="instagram"
+                    className="absolute left-2 bottom-0 h-9 sm:h-10 flex items-center"
+                  >
+                    <Instagram className="w-4 h-4 mr-2" />
+                  </Label>
+                  <Input
+                    id="instagram"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={() => field.handleBlur()}
+                    className="pl-8 w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button text-sm sm:text-base h-9 sm:h-10"
+                    placeholder="Enter your instagram url"
+                  />
+                </div>
+                {field.state.meta.isTouched &&
+                  field.state.meta.errors.length > 0 && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {field.state.meta.errors[0]}
+                    </p>
+                  )}
+              </div>
             )}
-          </div>
+          </form.Field>
+          <form.Field
+            name="twitter"
+            validators={{
+              onChange: ({ value }) => {
+                if (!value) return undefined
+                try {
+                  const urlObj = new URL(value)
+                  if (
+                    urlObj.protocol !== 'https:' &&
+                    urlObj.protocol !== 'http:'
+                  ) {
+                    return 'Please enter a valid URL with protocol specified'
+                  }
+                  if (
+                    urlObj.hostname !== 'twitter.com' &&
+                    !value.includes('x.com')
+                  ) {
+                    return 'Please enter a valid twitter.com or x.com URL'
+                  }
+                  return undefined
+                } catch {
+                  return 'Please enter a valid URL with protocol specified'
+                }
+              },
+            }}
+          >
+            {(field) => (
+              <div>
+                <div className="space-y-2 flex items-center relative">
+                  <Label
+                    htmlFor="twitter"
+                    className="absolute left-2 bottom-0 h-9 sm:h-10 flex items-center"
+                  >
+                    <Twitter className="w-4 h-4 mr-2" />
+                  </Label>
+                  <Input
+                    id="twitter"
+                    value={field.state.value}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    onBlur={() => field.handleBlur()}
+                    className="pl-8 w-full bg-white border-gray-300 focus:border-power-pump-button focus:ring-power-pump-button text-sm sm:text-base h-9 sm:h-10"
+                    placeholder="Enter your twitter url"
+                  />
+                </div>
+                {field.state.meta.isTouched &&
+                  field.state.meta.errors.length > 0 && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {field.state.meta.errors[0]}
+                    </p>
+                  )}
+              </div>
+            )}
+          </form.Field>
           <div className="flex justify-end pt-4">
-            <Button
-              type="submit"
-              className="bg-power-pump-button text-white hover:bg-power-pump-button/90 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-sm sm:text-base font-medium transition-colors duration-200 w-full sm:w-auto"
+            <form.Subscribe
+              selector={(state) => [state.canSubmit, state.isSubmitting]}
             >
-              Save Changes
-            </Button>
+              {([canSubmit, isSubmitting]) => (
+                <Button
+                  type="submit"
+                  disabled={!canSubmit || isSubmitting}
+                  className="bg-power-pump-button text-white hover:bg-power-pump-button/90 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-sm sm:text-base font-medium transition-colors duration-200 w-full sm:w-auto"
+                >
+                  {isSubmitting ? 'Saving...' : 'Save Changes'}
+                </Button>
+              )}
+            </form.Subscribe>
           </div>
         </form>
       </DialogContent>
