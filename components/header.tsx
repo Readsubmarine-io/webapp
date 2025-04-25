@@ -2,7 +2,7 @@
 
 import { LAMPORTS_PER_SOL } from '@solana/web3.js'
 import { styled } from '@stitches/react'
-import { Loader2, LogOut, Menu, User, Shield } from 'lucide-react'
+import { Loader2, LogOut, Menu, Shield, User } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import type React from 'react'
@@ -188,6 +188,7 @@ export function Header({ homeRedirect }: HeaderProps) {
               <Button
                 className="bg-power-pump-button text-white hover:bg-power-pump-button/90 rounded-full px-3 sm:px-5 py-1 sm:py-[5px] text-sm sm:text-base font-bold transition-colors min-w-[100px] actionable"
                 onClick={signIn}
+                disabled={isSigningIn}
               >
                 {isSigningIn ? (
                   <div className="flex justify-center items-center w-full">

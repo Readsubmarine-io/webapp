@@ -1,9 +1,9 @@
+import { useRouter } from 'next/navigation'
 import { useCallback, useEffect } from 'react'
 
 import { useSignInMutation } from '@/api/auth/sign-in'
 import { useSignOutMutation } from '@/api/auth/sign-out'
 import { useGetUserQuery } from '@/api/user/get-user'
-import { useRouter } from 'next/navigation'
 
 export const useAuthentication = (homeRedirect: boolean = false) => {
   const router = useRouter()
@@ -12,7 +12,8 @@ export const useAuthentication = (homeRedirect: boolean = false) => {
     isFetching: isFetchingUser,
     isFetched: isFetchedUser,
   } = useGetUserQuery()
-  const { mutateAsync: callSignIn } = useSignInMutation()
+  const { mutateAsync: callSignIn, isPending: isSignInPending } =
+    useSignInMutation()
   const { mutateAsync: callSignOut } = useSignOutMutation()
 
   const signIn = useCallback(async () => {
@@ -41,7 +42,7 @@ export const useAuthentication = (homeRedirect: boolean = false) => {
   }, [callSignIn, refetchUser])
 
   return {
-    isSigningIn: isFetchingUser,
+    isSigningIn: isFetchingUser || isSignInPending,
     isSignedIn: isFetchedUser,
     signIn,
     signOut,
