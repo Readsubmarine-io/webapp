@@ -11,7 +11,7 @@ export type GetBooksCallParams = {
   isOnSale?: boolean
   creatorId?: string
   isFeatured?: boolean
-  genres?: string[]
+  genre?: string
   showHidden?: boolean
   isApproved?: boolean
   sortBy?: 'createdAt' | 'featured' | 'floorPrice' | 'sold24h' | 'totalSold'

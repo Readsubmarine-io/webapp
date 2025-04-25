@@ -1,10 +1,10 @@
+import { cookies } from 'next/headers'
 import { notFound } from 'next/navigation'
 
 import { getBookByIdPrefetchQuery } from '@/api/book/get-book-by-id'
 import StatefullLayout from '@/app/statefull-layout'
 import { LaunchpadBookContent } from '@/components/launchpad/launchpad-book-content'
 import { getQueryClient } from '@/lib/get-query-client'
-import { cookies } from 'next/headers'
 
 export default async function ProjectPage({
   params,

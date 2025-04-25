@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 
 import { getBooksPrefetchQuery } from '@/api/book/get-books'
+import { getSettingsPrefetchQuery } from '@/api/setting/get-settings'
 import StatefullLayout from '@/app/statefull-layout'
 import { HomeContent } from '@/components/home/home-content'
 import { getQueryClient } from '@/lib/get-query-client'
@@ -13,16 +14,9 @@ export default async function Home({
   const queryClient = getQueryClient()
 
   const showTop = getShowTop(searchParams)
+  const genre = getGenre(searchParams)
 
   await Promise.all([
-    queryClient.prefetchQuery(
-      getBooksPrefetchQuery({
-        isOnSale: true,
-        sortBy: 'sold24h',
-        order: 'DESC',
-        limit: showTop,
-      }),
-    ),
     queryClient.prefetchQuery(
       getBooksPrefetchQuery({
         isFeatured: true,
@@ -30,11 +24,21 @@ export default async function Home({
         limit: 100,
       }),
     ),
+    queryClient.prefetchQuery(getSettingsPrefetchQuery()),
+    queryClient.prefetchQuery(
+      getBooksPrefetchQuery({
+        isOnSale: true,
+        sortBy: 'sold24h',
+        order: 'DESC',
+        limit: showTop,
+        genre: genre === 'All' ? undefined : genre,
+      }),
+    ),
   ])
 
   return (
     <StatefullLayout queryClient={queryClient}>
-      <HomeContent showTop={showTop} />
+      <HomeContent showTop={showTop} genre={genre} />
     </StatefullLayout>
   )
 }
@@ -53,4 +57,20 @@ const getShowTop = (searchParams: {
   }
 
   return showTop
+}
+
+const getGenre = (searchParams: {
+  [key: string]: string | string[] | undefined
+}) => {
+  const genre = searchParams.genre
+
+  if (!genre) {
+    return 'All'
+  }
+
+  if (Array.isArray(genre)) {
+    return genre[0]
+  }
+
+  return genre || 'All'
 }

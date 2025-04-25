@@ -29,6 +29,7 @@ export const GET_BOOK_BY_ID_QUERY_KEY = 'GET_BOOK_BY_ID_QUERY_KEY'
 
 export const getBookByIdPrefetchQuery = (id: string, token?: string) => {
   return {
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: [GET_BOOK_BY_ID_QUERY_KEY, id],
     queryFn: () => getBookByIdPrefetchCall(id, token),
   }
