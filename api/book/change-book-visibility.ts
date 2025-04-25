@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
 import { Book } from '@/api/book/types'
 import { assertError } from '@/lib/assert-error'
@@ -36,6 +37,7 @@ export const useChangeBookVisibilityMutation = () => {
       // Invalidate books queries to refresh the data
       queryClient.invalidateQueries({ queryKey: [GET_BOOKS_QUERY_KEY] })
       queryClient.invalidateQueries({ queryKey: [GET_BOOK_BY_ID_QUERY_KEY] })
+      toast.success('Book visibility updated successfully')
     },
     onError: (error) => {
       assertError(error, 'Failed to change book visibility.')

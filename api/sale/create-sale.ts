@@ -37,12 +37,10 @@ export const useCreateSaleMutation = () => {
       queryClient.invalidateQueries({
         queryKey: [GET_USER_COUNTERS_BY_USER_ID_QUERY_KEY],
       })
+      toast.success('Sale created')
     },
     onError: (error) => {
       assertError(error, 'Failed to create sale.')
-    },
-    onSettled: () => {
-      toast.success('Sale created')
     },
   })
 }

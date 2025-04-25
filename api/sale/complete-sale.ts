@@ -39,12 +39,10 @@ export const useCompleteSaleMutation = () => {
       queryClient.invalidateQueries({
         queryKey: [GET_BOOK_SALES_QUERY_KEY],
       })
+      toast.success('Sale completed')
     },
     onError: (error) => {
       assertError(error, 'Failed to complete sale.')
-    },
-    onSettled: () => {
-      toast.success('Sale completed')
     },
   })
 }

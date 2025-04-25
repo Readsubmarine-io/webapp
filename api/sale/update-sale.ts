@@ -38,15 +38,10 @@ export const useUpdateSaleMutation = () => {
       queryClient.invalidateQueries({
         queryKey: [GET_BOOK_EDITIONS_QUERY_KEY],
       })
+      toast.success('Sale updated')
     },
     onError: (error) => {
       assertError(error, 'Failed to update sale.')
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({
-        queryKey: [GET_BOOK_EDITIONS_QUERY_KEY],
-      })
-      toast.success('Sale updated')
     },
   })
 }

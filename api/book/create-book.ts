@@ -41,7 +41,7 @@ export const useCreateBookMutation = () => {
     onError: (error) => {
       assertError(error, 'Failed to create book.')
     },
-    onSettled: () => {
+    onSuccess: () => {
       toast.success('Book created successfully')
     },
   })

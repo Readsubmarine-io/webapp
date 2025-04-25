@@ -2,11 +2,11 @@ import { getBase58Decoder } from '@solana/kit'
 import { useMutation } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
 
+import { usePublicKey } from '@/hooks/use-public-key'
 import { useWallet } from '@/hooks/use-wallet'
 import { assertError } from '@/lib/assert-error'
 import { checkWalletConnection } from '@/lib/check-wallet-connection'
 import http from '@/lib/http'
-import { usePublicKey } from '@/hooks/use-public-key'
 
 type SignInStartCallParams = {
   walletAddress: string

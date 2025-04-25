@@ -35,12 +35,10 @@ export const useCancelSaleMutation = () => {
       queryClient.invalidateQueries({
         queryKey: [GET_USER_COUNTERS_BY_USER_ID_QUERY_KEY],
       })
+      toast.success('Sale cancelled')
     },
     onError: (error) => {
       assertError(error, 'Failed to cancel sale.')
-    },
-    onSettled: () => {
-      toast.success('Sale cancelled')
     },
   })
 }

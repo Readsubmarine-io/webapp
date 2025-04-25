@@ -44,7 +44,13 @@ export function EditProfileDialog({
       twitter: user.twitter ?? '',
     },
     onSubmit: async ({ value }) => {
-      await updateUser(value)
+      await updateUser({
+        ...value,
+        website: value.website ? value.website : undefined,
+        facebook: value.facebook ? value.facebook : undefined,
+        instagram: value.instagram ? value.instagram : undefined,
+        twitter: value.twitter ? value.twitter : undefined,
+      })
       onOpenChange(false)
     },
   })
