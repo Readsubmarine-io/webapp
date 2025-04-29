@@ -2,9 +2,9 @@
 
 import { useForm } from '@tanstack/react-form'
 
-import { CreateBookCallParams } from '@/api/book/create-book'
 import { useGetSettingsQuery } from '@/api/setting/get-settings'
 import { SettingKey } from '@/api/setting/types'
+import { CreateEbookFormData } from '@/components/create-ebook/create-ebook-content'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
@@ -13,8 +13,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { cn } from '@/lib/utils'
 
 interface AdditionalDetailsProps {
-  formData: Partial<CreateBookCallParams>
-  updateFormData: (data: Partial<CreateBookCallParams>) => void
+  formData: Partial<CreateEbookFormData>
+  updateFormData: (data: Partial<CreateEbookFormData>) => void
   onNext: () => void
   onPrev: () => void
 }

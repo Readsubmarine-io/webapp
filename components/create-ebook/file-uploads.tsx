@@ -5,19 +5,19 @@ import { CheckCircle } from 'lucide-react'
 import type React from 'react'
 import { useCallback, useState } from 'react'
 
-import { CreateBookCallParams } from '@/api/book/create-book'
 import { useCreateFileMutation } from '@/api/file/create-file'
 import { FileAssignment } from '@/api/file/types'
 import { useGetSettingsQuery } from '@/api/setting/get-settings'
 import { SettingKey } from '@/api/setting/types'
+import { CreateEbookFormData } from '@/components/create-ebook/create-ebook-content'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 interface FileUploadsProps {
-  formData: Partial<CreateBookCallParams>
-  updateFormData: (data: Partial<CreateBookCallParams>) => void
+  formData: Partial<CreateEbookFormData>
+  updateFormData: (data: Partial<CreateEbookFormData>) => void
   onPrev: () => void
   onNext: () => void
 }

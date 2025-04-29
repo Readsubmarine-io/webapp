@@ -3,15 +3,15 @@
 import { useForm } from '@tanstack/react-form'
 import { DateTime } from 'luxon'
 
-import { CreateBookCallParams } from '@/api/book/create-book'
+import { CreateEbookFormData } from '@/components/create-ebook/create-ebook-content'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { NumberInput } from '@/components/ui/number-input'
 
 interface MintingDetailsProps {
-  formData: Partial<CreateBookCallParams>
-  updateFormData: (data: Partial<CreateBookCallParams>) => void
+  formData: Partial<CreateEbookFormData>
+  updateFormData: (data: Partial<CreateEbookFormData>) => void
   onNext: () => void
   onPrev: () => void
 }

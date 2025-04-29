@@ -88,8 +88,8 @@ export function LaunchpadBookContent({ bookId }: LaunchpadBookContentProps) {
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-power-pump-text">Minted</span>
                   <span className="text-power-pump-heading font-semibold">
-                    {book.metrics?.mintedSupply} / {book.metrics?.totalSupply}{' '}
-                    {progressPercentage}%
+                    {book.metrics?.mintedSupply} /{' '}
+                    {book.metrics?.totalSupply}{' '}
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5">

@@ -19,10 +19,15 @@ const steps = [
   'Blockchain Deployment',
 ]
 
+export type CreateEbookFormData = Partial<
+  CreateBookCallParams & { collectionName: string | undefined }
+>
+
 export function CreateEbookContent() {
   const [currentStep, setCurrentStep] = useState(0)
-  const [formData, setFormData] = useState<Partial<CreateBookCallParams>>({
+  const [formData, setFormData] = useState<Partial<CreateEbookFormData>>({
     title: undefined,
+    collectionName: undefined,
     author: undefined,
     shortDescription: undefined,
     longDescription: undefined,

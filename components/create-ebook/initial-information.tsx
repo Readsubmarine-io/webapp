@@ -2,15 +2,15 @@
 
 import { useForm } from '@tanstack/react-form'
 
-import { CreateBookCallParams } from '@/api/book/create-book'
+import { CreateEbookFormData } from '@/components/create-ebook/create-ebook-content'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 
 interface InitialInformationProps {
-  formData: Partial<CreateBookCallParams>
-  updateFormData: (data: Partial<CreateBookCallParams>) => void
+  formData: Partial<CreateEbookFormData>
+  updateFormData: (data: Partial<CreateEbookFormData>) => void
   onNext: () => void
 }
 
@@ -22,6 +22,7 @@ export function InitialInformation({
   const form = useForm({
     defaultValues: {
       title: formData.title || '',
+      collectionName: formData.collectionName || '',
       author: formData.author || '',
       shortDescription: formData.shortDescription || '',
     },
@@ -49,8 +50,8 @@ export function InitialInformation({
             onChange: ({ value }) => {
               const trimmed = value.trim()
               if (!trimmed) return 'eBook Title is required'
-              if (trimmed.length > 21)
-                return 'eBook Title must be 21 characters or less'
+              if (trimmed.length > 50)
+                return 'eBook Title must be 50 characters or less'
               return undefined
             },
           }}
@@ -63,7 +64,7 @@ export function InitialInformation({
                 onChange={(e) => field.handleChange(e.target.value)}
                 onBlur={() => field.handleBlur()}
                 placeholder="Enter the title of your eBook"
-                maxLength={21}
+                maxLength={50}
               />
               {field.state.meta.isTouched &&
                 field.state.meta.errors.length > 0 && (
@@ -74,6 +75,46 @@ export function InitialInformation({
             </>
           )}
         </form.Field>
+      </div>
+      <div>
+        <Label htmlFor="collectionName">
+          Collection Name <span className="text-red-600">*</span>
+        </Label>
+
+        <form.Field
+          name="collectionName"
+          validators={{
+            onChange: ({ value }) => {
+              const trimmed = value.trim()
+              if (!trimmed) return 'Collection Name is required'
+              if (trimmed.length > 20)
+                return 'Collection Name must be 20 characters or less'
+              return undefined
+            },
+          }}
+        >
+          {(field) => (
+            <>
+              <Input
+                id="collectionName"
+                value={field.state.value}
+                onChange={(e) => field.handleChange(e.target.value)}
+                onBlur={() => field.handleBlur()}
+                placeholder="Enter the collection name"
+                maxLength={20}
+              />
+              {field.state.meta.isTouched &&
+                field.state.meta.errors.length > 0 && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {field.state.meta.errors[0]}
+                  </p>
+                )}
+            </>
+          )}
+        </form.Field>
+        <p className="text-sm text-gray-500 mt-1">
+          Short name for the NFT collection
+        </p>
       </div>
       <div>
         <Label htmlFor="author">

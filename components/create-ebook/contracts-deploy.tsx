@@ -24,6 +24,7 @@ import {
 } from '@/api/book/create-book'
 import { useGetSettingsQuery } from '@/api/setting/get-settings'
 import { SettingKey } from '@/api/setting/types'
+import { CreateEbookFormData } from '@/components/create-ebook/create-ebook-content'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
@@ -47,8 +48,8 @@ const createNftsHash = async (amount: number, uri: string, title: string) => {
 }
 
 interface ContractsDeployProps {
-  formData: Partial<CreateBookCallParams>
-  updateFormData: (data: Partial<CreateBookCallParams>) => void
+  formData: Partial<CreateEbookFormData>
+  updateFormData: (data: Partial<CreateEbookFormData>) => void
   onPrev: () => void
 }
 
@@ -100,7 +101,7 @@ export function ContractsDeploy({
       const transaction = createNft(umi, {
         mint: collectionSigner,
         authority: umi.identity,
-        name: `${formData.title} Collection`,
+        name: formData.collectionName || 'Book Collection',
         uri: metadataUrl,
         sellerFeeBasisPoints: percentAmount(5, 2), // 5%
       })
@@ -183,7 +184,7 @@ export function ContractsDeploy({
       const candyMachine = generateSigner(umi)
 
       const totalCopies = formData.totalCopies || 5
-      const title = formData.title || 'Collection'
+      const title = formData.collectionName || 'Book Collection'
 
       const guards = buildGuards({
         mintPrice: Number(formData.mintPrice),
@@ -266,7 +267,10 @@ export function ContractsDeploy({
   const completeBookCreation = useCallback(async () => {
     try {
       setIsCreatingBook(true)
-      await createBook(formData as CreateBookCallParams)
+      await createBook({
+        ...formData,
+        collectionName: undefined,
+      } as CreateBookCallParams)
       router.push(`/create-ebook/confirmation`)
     } catch (error) {
       console.error(error)
