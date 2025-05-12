@@ -4,7 +4,6 @@ import {
 } from '@solana/wallet-adapter-base'
 import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets'
 import { useCallback, useEffect, useState } from 'react'
-import { toast } from 'sonner'
 
 const getAdapters = () => {
   const adapters = [new PhantomWalletAdapter()]
@@ -19,11 +18,12 @@ export const useWallet = () => {
   const [wallet, setWallet] = useState<MessageSignerWalletAdapter | null>(null)
 
   const getWallet = useCallback(async () => {
-    const availableWallet = supportedWallets?.find(
-      (wallet) =>
+    const availableWallet = supportedWallets?.find((wallet) => {
+      return (
         wallet.readyState === WalletReadyState.Installed ||
-        wallet.readyState === WalletReadyState.Loadable,
-    )
+        wallet.readyState === WalletReadyState.Loadable
+      )
+    })
 
     if (!availableWallet) {
       return

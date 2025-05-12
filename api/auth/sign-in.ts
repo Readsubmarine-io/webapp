@@ -2,7 +2,6 @@ import { getBase58Decoder } from '@solana/kit'
 import { useMutation } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
 
-import { usePublicKey } from '@/hooks/use-public-key'
 import { useWallet } from '@/hooks/use-wallet'
 import { assertError } from '@/lib/assert-error'
 import { checkWalletConnection } from '@/lib/check-wallet-connection'
@@ -49,7 +48,6 @@ const signInCompleteCall = async (
 
 export const useSignInMutation = () => {
   const { wallet } = useWallet()
-  const { publicKey } = usePublicKey()
 
   return useMutation({
     mutationFn: async (checkToken: boolean = false) => {
@@ -63,7 +61,7 @@ export const useSignInMutation = () => {
         return
       }
 
-      if (!wallet || !publicKey) {
+      if (!wallet) {
         assertError(
           new Error('No supported wallet found.'),
           'No supported wallet found.',
@@ -74,14 +72,14 @@ export const useSignInMutation = () => {
       const { wallet: connectedWallet } = await checkWalletConnection(wallet)
 
       const { nonce } = await signInStartCall({
-        walletAddress: publicKey,
+        walletAddress: wallet.publicKey?.toString() ?? '',
       })
 
       const message = `Sign in with Solana. ${nonce}`
       const signature = await connectedWallet.signMessage(Buffer.from(message))
 
       const { authToken } = await signInCompleteCall({
-        walletAddress: publicKey,
+        walletAddress: wallet.publicKey?.toString() ?? '',
         message,
         signature: getBase58Decoder().decode(signature),
       })

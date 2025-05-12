@@ -48,16 +48,21 @@ export function PublicKeyProvider({
           }
         }
 
-        await window.solana.connect({ onlyIfTrusted: true })
-        const newPublicKey = window.solana.publicKey?.toString()
+        try {
+          await window.solana.connect({ onlyIfTrusted: true })
+          const newPublicKey = window.solana.publicKey?.toString()
 
-        setPublicKey((current) => {
-          if (current && current !== newPublicKey && isAuthenticated) {
-            handleSignOut()
-          }
+          setPublicKey((current) => {
+            if (current && current !== newPublicKey && isAuthenticated) {
+              handleSignOut()
+            }
 
-          return newPublicKey
-        })
+            return newPublicKey
+          })
+        } catch (error) {
+          console.error('Error connecting to wallet:', error)
+          await window.solana.connect()
+        }
       } catch (error) {
         console.error('Error updating public key:', error)
       }
@@ -66,6 +71,10 @@ export function PublicKeyProvider({
   )
 
   useEffect(() => {
+    if (!isAuthenticated) {
+      return
+    }
+
     updatePublicKey(false)
     const interval = setInterval(updatePublicKey, 1000)
 
