@@ -156,6 +156,7 @@ export function MintingSection({ book }: MintingSectionProps) {
     book.collectionAddress,
     book.creator?.wallet?.address,
     book.metrics?.totalSupply,
+    paymentAddress,
   ])
 
   const getMintButtonText = useCallback(() => {
