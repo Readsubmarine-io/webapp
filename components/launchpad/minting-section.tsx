@@ -19,6 +19,8 @@ import { toast } from 'sonner'
 
 import { Book } from '@/api/book/types'
 import { useGetBookEditionsQuery } from '@/api/book-edition/get-book-editions'
+import { useGetSettingsQuery } from '@/api/setting/get-settings'
+import { SettingKey } from '@/api/setting/types'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -47,6 +49,9 @@ export function MintingSection({ book }: MintingSectionProps) {
     bookId: book.id,
     ownerAddress: user?.wallet?.address,
   })
+
+  const { data: settings } = useGetSettingsQuery()
+  const paymentAddress = settings?.[SettingKey.PaymentAddress] || ''
 
   useEffect(() => {
     setIsMinting(false)
@@ -79,6 +84,14 @@ export function MintingSection({ book }: MintingSectionProps) {
       return
     }
 
+    if (!paymentAddress) {
+      assertError(
+        new Error('Payment address not found'),
+        'Payment address not found.',
+      )
+      return
+    }
+
     try {
       setIsLoading(true)
       const candyMachinePublicKey = publicKey(book.mint?.mintAddress)
@@ -107,7 +120,7 @@ export function MintingSection({ book }: MintingSectionProps) {
 
       const guards = buildGuards({
         mintPrice: Number(book.mint?.price),
-        mintPriceReceiver: creatorPublicKey,
+        mintPriceReceiver: publicKey(paymentAddress),
         mintStartDate: new Date(),
         mintEndDate: new Date(new Date().getTime() + 1000 * 60 * 60 * 24 * 30),
       })
