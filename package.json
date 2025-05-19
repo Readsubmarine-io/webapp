@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
+    "@mantine/notifications": "^8.0.1",
     "@metaplex-foundation/js": "^0.20.1",
     "@metaplex-foundation/mpl-candy-machine": "^6.1.0",
     "@metaplex-foundation/mpl-token-metadata": "^3.4.0",
@@ -62,6 +63,7 @@
     "embla-carousel-react": "8.5.1",
     "eslint-plugin-prettier": "^5.2.5",
     "eslint-plugin-simple-import-sort": "^12.1.1",
+    "i": "^0.3.7",
     "input-otp": "1.4.1",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.454.0",
@@ -69,6 +71,7 @@
     "md5": "latest",
     "next": "14.2.16",
     "next-themes": "^0.4.4",
+    "npm": "^11.3.0",
     "pino-pretty": "^13.0.0",
     "react": "^18",
     "react-day-picker": "^9.6.7",
@@ -79,7 +82,8 @@
     "sonner": "^1.7.1",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
-    "vaul": "^0.9.6"
+    "vaul": "^0.9.6",
+    "xrpl": "^4.2.5"
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "^5.68.0",

@@ -75,6 +75,7 @@ export function ContractsDeploy({
 
   const { data: settings } = useGetSettingsQuery()
   const mintFee = settings?.[SettingKey.PlatformFee]
+  const paymentAddress = settings?.[SettingKey.PaymentAddress]
 
   const handleCreateNFTContract = useCallback(async () => {
     // Ensure wallet is connected
@@ -162,7 +163,7 @@ export function ContractsDeploy({
       return
     }
 
-    if (!mintFee) {
+    if (!mintFee || !paymentAddress) {
       assertError(new Error('Incorrect form data'), 'Incorrect form data. ')
       return
     }
@@ -188,7 +189,7 @@ export function ContractsDeploy({
 
       const guards = buildGuards({
         mintPrice: Number(formData.mintPrice),
-        mintPriceReceiver: umi.identity.publicKey,
+        mintPriceReceiver: publicKey(paymentAddress),
         mintStartDate: formData.mintStartDate || new Date(),
         mintEndDate: formData.mintEndDate || undefined,
       })
@@ -249,14 +250,15 @@ export function ContractsDeploy({
     collectionAddress,
     formData.metadata?.metadata?.srcUrl,
     formData.totalCopies,
-    formData.title,
+    formData.collectionName,
     formData.mintPrice,
     formData.mintStartDate,
     formData.mintEndDate,
     mintFee,
+    paymentAddress,
     umi,
-    updateFormData,
     checkWalletsMissmatch,
+    updateFormData,
   ])
 
   const [isCreatingBook, setIsCreatingBook] = useState(false)

@@ -1,11 +1,11 @@
 export enum SettingKey {
-  AuthorFee = 'AuthorFee',
   PlatformFee = 'PlatformFee',
   Genres = 'Genres',
+  PaymentAddress = 'PaymentAddress',
 }
 
 export class SettingsResponseDto {
-  [SettingKey.AuthorFee]?: number;
   [SettingKey.PlatformFee]?: number;
-  [SettingKey.Genres]?: string[]
+  [SettingKey.Genres]?: string[];
+  [SettingKey.PaymentAddress]?: string
 }
