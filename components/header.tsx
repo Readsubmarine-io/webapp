@@ -50,7 +50,7 @@ export function Header({ homeRedirect }: HeaderProps) {
   useEffect(() => {
     const updateBalance = async () => {
       const balance = await getBalance()
-      setBalance((balance / LAMPORTS_PER_SOL).toFixed(2))
+      setBalance((balance / LAMPORTS_PER_SOL).toFixed(6).replace(/\.?0+$/, ''))
     }
 
     updateBalance()

@@ -3,6 +3,7 @@
 import { sol } from '@metaplex-foundation/js'
 import { PublicKey } from '@solana/web3.js'
 import { useCallback, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 import { BookEdition } from '@/api/book-edition/types'
 import { useCancelSaleMutation } from '@/api/sale/cancel-sale'
@@ -16,13 +17,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { NumberInput } from '@/components/ui/number-input'
 import { AUCTION_HOUSE_ADDRESS } from '@/constants/env'
 import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 import { useMetaplex } from '@/hooks/use-metaplex'
 import { assertError } from '@/lib/assert-error'
-
-import { NumberInput } from '@/components/ui/number-input'
-import { toast } from 'sonner'
 
 interface SetSalePriceDialogProps {
   bookEdition: BookEdition
@@ -49,6 +48,14 @@ export function SetSalePriceDialog({
   )
   const { checkWalletsMissmatch } = useCheckWalletsMissmatch()
   const [isLoading, setIsLoading] = useState(false)
+
+  const validatePrice = useCallback(() => {
+    if (userListPrice <= 0 || !userListPrice) {
+      return false
+    }
+
+    return true
+  }, [userListPrice])
 
   const handleConfirmSale = useCallback(async () => {
     try {
@@ -114,15 +121,16 @@ export function SetSalePriceDialog({
       setIsLoading(false)
     }
   }, [
-    bookEdition.address,
-    bookEdition.id,
-    bookEdition.sale,
-    createSale,
+    validatePrice,
+    userListPrice,
     metaplex,
+    bookEdition.address,
+    bookEdition.sale,
+    bookEdition.id,
+    checkWalletsMissmatch,
     onOpenChange,
     updateSale,
-    userListPrice,
-    checkWalletsMissmatch,
+    createSale,
   ])
 
   const { mutateAsync: cancelSale } = useCancelSaleMutation()
@@ -191,14 +199,6 @@ export function SetSalePriceDialog({
 
   const [error, setError] = useState('')
 
-  const validatePrice = useCallback(() => {
-    if (userListPrice <= 0 || !userListPrice) {
-      return false
-    }
-
-    return true
-  }, [userListPrice])
-
   const [isTouched, setIsTouched] = useState(false)
 
   useEffect(() => {
@@ -230,6 +230,7 @@ export function SetSalePriceDialog({
             initialValue={bookEdition.sale?.price ?? 0}
             onChange={(value) => setUserListPrice(value)}
             allowDecimal={true}
+            maxDecimals={6}
             placeholder="Enter sale price in SOL"
             disabled={isLoading}
             onClick={() => setIsTouched(true)}

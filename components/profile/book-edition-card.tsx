@@ -89,9 +89,9 @@ export function BookEditionCard({
         </h3>
         <p className="text-sm text-power-pump-text mb-2">{book?.author}</p>
         <div className="flex flex-col space-y-1 mt-auto">
-          <span className="text-sm text-power-pump-text">
+          {/* <span className="text-sm text-power-pump-text">
             Bought: <span className="font-semibold">-</span>
-          </span>
+          </span> */}
           <ListPrice bookEdition={bookEdition} isOwner={isOwner} />
           <span className="text-sm text-power-pump-text">
             Floor price:{' '}

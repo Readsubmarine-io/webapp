@@ -204,6 +204,8 @@ export function MintingSection({ book }: MintingSectionProps) {
     )
   }
 
+  const price = totalPrice.toFixed(6).replace(/\.?0+$/, '')
+
   return (
     <div className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg shadow-md">
       <div className="flex justify-start flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
@@ -213,9 +215,7 @@ export function MintingSection({ book }: MintingSectionProps) {
           className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 rounded-full px-6 py-2 sm:py-3 text-sm sm:text-base font-bold transition-colors w-full sm:w-auto"
         >
           {/* {isLoading ? <Loader2 /> : <></>} */}
-          {isLoading
-            ? 'Minting...'
-            : `Mint new copy for ${totalPrice.toFixed(2)} SOL`}
+          {isLoading ? 'Minting...' : `Mint new copy for ${price} SOL`}
         </Button>
         {getMintButtonText()}
       </div>
