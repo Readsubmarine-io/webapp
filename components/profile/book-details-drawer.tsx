@@ -68,9 +68,9 @@ export function BookDetailsDrawer({
                   Token:{' '}
                   <span className="font-semibold">{bookEdition.name}</span>
                 </p>
-                <p className="text-sm text-power-pump-text">
+                {/* <p className="text-sm text-power-pump-text">
                   Bought: <span className="font-semibold">-</span>
-                </p>
+                </p> */}
                 {isOnSale && (
                   <ListPrice isOwner={true} bookEdition={bookEdition} />
                 )}
