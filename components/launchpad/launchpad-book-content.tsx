@@ -42,9 +42,9 @@ export function LaunchpadBookContent({ bookId }: LaunchpadBookContentProps) {
       return '0 SOL'
     }
 
-    return (
-      Number(book.mint.price) * (book.metrics?.mintedSupply || 0)
-    ).toFixed(2)
+    return (Number(book.mint.price) * (book.metrics?.mintedSupply || 0))
+      .toFixed(6)
+      .replace(/\.?0+$/, '')
   }, [book.mint?.price, book.metrics?.mintedSupply])
 
   return (
