@@ -27,7 +27,7 @@ export const getIsPlatformTokenOwnerCall = async ({
       return false
     }
 
-    return response.data.isPlatformTokenOwner
+    return response?.data?.isPlatformTokenOwner || false
   } catch (error) {
     console.error(error)
     return false
