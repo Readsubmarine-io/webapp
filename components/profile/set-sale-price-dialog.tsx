@@ -10,6 +10,7 @@ import { useGetIsPlatformTokenOwnerQuery } from '@/api/platform/getIsPlatformTok
 import { useCancelSaleMutation } from '@/api/sale/cancel-sale'
 import { useCreateSaleMutation } from '@/api/sale/create-sale'
 import { useUpdateSaleMutation } from '@/api/sale/update-sale'
+import { useGetUserQuery } from '@/api/user/get-user'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -25,7 +26,6 @@ import {
 } from '@/constants/env'
 import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 import { useMetaplex } from '@/hooks/use-metaplex'
-import { useWallet } from '@/hooks/use-wallet'
 import { assertError } from '@/lib/assert-error'
 
 interface SetSalePriceDialogProps {
@@ -45,11 +45,11 @@ export function SetSalePriceDialog({
   onOpenChange,
 }: SetSalePriceDialogProps) {
   const { metaplex } = useMetaplex()
-  const { wallet } = useWallet()
+  const { data: user } = useGetUserQuery()
   const { mutateAsync: createSale } = useCreateSaleMutation()
   const { mutateAsync: updateSale } = useUpdateSaleMutation()
   const { data: isPlatformTokenOwner } = useGetIsPlatformTokenOwnerQuery({
-    walletAddress: wallet?.publicKey?.toString() || '',
+    walletAddress: user?.wallet?.address || '',
   })
 
   const [userListPrice, setUserListPrice] = useState<number>(
