@@ -25,6 +25,7 @@ import {
 } from '@/constants/env'
 import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 import { useMetaplex } from '@/hooks/use-metaplex'
+import { useWallet } from '@/hooks/use-wallet'
 import { assertError } from '@/lib/assert-error'
 
 interface SetSalePriceDialogProps {
@@ -44,10 +45,11 @@ export function SetSalePriceDialog({
   onOpenChange,
 }: SetSalePriceDialogProps) {
   const { metaplex } = useMetaplex()
+  const { wallet } = useWallet()
   const { mutateAsync: createSale } = useCreateSaleMutation()
   const { mutateAsync: updateSale } = useUpdateSaleMutation()
   const { data: isPlatformTokenOwner } = useGetIsPlatformTokenOwnerQuery({
-    walletAddress: metaplex?.identity().publicKey.toString() || '',
+    walletAddress: wallet?.publicKey?.toString() || '',
   })
 
   const [userListPrice, setUserListPrice] = useState<number>(

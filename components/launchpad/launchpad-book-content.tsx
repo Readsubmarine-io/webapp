@@ -128,7 +128,7 @@ export function LaunchpadBookContent({ bookId }: LaunchpadBookContentProps) {
             </CardContent>
           </Card>
 
-          <MintingSection book={book} />
+          {book.isApproved && <MintingSection book={book} />}
 
           <div className="grid lg:grid-cols-2 gap-6 mb-6">
             <Card className="border border-container-border rounded-xl shadow-content-container">

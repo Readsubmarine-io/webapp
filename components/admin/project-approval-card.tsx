@@ -114,12 +114,16 @@ export function ProjectApprovalCard({
             <div className="font-medium text-power-pump-heading text-base">
               Creator
             </div>
-            <div className="text-power-pump-button text-sm hover:opacity-80">
-              <Link href={`/profile/${book.creator?.userName}`}>
+            <div className="text-sm">
+              <Link
+                className="text-power-pump-button hover:opacity-80"
+                href={`/profile/${book.creator?.userName}`}
+              >
                 {book.creator?.userName
                   ? `@${book.creator?.userName}`
                   : 'Unknown'}
               </Link>
+              <p>{book.contactEmail}</p>
             </div>
           </div>
           <div>

@@ -14,6 +14,10 @@ export type GetIsPlatformTokenOwnerCallResponse = {
 export const getIsPlatformTokenOwnerCall = async ({
   walletAddress,
 }: GetIsPlatformTokenOwnerCallParams) => {
+  if (!walletAddress) {
+    return false
+  }
+
   const response = await http.get<GetIsPlatformTokenOwnerCallResponse>(
     `/v1/platform-token/owner/${walletAddress}`,
   )
@@ -22,13 +26,13 @@ export const getIsPlatformTokenOwnerCall = async ({
     throw new Error('Failed to get is platform token owner.')
   }
 
-  return response.data
+  return response.data.isPlatformTokenOwner
 }
 
 export const useGetIsPlatformTokenOwnerQuery = (
   params: GetIsPlatformTokenOwnerCallParams,
 ) => {
-  return useQuery<GetIsPlatformTokenOwnerCallResponse, Error>({
+  return useQuery<boolean, Error>({
     queryKey: ['getIsPlatformTokenOwner', params],
     queryFn: () => getIsPlatformTokenOwnerCall(params),
     throwOnError: (error) => {
