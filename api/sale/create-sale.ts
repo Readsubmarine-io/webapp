@@ -11,6 +11,7 @@ export type CreateSaleCallParams = {
   bookEditionId: string
   price: number
   listingReceipt: string
+  auctionHouseAddress: string
 }
 
 const createSaleCall = async (

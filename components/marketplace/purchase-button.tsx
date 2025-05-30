@@ -69,7 +69,7 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
       }
 
       const auctionHouse = await metaplex.auctionHouse().findByAddress({
-        address: new PublicKey(AUCTION_HOUSE_ADDRESS),
+        address: new PublicKey(sale.auctionHouseAddress),
       })
 
       if (!auctionHouse) {

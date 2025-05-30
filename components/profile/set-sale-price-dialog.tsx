@@ -6,6 +6,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { BookEdition } from '@/api/book-edition/types'
+import { useGetIsPlatformTokenOwnerQuery } from '@/api/platform/getIsPlatformTokenOwner'
 import { useCancelSaleMutation } from '@/api/sale/cancel-sale'
 import { useCreateSaleMutation } from '@/api/sale/create-sale'
 import { useUpdateSaleMutation } from '@/api/sale/update-sale'
@@ -18,7 +19,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { NumberInput } from '@/components/ui/number-input'
-import { AUCTION_HOUSE_ADDRESS } from '@/constants/env'
+import {
+  AUCTION_HOUSE_ADDRESS,
+  REDUCED_AUCTION_HOUSE_ADDRESS,
+} from '@/constants/env'
 import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 import { useMetaplex } from '@/hooks/use-metaplex'
 import { assertError } from '@/lib/assert-error'
@@ -42,6 +46,9 @@ export function SetSalePriceDialog({
   const { metaplex } = useMetaplex()
   const { mutateAsync: createSale } = useCreateSaleMutation()
   const { mutateAsync: updateSale } = useUpdateSaleMutation()
+  const { data: isPlatformTokenOwner } = useGetIsPlatformTokenOwnerQuery({
+    walletAddress: metaplex?.identity().publicKey.toString() || '',
+  })
 
   const [userListPrice, setUserListPrice] = useState<number>(
     bookEdition.sale?.price ?? 0,
@@ -68,7 +75,8 @@ export function SetSalePriceDialog({
         userListPrice <= 0 ||
         !metaplex ||
         !bookEdition?.address ||
-        !AUCTION_HOUSE_ADDRESS
+        !AUCTION_HOUSE_ADDRESS ||
+        !isPlatformTokenOwner
       ) {
         return
       }
@@ -79,8 +87,12 @@ export function SetSalePriceDialog({
 
       setIsLoading(true)
 
+      const auctionHouseAddress = isPlatformTokenOwner
+        ? REDUCED_AUCTION_HOUSE_ADDRESS
+        : AUCTION_HOUSE_ADDRESS
+
       const auctionHouse = await metaplex.auctionHouse().findByAddress({
-        address: new PublicKey(AUCTION_HOUSE_ADDRESS),
+        address: new PublicKey(auctionHouseAddress),
       })
 
       if (!auctionHouse) {
@@ -105,12 +117,14 @@ export function SetSalePriceDialog({
           saleId: bookEdition.sale.id,
           price: userListPrice,
           listingReceipt: listing.listing.receiptAddress?.toString() || '',
+          auctionHouseAddress: auctionHouseAddress,
         })
       } else {
         await createSale({
           bookEditionId: bookEdition.id,
           price: userListPrice,
           listingReceipt: listing.listing.receiptAddress?.toString() || '',
+          auctionHouseAddress: auctionHouseAddress,
         })
       }
 

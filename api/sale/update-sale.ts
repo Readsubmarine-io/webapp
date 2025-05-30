@@ -10,6 +10,7 @@ export type UpdateSaleCallParams = {
   saleId: string
   price: number
   listingReceipt: string
+  auctionHouseAddress: string
 }
 
 const updateSaleCall = async ({

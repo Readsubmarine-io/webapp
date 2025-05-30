@@ -5,6 +5,7 @@ export type Sale = {
   id: string
   price: number
   listingReceipt: string
+  auctionHouseAddress: string
   status: SaleStatus
   createdAt: Date
   bookEdition?: BookEdition
