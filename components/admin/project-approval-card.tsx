@@ -1,28 +1,44 @@
 'use client'
 
-import { Download } from 'lucide-react'
+import { Download, Trash2 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
 import { useChangeBookApprovalMutation } from '@/api/book/change-book-approval'
+import { useDeleteBookMutation } from '@/api/book/delete-book'
 import { Book } from '@/api/book/types'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Card, CardContent } from '@/components/ui/card'
 
 interface ProjectApprovalCardProps {
   book: Book
   onApprove?: () => void
+  onDelete?: () => void
 }
 
 export function ProjectApprovalCard({
   book,
   onApprove,
+  onDelete,
 }: ProjectApprovalCardProps) {
   const [isHovered, setIsHovered] = useState(false)
   const [isApproving, setIsApproving] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
   const { mutate: changeBookApproval } = useChangeBookApprovalMutation()
+  const { mutate: deleteBook } = useDeleteBookMutation()
 
   const handleChangeApprove = () => {
     setIsApproving(true)
@@ -51,6 +67,26 @@ export function ProjectApprovalCard({
       return
     }
     window.open(book.pdf.metadata.srcUrl, '_blank')
+  }
+
+  const handleDelete = () => {
+    setIsDeleting(true)
+    deleteBook(
+      { id: book.id },
+      {
+        onSuccess: () => {
+          setIsDeleting(false)
+          setShowDeleteDialog(false)
+          if (onDelete) {
+            onDelete()
+          }
+        },
+        onError: () => {
+          setIsDeleting(false)
+          setShowDeleteDialog(false)
+        },
+      },
+    )
   }
 
   return (
@@ -155,16 +191,47 @@ export function ProjectApprovalCard({
               {isApproving ? 'Updating...' : 'Unapprove Project'}
             </button>
           ) : (
-            <button
-              onClick={handleChangeApprove}
-              disabled={isApproving}
-              className="bg-green-600 text-white py-2 px-4 rounded-[100px] font-bold transition-colors hover:bg-green-700 flex-1 text-center block disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isApproving ? 'Approving...' : 'Approve Project'}
-            </button>
+            <>
+              <button
+                onClick={handleChangeApprove}
+                disabled={isApproving}
+                className="bg-green-600 text-white py-2 px-4 rounded-[100px] font-bold transition-colors hover:bg-green-700 flex-1 text-center block disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isApproving ? 'Approving...' : 'Approve Project'}
+              </button>
+              <button
+                onClick={() => setShowDeleteDialog(true)}
+                disabled={isDeleting}
+                className="bg-red-600 text-white py-2 px-4 rounded-[100px] font-bold transition-colors hover:bg-red-700 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </>
           )}
         </div>
       </CardContent>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Project</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{book.title}"? This action cannot
+              be undone and will permanently remove the project from the system.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   )
 }
