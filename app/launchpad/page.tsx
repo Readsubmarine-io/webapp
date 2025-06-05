@@ -5,8 +5,8 @@ import { getQueryClient } from '@/lib/get-query-client'
 import StatefullLayout from '../statefull-layout'
 
 export const metadata = {
-  title: 'NFT Drops Calendar | Power Pump',
-  description: "Discover upcoming NFT book drops on Power Pump's Launchpad",
+  title: 'NFT Drops Calendar | Read Submarine',
+  description: "Discover upcoming NFT book drops on Read Submarine's Launchpad",
 }
 
 export default async function LaunchpadPage() {

@@ -6,8 +6,8 @@ import type React from 'react'
 import { dmSans } from './fonts'
 
 export const metadata: Metadata = {
-  title: 'Power Pump',
-  description: 'Power Pump Prototype',
+  title: 'Read Submarine',
+  description: 'Read Submarine',
 }
 
 export default function RootLayout({

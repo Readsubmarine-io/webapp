@@ -1,12 +1,13 @@
 'use client'
 
-import { Linkedin, Twitter } from 'lucide-react'
+import { Twitter } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 import { useUserData } from '@/hooks/use-user-data'
+import logo from '@/public/logo-wide.png'
 
 export function Footer() {
   const { isAuthenticated } = useUserData()
@@ -28,19 +29,10 @@ export function Footer() {
           {/* Logo and Description */}
           <div className="sm:col-span-2 md:col-span-6">
             <Link href="/" className="flex items-center space-x-2">
-              <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/White-LfKJts5ccB4pTHzzEmromHH7ET4F6x.svg"
-                alt="Power Pump Logo"
-                width={48}
-                height={48}
-                className="h-10 w-10 sm:h-12 sm:w-12"
-              />
-              <span className="text-lg sm:text-xl font-bold text-white">
-                Power Pump
-              </span>
+              <Image src={logo} height={60} alt="Read Submarine Logo" />
             </Link>
             <p className="mt-4 text-sm sm:text-base text-power-pump-text leading-relaxed sm:leading-[30px] font-normal max-w-md font-sans">
-              Power Pump is an innovative NFT marketplace and launchpad for
+              Read Submarine is an innovative NFT marketplace and launchpad for
               writers. We empower authors to transform their ebooks into unique
               digital assets, providing a platform to mint, sell, and manage
               literary NFTs with ease.
@@ -127,23 +119,17 @@ export function Footer() {
               href="/"
               className="text-white hover:text-white/90 transition-colors font-sans"
             >
-              Power Pump
+              Read Submarine
             </Link>
             {'. '}
             All Rights Reserved
           </div>
           <div className="flex space-x-4">
             <Link
-              href="#"
+              href="https://x.com/wearsubmarine"
               className="text-white/80 hover:text-white transition-colors"
             >
               <Twitter className="h-5 w-5" />
-            </Link>
-            <Link
-              href="#"
-              className="text-white/80 hover:text-white transition-colors"
-            >
-              <Linkedin className="h-5 w-5" />
             </Link>
           </div>
         </div>

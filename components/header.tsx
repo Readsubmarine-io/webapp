@@ -24,6 +24,7 @@ import {
 import { useAccountBalance } from '@/hooks/use-acoount-balance'
 import { useAuthentication } from '@/hooks/use-authentication'
 import { useUserData } from '@/hooks/use-user-data'
+import logo from '@/public/logo.png'
 
 const StyledContent = styled(DropdownMenuContent, {
   zIndex: 1000,
@@ -91,7 +92,7 @@ export function Header({ homeRedirect }: HeaderProps) {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[300px] sm:w-[400px]">
-                <SheetDescription>Power Pump</SheetDescription>
+                <SheetDescription>Read Submarine</SheetDescription>
                 <nav className="flex flex-col space-y-4 mt-8">
                   <NavLink href="/" onClick={() => setIsOpen(false)}>
                     Marketplace
@@ -110,17 +111,8 @@ export function Header({ homeRedirect }: HeaderProps) {
                 </nav>
               </SheetContent>
             </Sheet>
-            <Link href="/" className="flex items-center">
-              <Image
-                src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/White-LfKJts5ccB4pTHzzEmromHH7ET4F6x.svg"
-                alt="Power Pump Logo"
-                width={40}
-                height={40}
-                className="h-8 w-8 sm:h-12 sm:w-12"
-              />
-              <span className="ml-2 text-lg sm:text-xl font-bold text-power-pump-button">
-                Power Pump
-              </span>
+            <Link href="/" className="flex items-center ">
+              <Image src={logo} height={60} alt="Read Submarine Logo" />
             </Link>
           </div>
 
