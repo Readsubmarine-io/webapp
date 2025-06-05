@@ -17,10 +17,12 @@ const updateSaleCall = async ({
   saleId,
   price,
   listingReceipt,
+  auctionHouseAddress,
 }: UpdateSaleCallParams): Promise<Sale> => {
   const response = await http.put<Sale>(`/v1/sale/${saleId}`, {
     price,
     listingReceipt,
+    auctionHouseAddress,
   })
 
   if (response.status !== 200) {

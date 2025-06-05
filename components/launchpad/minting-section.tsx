@@ -28,10 +28,12 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
+import { useRpc } from '@/hooks/use-rpc'
 import { useUmi } from '@/hooks/use-umi'
 import { useUserData } from '@/hooks/use-user-data'
 import { assertError } from '@/lib/assert-error'
 import { buildGuards } from '@/lib/build-guards'
+import { sendUmiTransaction } from '@/lib/send-umi-transaction'
 
 interface MintingSectionProps {
   book: Book
@@ -42,6 +44,7 @@ export function MintingSection({ book }: MintingSectionProps) {
   const [isMinting, setIsMinting] = useState(false)
   const totalPrice = Number(book.mint?.price)
   const { umi } = useUmi()
+  const { rpc } = useRpc()
   const { checkWalletsMissmatch } = useCheckWalletsMissmatch()
 
   const { isAuthenticated, user } = useUserData()
@@ -58,7 +61,7 @@ export function MintingSection({ book }: MintingSectionProps) {
   }, [editions?.length])
 
   const handleMint = useCallback(async () => {
-    if (!umi) {
+    if (!umi || !rpc) {
       assertError(
         new Error('Wallet connection required'),
         'Wallet connection required.',
@@ -139,7 +142,7 @@ export function MintingSection({ book }: MintingSectionProps) {
           }),
         )
 
-      await transaction.sendAndConfirm(umi)
+      await sendUmiTransaction(umi, rpc, transaction)
 
       toast.success('Minted successfully!')
       setIsMinting(true)
@@ -157,6 +160,7 @@ export function MintingSection({ book }: MintingSectionProps) {
     book.creator?.wallet?.address,
     book.metrics?.totalSupply,
     paymentAddress,
+    rpc,
   ])
 
   const getMintButtonText = useCallback(() => {

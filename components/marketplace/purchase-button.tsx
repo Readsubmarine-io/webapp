@@ -22,6 +22,7 @@ import { useMetaplex } from '@/hooks/use-metaplex'
 import { useRpc } from '@/hooks/use-rpc'
 import { useUserData } from '@/hooks/use-user-data'
 import { assertError } from '@/lib/assert-error'
+import { sendMetaplexTransaction } from '@/lib/send-metaplex-transaction'
 
 interface PurchaseButtonProps {
   bookId: string
@@ -85,12 +86,17 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
         return
       }
 
-      await metaplex.auctionHouse().buy({
-        auctionHouse,
-        listing,
-        buyer: metaplex.identity(),
-        price: sol(sale.price),
-      })
+      const builder = await metaplex
+        .auctionHouse()
+        .builders()
+        .buy({
+          auctionHouse,
+          listing,
+          buyer: metaplex.identity(),
+          price: sol(sale.price),
+        })
+
+      await sendMetaplexTransaction(metaplex, rpc, builder)
 
       await completeSale({
         saleId: sale.id,

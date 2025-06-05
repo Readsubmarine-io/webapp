@@ -26,7 +26,9 @@ import {
 } from '@/constants/env'
 import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 import { useMetaplex } from '@/hooks/use-metaplex'
+import { useRpc } from '@/hooks/use-rpc'
 import { assertError } from '@/lib/assert-error'
+import { sendMetaplexTransaction } from '@/lib/send-metaplex-transaction'
 
 interface SetSalePriceDialogProps {
   bookEdition: BookEdition
@@ -48,9 +50,12 @@ export function SetSalePriceDialog({
   const { data: user } = useGetUserQuery()
   const { mutateAsync: createSale } = useCreateSaleMutation()
   const { mutateAsync: updateSale } = useUpdateSaleMutation()
-  const { data: isPlatformTokenOwner } = useGetIsPlatformTokenOwnerQuery({
-    walletAddress: user?.wallet?.address || '',
-  })
+  const { data: isPlatformTokenOwner, isLoading: isPlatformTokenOwnerLoading } =
+    useGetIsPlatformTokenOwnerQuery({
+      walletAddress: user?.wallet?.address || '',
+    })
+
+  const { rpc } = useRpc()
 
   const [userListPrice, setUserListPrice] = useState<number>(
     bookEdition.sale?.price ?? 0,
@@ -68,6 +73,8 @@ export function SetSalePriceDialog({
 
   const handleConfirmSale = useCallback(async () => {
     try {
+      setIsLoading(true)
+
       if (!validatePrice()) {
         toast.error('Invalid price.')
         return
@@ -76,9 +83,11 @@ export function SetSalePriceDialog({
       if (
         userListPrice <= 0 ||
         !metaplex ||
+        !rpc ||
         !bookEdition?.address ||
         !AUCTION_HOUSE_ADDRESS ||
-        !isPlatformTokenOwner
+        !REDUCED_AUCTION_HOUSE_ADDRESS ||
+        isPlatformTokenOwnerLoading
       ) {
         return
       }
@@ -87,11 +96,11 @@ export function SetSalePriceDialog({
         return
       }
 
-      setIsLoading(true)
-
-      const auctionHouseAddress = isPlatformTokenOwner
-        ? REDUCED_AUCTION_HOUSE_ADDRESS
-        : AUCTION_HOUSE_ADDRESS
+      const auctionHouseAddress = bookEdition?.sale?.auctionHouseAddress
+        ? bookEdition?.sale?.auctionHouseAddress
+        : isPlatformTokenOwner
+          ? REDUCED_AUCTION_HOUSE_ADDRESS
+          : AUCTION_HOUSE_ADDRESS
 
       const auctionHouse = await metaplex.auctionHouse().findByAddress({
         address: new PublicKey(auctionHouseAddress),
@@ -101,31 +110,31 @@ export function SetSalePriceDialog({
         return
       }
 
-      const listing = await metaplex.auctionHouse().list(
-        {
+      const builder = metaplex
+        .auctionHouse()
+        .builders()
+        .list({
           auctionHouse,
           seller: metaplex.identity(),
           mintAccount: new PublicKey(bookEdition.address),
           price: sol(userListPrice),
           printReceipt: true,
-        },
-        {
-          commitment: 'confirmed',
-        },
-      )
+        })
+
+      const { receipt } = await sendMetaplexTransaction(metaplex, rpc, builder)
 
       if (bookEdition.sale) {
         await updateSale({
           saleId: bookEdition.sale.id,
           price: userListPrice,
-          listingReceipt: listing.listing.receiptAddress?.toString() || '',
+          listingReceipt: receipt?.toString() || '',
           auctionHouseAddress: auctionHouseAddress,
         })
       } else {
         await createSale({
           bookEditionId: bookEdition.id,
           price: userListPrice,
-          listingReceipt: listing.listing.receiptAddress?.toString() || '',
+          listingReceipt: receipt?.toString() || '',
           auctionHouseAddress: auctionHouseAddress,
         })
       }
@@ -140,9 +149,12 @@ export function SetSalePriceDialog({
     validatePrice,
     userListPrice,
     metaplex,
+    rpc,
     bookEdition.address,
     bookEdition.sale,
     bookEdition.id,
+    isPlatformTokenOwner,
+    isPlatformTokenOwnerLoading,
     checkWalletsMissmatch,
     onOpenChange,
     updateSale,
@@ -155,6 +167,7 @@ export function SetSalePriceDialog({
     try {
       if (
         !metaplex ||
+        !rpc ||
         !bookEdition.sale?.listingReceipt ||
         !bookEdition.sale?.id
       ) {
@@ -168,7 +181,7 @@ export function SetSalePriceDialog({
       setIsLoading(true)
 
       const auctionHouse = await metaplex.auctionHouse().findByAddress({
-        address: new PublicKey(AUCTION_HOUSE_ADDRESS),
+        address: new PublicKey(bookEdition.sale?.auctionHouseAddress || ''),
       })
 
       if (!auctionHouse) {
@@ -184,15 +197,12 @@ export function SetSalePriceDialog({
         return
       }
 
-      await metaplex.auctionHouse().cancelListing(
-        {
-          auctionHouse,
-          listing,
-        },
-        {
-          commitment: 'confirmed',
-        },
-      )
+      const builder = metaplex.auctionHouse().builders().cancelListing({
+        auctionHouse,
+        listing,
+      })
+
+      await sendMetaplexTransaction(metaplex, rpc, builder)
 
       await cancelSale({
         saleId: bookEdition.sale.id,
@@ -206,15 +216,16 @@ export function SetSalePriceDialog({
     }
   }, [
     metaplex,
+    rpc,
     bookEdition.sale?.listingReceipt,
     bookEdition.sale?.id,
+    bookEdition.sale?.auctionHouseAddress,
+    checkWalletsMissmatch,
     cancelSale,
     onOpenChange,
-    checkWalletsMissmatch,
   ])
 
   const [error, setError] = useState('')
-
   const [isTouched, setIsTouched] = useState(false)
 
   useEffect(() => {

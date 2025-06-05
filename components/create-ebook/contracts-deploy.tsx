@@ -30,10 +30,12 @@ import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { PLATFORM_FEE_ADDRESS } from '@/constants/env'
 import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
+import { useRpc } from '@/hooks/use-rpc'
 import { useUmi } from '@/hooks/use-umi'
 import { useUserData } from '@/hooks/use-user-data'
 import { assertError } from '@/lib/assert-error'
 import { buildGuards } from '@/lib/build-guards'
+import { sendUmiTransaction } from '@/lib/send-umi-transaction'
 
 const createNftsHash = async (amount: number, uri: string, title: string) => {
   const nfts = []
@@ -70,6 +72,7 @@ export function ContractsDeploy({
   const { isAuthenticated } = useUserData()
   // Get UMI with the wallet as signer
   const { umi } = useUmi()
+  const { rpc } = useRpc()
   const { checkWalletsMissmatch } = useCheckWalletsMissmatch()
   const substeps = ['Create NFT Collection', 'Create Candy Machine']
 
@@ -79,7 +82,7 @@ export function ContractsDeploy({
 
   const handleCreateNFTContract = useCallback(async () => {
     // Ensure wallet is connected
-    if (!isAuthenticated || !umi) {
+    if (!isAuthenticated || !umi || !rpc) {
       assertError(new Error('Wallet not connected'), 'Wallet not connected.')
       return
     }
@@ -108,16 +111,9 @@ export function ContractsDeploy({
       })
 
       try {
-        const signature = await transaction.sendAndConfirm(umi, {
-          confirm: {
-            commitment: 'finalized',
-          },
-        })
+        await sendUmiTransaction(umi, rpc, transaction)
 
-        console.log(
-          'Collection NFT transaction signature:',
-          signature.signature,
-        )
+        console.log('Collection NFT transaction sent')
       } catch (err) {
         assertError(err, 'Failed to send collection transaction.')
         return
@@ -139,7 +135,15 @@ export function ContractsDeploy({
     } finally {
       setIsDeploying(false)
     }
-  }, [formData, updateFormData, umi, isAuthenticated, checkWalletsMissmatch])
+  }, [
+    isAuthenticated,
+    umi,
+    rpc,
+    checkWalletsMissmatch,
+    formData.metadata?.metadata?.srcUrl,
+    formData.collectionName,
+    updateFormData,
+  ])
 
   const handleCreateCandyMachine = useCallback(async () => {
     // Ensure wallet is connected
@@ -224,8 +228,9 @@ export function ContractsDeploy({
       })
 
       try {
-        const signature = await transaction.sendAndConfirm(umi)
-        console.log('Candy Machine transaction signature:', signature.signature)
+        await sendUmiTransaction(umi, rpc, transaction)
+
+        console.log('Candy Machine transaction sent')
       } catch (err) {
         assertError(err, 'Failed to send candy machine transaction.')
         return
@@ -259,6 +264,7 @@ export function ContractsDeploy({
     umi,
     checkWalletsMissmatch,
     updateFormData,
+    rpc,
   ])
 
   const [isCreatingBook, setIsCreatingBook] = useState(false)
