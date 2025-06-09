@@ -20,10 +20,6 @@ FROM base AS build
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 
-# Public build-time environment variables
-ARG NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-ENV NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=$NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-
 RUN npm run build
 
 # Run
