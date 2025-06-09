@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1
 
-FROM node:22-slim AS base
+FROM --platform=linux/amd64 node:22-slim AS base
 
 ARG PORT=3000
 
@@ -18,11 +18,13 @@ RUN npm ci
 FROM base AS build
 
 ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 
-RUN npm run build
+# Increase memory limit for build process
+RUN node --max-old-space-size=4096 node_modules/.bin/next build
 
 # Run
 FROM base AS run
