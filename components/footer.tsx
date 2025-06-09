@@ -127,6 +127,7 @@ export function Footer() {
           <div className="flex space-x-4">
             <Link
               href="https://x.com/wearsubmarine"
+              target="_blank"
               className="text-white/80 hover:text-white transition-colors"
             >
               <Twitter className="h-5 w-5" />
