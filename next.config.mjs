@@ -26,6 +26,7 @@ const nextConfig = {
     parallelServerBuildTraces: false,
     parallelServerCompiles: false,
     memoryBasedWorkers: false,
+    memoryLimit: 100,
     cpus: 1,
   },
   webpack: (config) => {

@@ -23,8 +23,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 
-# Increase memory limit for build process
-RUN node --max-old-space-size=4096 node_modules/.bin/next build
+RUN npm run build
 
 # Run
 FROM base AS run
