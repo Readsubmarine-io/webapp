@@ -1,7 +1,7 @@
 let userConfig = undefined
 try {
   userConfig = await import('./v0-user-next.config')
-} catch (e) {
+} catch {
   // ignore error
 }
 
@@ -25,6 +25,24 @@ const nextConfig = {
     webpackBuildWorker: false,
     parallelServerBuildTraces: false,
     parallelServerCompiles: false,
+    memoryBasedWorkers: false,
+    cpus: 1,
+  },
+  webpack: (config) => {
+    // Ограничиваем использование памяти
+    config.optimization = {
+      ...config.optimization,
+      splitChunks: {
+        ...config.optimization.splitChunks,
+        maxSize: 200000,
+        minSize: 20000,
+      },
+    }
+
+    // Ограничиваем количество параллельных процессов
+    config.parallelism = 1
+
+    return config
   },
 }
 
