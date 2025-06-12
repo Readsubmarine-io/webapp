@@ -3,6 +3,8 @@ import StatefullLayout from '@/app/statefull-layout'
 import { ProfileRedirect } from '@/components/profile/profile-redirrect'
 import { getQueryClient } from '@/lib/get-query-client'
 
+export const dynamic = 'force-dynamic'
+
 export default async function ProfilePage({
   searchParams,
 }: {

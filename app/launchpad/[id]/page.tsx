@@ -6,6 +6,8 @@ import StatefullLayout from '@/app/statefull-layout'
 import { LaunchpadBookContent } from '@/components/launchpad/launchpad-book-content'
 import { getQueryClient } from '@/lib/get-query-client'
 
+export const dynamic = 'force-dynamic'
+
 export default async function ProjectPage({
   params,
 }: {
