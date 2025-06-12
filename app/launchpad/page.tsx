@@ -1,8 +1,9 @@
 import { getBooksPrefetchQuery } from '@/api/book/get-books'
+import StatefullLayout from '@/app/statefull-layout'
 import { LaunchpadContent } from '@/components/launchpad/launchpad-content'
 import { getQueryClient } from '@/lib/get-query-client'
 
-import StatefullLayout from '../statefull-layout'
+export const dynamic = 'force-dynamic'
 
 export const metadata = {
   title: 'NFT Drops Calendar | Read Submarine',

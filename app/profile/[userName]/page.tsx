@@ -3,6 +3,8 @@ import StatefullLayout from '@/app/statefull-layout'
 import { ProfileContent } from '@/components/profile/profile-content'
 import { getQueryClient } from '@/lib/get-query-client'
 
+export const dynamic = 'force-dynamic'
+
 type ProfilePageParams = {
   userName: string
 }
