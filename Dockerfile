@@ -4,8 +4,6 @@ FROM --platform=linux/amd64 node:22-slim AS base
 
 ARG PORT=3000
 
-ENV NEXT_TELEMETRY_DISABLED=1
-
 WORKDIR /app
 
 # Dependencies
@@ -18,7 +16,6 @@ RUN npm ci
 FROM base AS build
 
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
@@ -29,7 +26,6 @@ RUN npm run build
 FROM base AS run
 
 ENV NODE_ENV=production
-ENV PORT=$PORT
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
