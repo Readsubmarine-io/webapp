@@ -330,9 +330,8 @@ export function SetSalePriceDialog({
                 </h3>
                 <div className="mt-2 text-sm text-yellow-700">
                   <p>
-                    You need to wait at least 3 minutes after minting before you
-                    can list your book for sale. This ensures all systems are
-                    properly synchronized.
+                    This item will be available for listing in a few minutes.
+                    Please try again shortly.
                   </p>
                 </div>
               </div>
