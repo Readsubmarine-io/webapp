@@ -2,7 +2,8 @@
 
 import { sol } from '@metaplex-foundation/js'
 import { PublicKey } from '@solana/web3.js'
-import { useCallback, useEffect, useState } from 'react'
+import { DateTime } from 'luxon'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
 import { BookEdition } from '@/api/book-edition/types'
@@ -36,8 +37,7 @@ interface SetSalePriceDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-const calculateSellerFee = (price: number) => {
-  const feePercentage = 0.025 // 2.5%
+const calculateSellerFee = (price: number, feePercentage: number) => {
   return price * feePercentage
 }
 
@@ -70,6 +70,22 @@ export function SetSalePriceDialog({
 
     return true
   }, [userListPrice])
+
+  // Need to check if the book was minted more than 3 minutes ago to be sure that helius is listening to the mint events
+  const isSaveTimeOffset = useMemo(() => {
+    if (!bookEdition.mintedAt) {
+      return false
+    }
+
+    const mintedDate = DateTime.fromJSDate(new Date(bookEdition.mintedAt))
+    const now = DateTime.now()
+
+    return now.diff(mintedDate, 'minutes').minutes >= 3
+  }, [bookEdition.mintedAt])
+
+  const sellerFee = useMemo(() => {
+    return isPlatformTokenOwner ? 0.01 : 0.025
+  }, [isPlatformTokenOwner])
 
   const handleConfirmSale = useCallback(async () => {
     try {
@@ -274,23 +290,56 @@ export function SetSalePriceDialog({
           )}
           <div className="text-sm text-power-pump-text space-y-1">
             <p>
-              Seller fee (2.5%):{' '}
+              Seller fee ({sellerFee * 100}%):{' '}
               {userListPrice && !isNaN(userListPrice)
-                ? `${calculateSellerFee(userListPrice).toFixed(4)} SOL`
+                ? `${calculateSellerFee(userListPrice, sellerFee)
+                    .toFixed(6)
+                    .replace(/\.?0+$/, '')} SOL`
                 : '-'}
             </p>
             <p>
               You will receive:{' '}
               {userListPrice && !isNaN(userListPrice)
-                ? `${(userListPrice - calculateSellerFee(userListPrice)).toFixed(4)} SOL`
+                ? `${(userListPrice - calculateSellerFee(userListPrice, sellerFee)).toFixed(6).replace(/\.?0+$/, '')} SOL`
                 : '-'}
             </p>
           </div>
         </div>
+        {!isSaveTimeOffset && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg
+                  className="h-5 w-5 text-yellow-400"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-yellow-800">
+                  Please wait before listing
+                </h3>
+                <div className="mt-2 text-sm text-yellow-700">
+                  <p>
+                    You need to wait at least 3 minutes after minting before you
+                    can list your book for sale. This ensures all systems are
+                    properly synchronized.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         <DialogFooter>
           <Button
             onClick={handleConfirmSale}
-            disabled={isLoading}
+            disabled={isLoading || !isSaveTimeOffset}
             className="bg-power-pump-button text-white hover:bg-power-pump-button/90 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-sm sm:text-base font-medium transition-colors duration-200"
           >
             {bookEdition.sale ? 'Update Price' : 'Confirm'}
@@ -299,7 +348,7 @@ export function SetSalePriceDialog({
           {bookEdition.sale && (
             <Button
               onClick={handleCancelSale}
-              disabled={isLoading}
+              disabled={isLoading || !isSaveTimeOffset}
               className="bg-red-500 text-white hover:bg-red-500/90 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-sm sm:text-base font-medium transition-colors duration-200"
             >
               Cancel Sale

@@ -1,6 +1,7 @@
 'use client'
 
 import { ArrowLeft } from 'lucide-react'
+import { DateTime } from 'luxon'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -46,6 +47,18 @@ export function LaunchpadBookContent({ bookId }: LaunchpadBookContentProps) {
       .toFixed(6)
       .replace(/\.?0+$/, '')
   }, [book.mint?.price, book.metrics?.mintedSupply])
+
+  // Need to check if the book was created more than 3 minutes ago to be sure that helius is listening to the mint events
+  const isSaveTimeOffset = useMemo(() => {
+    if (!book.createdAt) {
+      return false
+    }
+
+    const createdDate = DateTime.fromJSDate(new Date(book.createdAt))
+    const now = DateTime.now()
+
+    return now.diff(createdDate, 'minutes').minutes >= 3
+  }, [book.createdAt])
 
   return (
     <article className="container mx-auto px-4 py-8 bg-white">
@@ -128,7 +141,11 @@ export function LaunchpadBookContent({ bookId }: LaunchpadBookContentProps) {
             </CardContent>
           </Card>
 
-          {book.isApproved && <MintingSection book={book} />}
+          {book.isApproved && isSaveTimeOffset ? (
+            <MintingSection book={book} />
+          ) : (
+            <></>
+          )}
 
           <div className="grid lg:grid-cols-2 gap-6 mb-6">
             <Card className="border border-container-border rounded-xl shadow-content-container">
