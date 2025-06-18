@@ -4,6 +4,7 @@ import { Edit } from 'lucide-react'
 import { useState } from 'react'
 
 import { BookEdition } from '@/api/book-edition/types'
+import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 import { SetSalePriceDialog } from './set-sale-price-dialog'
 
@@ -16,7 +17,7 @@ export function ListPrice({ bookEdition, isOwner }: ListPriceProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const displayPrice = bookEdition.sale?.price
-    ? `${bookEdition.sale.price} SOL`
+    ? formatSolanaPrice(bookEdition.sale.price, true)
     : '-'
 
   return (

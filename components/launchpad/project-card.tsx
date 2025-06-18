@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { Book } from '@/api/book/types'
 import { Card, CardContent } from '@/components/ui/card'
+import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 export type CountdownTimerProps = {
   endTime: Date
@@ -119,9 +120,7 @@ export function ProjectCard({ book }: ProjectCardProps) {
           <div className="text-left">
             <div className="text-power-pump-text uppercase text-xs">Price</div>
             <div className="font-medium text-power-pump-heading text-base tabular-nums">
-              {typeof book.mint?.price === 'number'
-                ? `${book.mint?.price} SOL`
-                : book.mint?.price}
+              {formatSolanaPrice(book.mint?.price || 0, true)}
             </div>
           </div>
           <div className="text-center">

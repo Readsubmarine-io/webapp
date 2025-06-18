@@ -11,6 +11,7 @@ import { useGetBookByIdQuery } from '@/api/book/get-book-by-id'
 import { MintingSection } from '@/components/launchpad/minting-section'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 interface LaunchpadBookContentProps {
   bookId: string
@@ -43,9 +44,10 @@ export function LaunchpadBookContent({ bookId }: LaunchpadBookContentProps) {
       return '0 SOL'
     }
 
-    return (Number(book.mint.price) * (book.metrics?.mintedSupply || 0))
-      .toFixed(6)
-      .replace(/\.?0+$/, '')
+    return formatSolanaPrice(
+      Number(book.mint.price) * (book.metrics?.mintedSupply || 0),
+      true,
+    )
   }, [book.mint?.price, book.metrics?.mintedSupply])
 
   // Need to check if the book was created more than 3 minutes ago to be sure that helius is listening to the mint events
@@ -122,7 +124,7 @@ export function LaunchpadBookContent({ bookId }: LaunchpadBookContentProps) {
                 <div>
                   <p className="text-power-pump-text">Raised</p>
                   <p className="font-semibold text-power-pump-heading">
-                    {rasedAmount} SOL
+                    {rasedAmount}
                   </p>
                 </div>
                 <div>
@@ -134,7 +136,7 @@ export function LaunchpadBookContent({ bookId }: LaunchpadBookContentProps) {
                 <div>
                   <p className="text-power-pump-text">Price</p>
                   <p className="font-semibold text-power-pump-heading">
-                    {book.mint?.price} SOL
+                    {formatSolanaPrice(book.mint?.price || 0, true)}
                   </p>
                 </div>
               </div>

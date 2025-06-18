@@ -34,6 +34,7 @@ import { useUserData } from '@/hooks/use-user-data'
 import { assertError } from '@/lib/assert-error'
 import { buildGuards } from '@/lib/build-guards'
 import { sendUmiTransaction } from '@/lib/send-umi-transaction'
+import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 interface MintingSectionProps {
   book: Book
@@ -208,7 +209,7 @@ export function MintingSection({ book }: MintingSectionProps) {
     )
   }
 
-  const price = totalPrice.toFixed(6).replace(/\.?0+$/, '')
+  const price = formatSolanaPrice(totalPrice, true)
 
   return (
     <div className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg shadow-md">
@@ -219,7 +220,7 @@ export function MintingSection({ book }: MintingSectionProps) {
           className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 rounded-full px-6 py-2 sm:py-3 text-sm sm:text-base font-bold transition-colors w-full sm:w-auto"
         >
           {/* {isLoading ? <Loader2 /> : <></>} */}
-          {isLoading ? 'Minting...' : `Mint new copy for ${price} SOL`}
+          {isLoading ? 'Minting...' : `Mint new copy for ${price}`}
         </Button>
         {getMintButtonText()}
       </div>

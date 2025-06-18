@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { Card, CardContent } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import type { Book } from '@/types/profile'
+import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 interface BookCollectionProps {
   books: Book[]
@@ -43,7 +44,7 @@ export function BookCollection({ books }: BookCollectionProps) {
             </div>
             <div className="mt-auto">
               <p className="text-power-pump-text mb-2">
-                Price: {book.price} SOL
+                Price: {formatSolanaPrice(book.price, true)}
               </p>
               <div className="mb-2">
                 <Progress
@@ -56,7 +57,8 @@ export function BookCollection({ books }: BookCollectionProps) {
                   {book.mintedSupply} / {book.totalSupply} minted
                 </span>
                 <span>
-                  {(book.mintedSupply * book.price).toFixed(2)} SOL collected
+                  {formatSolanaPrice(book.mintedSupply * book.price, true)}{' '}
+                  collected
                 </span>
               </div>
             </div>

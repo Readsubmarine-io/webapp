@@ -27,6 +27,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { useUserData } from '@/hooks/use-user-data'
+import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 export type CreatedBooksProps = {
   userId: string
@@ -181,7 +182,7 @@ export function CreatedBooks({ userId }: CreatedBooksProps) {
               </div>
               <div className="mt-auto">
                 <p className="text-power-pump-text mb-2">
-                  Mint Price: {book.mint?.price.toFixed(2)} SOL
+                  Mint Price: {formatSolanaPrice(book.mint?.price || 0, true)}
                 </p>
                 {
                   <div className="mb-2">
@@ -197,7 +198,8 @@ export function CreatedBooks({ userId }: CreatedBooksProps) {
                   </span>
                   {
                     <span>
-                      {(mintedSupply * mintPrice).toFixed(2)} SOL collected
+                      {formatSolanaPrice(mintedSupply * mintPrice, true)}{' '}
+                      collected
                     </span>
                   }
                 </div>

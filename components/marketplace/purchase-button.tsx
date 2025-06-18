@@ -23,6 +23,7 @@ import { useRpc } from '@/hooks/use-rpc'
 import { useUserData } from '@/hooks/use-user-data'
 import { assertError } from '@/lib/assert-error'
 import { sendMetaplexTransaction } from '@/lib/send-metaplex-transaction'
+import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 interface PurchaseButtonProps {
   bookId: string
@@ -136,8 +137,8 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
     }
 
     return {
-      text: `Buy eBook for ${sale.price} SOL`,
-      tooltip: `Buy eBook for ${sale.price} SOL`,
+      text: `Buy eBook for ${formatSolanaPrice(sale.price, true)}`,
+      tooltip: `Buy eBook for ${formatSolanaPrice(sale.price, true)}`,
       disabled: false,
     }
   }, [isAuthenticated, sale, sales?.length])

@@ -17,6 +17,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
+import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 import { ListPrice } from './list-price'
 import { SetSalePriceDialog } from './set-sale-price-dialog'
@@ -78,7 +79,7 @@ export function BookDetailsDrawer({
                   Floor Price:{' '}
                   <span className="font-semibold">
                     {book?.metrics?.floorPrice
-                      ? `${book?.metrics?.floorPrice} SOL`
+                      ? formatSolanaPrice(book?.metrics?.floorPrice, true)
                       : '-'}
                   </span>
                   {/* <USDPriceDisplay amount={(book.floorPrice || 0) * 20} /> */}

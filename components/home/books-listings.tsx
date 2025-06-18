@@ -9,6 +9,7 @@ import {
   TableHead,
   TableRow,
 } from '@/components/ui/table'
+import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 interface BooksListingsProps {
   books: Book[]
@@ -67,7 +68,7 @@ export function BooksListings({ books }: BooksListingsProps) {
                   className="hover:underline"
                 >
                   {book.metrics?.floorPrice
-                    ? `${book.metrics?.floorPrice} SOL`
+                    ? formatSolanaPrice(book.metrics?.floorPrice, true)
                     : '-'}
                 </Link>
               </TableCell>

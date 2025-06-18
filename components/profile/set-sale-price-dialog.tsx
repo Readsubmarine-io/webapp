@@ -30,6 +30,7 @@ import { useMetaplex } from '@/hooks/use-metaplex'
 import { useRpc } from '@/hooks/use-rpc'
 import { assertError } from '@/lib/assert-error'
 import { sendMetaplexTransaction } from '@/lib/send-metaplex-transaction'
+import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 interface SetSalePriceDialogProps {
   bookEdition: BookEdition
@@ -273,7 +274,7 @@ export function SetSalePriceDialog({
             initialValue={bookEdition.sale?.price ?? 0}
             onChange={(value) => setUserListPrice(value)}
             allowDecimal={true}
-            maxDecimals={6}
+            maxDecimals={4}
             placeholder="Enter sale price in SOL"
             disabled={isLoading}
             onClick={() => setIsTouched(true)}
@@ -292,15 +293,17 @@ export function SetSalePriceDialog({
             <p>
               Seller fee ({sellerFee * 100}%):{' '}
               {userListPrice && !isNaN(userListPrice)
-                ? `${calculateSellerFee(userListPrice, sellerFee)
-                    .toFixed(6)
-                    .replace(/\.?0+$/, '')} SOL`
+                ? `${formatSolanaPrice(calculateSellerFee(userListPrice, sellerFee), true)}`
                 : '-'}
             </p>
             <p>
               You will receive:{' '}
               {userListPrice && !isNaN(userListPrice)
-                ? `${(userListPrice - calculateSellerFee(userListPrice, sellerFee)).toFixed(6).replace(/\.?0+$/, '')} SOL`
+                ? `${formatSolanaPrice(
+                    userListPrice -
+                      calculateSellerFee(userListPrice, sellerFee),
+                    true,
+                  )}`
                 : '-'}
             </p>
           </div>

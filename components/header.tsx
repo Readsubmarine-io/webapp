@@ -25,6 +25,7 @@ import { useAccountBalance } from '@/hooks/use-acoount-balance'
 import { useAuthentication } from '@/hooks/use-authentication'
 import { useUserData } from '@/hooks/use-user-data'
 import logo from '@/public/logo.png'
+import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 const StyledContent = styled(DropdownMenuContent, {
   zIndex: 1000,
@@ -51,7 +52,7 @@ export function Header({ homeRedirect }: HeaderProps) {
   useEffect(() => {
     const updateBalance = async () => {
       const balance = await getBalance()
-      setBalance((balance / LAMPORTS_PER_SOL).toFixed(6).replace(/\.?0+$/, ''))
+      setBalance(formatSolanaPrice(balance / LAMPORTS_PER_SOL))
     }
 
     updateBalance()

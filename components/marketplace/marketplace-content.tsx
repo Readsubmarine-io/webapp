@@ -8,6 +8,7 @@ import { useGetBookByIdQuery } from '@/api/book/get-book-by-id'
 import { PurchaseButton } from '@/components/marketplace/purchase-button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 interface MarketplaceContentProps {
   bookId: string
@@ -102,7 +103,7 @@ export function MarketplaceContent({ bookId }: MarketplaceContentProps) {
                     <dd className="text-sm sm:text-base font-semibold text-power-pump-heading">
                       <span itemProp="price">
                         {book.metrics?.floorPrice
-                          ? `${book.metrics?.floorPrice} SOL`
+                          ? formatSolanaPrice(book.metrics?.floorPrice, true)
                           : '-'}
                       </span>
                       {/* <USDPriceDisplay amount={book.metrics?.floorPrice} /> */}

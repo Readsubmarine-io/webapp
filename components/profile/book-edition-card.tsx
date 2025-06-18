@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 export type BookEditionCardProps = {
   bookEdition: BookEdition
@@ -97,7 +98,7 @@ export function BookEditionCard({
             Floor price:{' '}
             <span className="font-semibold">
               {book?.metrics?.floorPrice
-                ? `${book?.metrics?.floorPrice} SOL`
+                ? formatSolanaPrice(book?.metrics?.floorPrice, true)
                 : '-'}
             </span>
           </span>
