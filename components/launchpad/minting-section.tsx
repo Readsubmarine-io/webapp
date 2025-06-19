@@ -18,6 +18,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { Book } from '@/api/book/types'
+import { useCreateUnconfirmedBookEditionMutation } from '@/api/book-edition/create-unconfirmed-book-editions'
 import { useGetBookEditionsQuery } from '@/api/book-edition/get-book-editions'
 import { useGetSettingsQuery } from '@/api/setting/get-settings'
 import { SettingKey } from '@/api/setting/types'
@@ -48,6 +49,8 @@ export function MintingSection({ book, onMintSuccess }: MintingSectionProps) {
   const { umi } = useUmi()
   const { rpc } = useRpc()
   const { checkWalletsMissmatch } = useCheckWalletsMissmatch()
+  const { mutateAsync: createUnconfirmedBookEdition } =
+    useCreateUnconfirmedBookEditionMutation()
 
   const { isAuthenticated, user } = useUserData()
   const { data: editions } = useGetBookEditionsQuery({
@@ -145,8 +148,13 @@ export function MintingSection({ book, onMintSuccess }: MintingSectionProps) {
         )
 
       await sendUmiTransaction(umi, rpc, transaction, 'finalized')
+      await createUnconfirmedBookEdition({
+        editionAddress: nftMint.publicKey.toString(),
+        bookId: book.id,
+      })
 
       toast.success('Minted successfully!')
+
       setIsMinting(true)
       onMintSuccess?.()
     } catch (error: unknown) {
@@ -163,7 +171,9 @@ export function MintingSection({ book, onMintSuccess }: MintingSectionProps) {
     book.collectionAddress,
     book.creator?.wallet?.address,
     book.metrics?.totalSupply,
+    book.id,
     paymentAddress,
+    createUnconfirmedBookEdition,
     onMintSuccess,
   ])
 

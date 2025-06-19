@@ -19,3 +19,9 @@ export type BookEditionOwnership = {
   wallet?: Wallet
   bookEdition?: BookEdition
 }
+
+export type UnconfirmedBookEdition = {
+  editionAddress: string
+  createdAt: Date
+  book: Book
+}
