@@ -1,16 +1,19 @@
 'use client'
 
+import { fetchCandyMachine } from '@metaplex-foundation/mpl-candy-machine'
+import { publicKey } from '@metaplex-foundation/umi'
 import { ArrowLeft } from 'lucide-react'
 import { DateTime } from 'luxon'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useGetBookByIdQuery } from '@/api/book/get-book-by-id'
 import { MintingSection } from '@/components/launchpad/minting-section'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { useUmi } from '@/hooks/use-umi'
 import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 interface LaunchpadBookContentProps {
@@ -23,16 +26,6 @@ export function LaunchpadBookContent({ bookId }: LaunchpadBookContentProps) {
   if (!book) {
     notFound()
   }
-
-  const progressPercentage = useMemo(() => {
-    if (!book.metrics?.mintedSupply || !book.metrics?.totalSupply) {
-      return 0
-    }
-
-    return Math.floor(
-      (book.metrics.mintedSupply / book.metrics.totalSupply) * 100,
-    )
-  }, [book.metrics?.mintedSupply, book.metrics?.totalSupply])
 
   const timeLeft = book.mint?.endDate
     ? new Date(book.mint.endDate).getTime() - new Date().getTime()
@@ -61,6 +54,39 @@ export function LaunchpadBookContent({ bookId }: LaunchpadBookContentProps) {
 
     return now.diff(createdDate, 'minutes').minutes >= 3
   }, [book.createdAt])
+
+  const { umi } = useUmi()
+  const [onchainMintedCopies, setOnchainMintedCopies] = useState(
+    book.metrics?.mintedSupply || 0,
+  )
+  const updateOnchainMintedCopies = useCallback(async () => {
+    if (!umi || !book.mint?.mintAddress) {
+      return
+    }
+
+    const candyMachine = await fetchCandyMachine(
+      umi,
+      publicKey(book.mint?.mintAddress),
+    )
+
+    if (!candyMachine) {
+      return
+    }
+
+    setOnchainMintedCopies(Number(candyMachine.itemsRedeemed))
+  }, [book.mint?.mintAddress, umi])
+
+  useEffect(() => {
+    updateOnchainMintedCopies()
+  }, [book.mint?.mintAddress, updateOnchainMintedCopies])
+
+  const progressPercentage = useMemo(() => {
+    if (!book.metrics?.totalSupply) {
+      return 0
+    }
+
+    return Math.floor((onchainMintedCopies / book.metrics.totalSupply) * 100)
+  }, [book.metrics?.totalSupply, onchainMintedCopies])
 
   return (
     <article className="container mx-auto px-4 py-8 bg-white">
@@ -103,8 +129,7 @@ export function LaunchpadBookContent({ bookId }: LaunchpadBookContentProps) {
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-power-pump-text">Minted</span>
                   <span className="text-power-pump-heading font-semibold">
-                    {book.metrics?.mintedSupply} /{' '}
-                    {book.metrics?.totalSupply}{' '}
+                    {onchainMintedCopies} / {book.metrics?.totalSupply}{' '}
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2.5">
@@ -143,8 +168,13 @@ export function LaunchpadBookContent({ bookId }: LaunchpadBookContentProps) {
             </CardContent>
           </Card>
 
-          {book.isApproved && isSaveTimeOffset ? (
-            <MintingSection book={book} />
+          {book.isApproved &&
+          isSaveTimeOffset &&
+          onchainMintedCopies < (book.metrics?.totalSupply || 0) ? (
+            <MintingSection
+              book={book}
+              onMintSuccess={updateOnchainMintedCopies}
+            />
           ) : (
             <></>
           )}

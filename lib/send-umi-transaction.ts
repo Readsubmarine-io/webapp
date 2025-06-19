@@ -1,11 +1,12 @@
 import { TransactionBuilder, Umi } from '@metaplex-foundation/umi'
 import { toWeb3JsTransaction } from '@metaplex-foundation/umi-web3js-adapters'
-import { Connection } from '@solana/web3.js'
+import { Commitment, Connection } from '@solana/web3.js'
 
 export async function sendUmiTransaction(
   umi: Umi,
   rpc: Connection,
   transactionBuilder: TransactionBuilder,
+  commitment: Commitment = 'confirmed',
 ) {
   const signers = transactionBuilder.getSigners(umi)
   const transaction = await transactionBuilder.buildWithLatestBlockhash(umi)
@@ -29,5 +30,5 @@ export async function sendUmiTransaction(
   const { signature } =
     await window.solana.signAndSendTransaction(web3Transaction)
 
-  await rpc.confirmTransaction(signature, 'confirmed')
+  await rpc.confirmTransaction(signature, commitment)
 }

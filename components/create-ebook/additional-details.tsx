@@ -174,6 +174,7 @@ export function AdditionalDetails({
                 allowDecimal={false}
                 placeholder="Enter the number of pages"
                 min={1}
+                max={10000}
               />
               {field.state.meta.isTouched &&
                 field.state.meta.errors.length > 0 && (

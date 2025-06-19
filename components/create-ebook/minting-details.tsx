@@ -26,7 +26,8 @@ export function MintingDetails({
     defaultValues: {
       mintPrice: formData.mintPrice ?? 0,
       totalCopies: formData.totalCopies ?? 0,
-      mintStartDate: formData.mintStartDate || new Date(),
+      mintStartDate:
+        formData.mintStartDate || DateTime.utc().startOf('day').toJSDate(),
       mintEndDate: formData.mintEndDate || null,
     },
     onSubmit: async ({ value }) => {
@@ -130,13 +131,23 @@ export function MintingDetails({
       </div>
       <div>
         <Label htmlFor="mintStartDate">
-          Mint Start Date <span className="text-red-600">*</span>
+          Mint Start Date (UTC) <span className="text-red-600">*</span>
         </Label>
         <form.Field
           name="mintStartDate"
           validators={{
             onChange: ({ value }) => {
               if (!value) return 'Mint Date is required'
+
+              const today = DateTime.utc().startOf('day')
+              const selectedDate = DateTime.fromJSDate(value, {
+                zone: 'utc',
+              }).startOf('day')
+
+              if (selectedDate < today) {
+                return 'Mint Start Date must be today or later (UTC)'
+              }
+
               return undefined
             },
           }}
@@ -149,7 +160,9 @@ export function MintingDetails({
                 value={field.state.value?.toISOString().split('T')[0]}
                 onChange={(e) => {
                   field.handleChange(
-                    DateTime.fromISO(e.target.value).toJSDate(),
+                    DateTime.fromISO(e.target.value, { zone: 'utc' })
+                      .startOf('day')
+                      .toJSDate(),
                   )
                 }}
                 onBlur={() => field.handleBlur()}
@@ -165,7 +178,7 @@ export function MintingDetails({
         </form.Field>
       </div>
       <div>
-        <Label htmlFor="mintEndDate">Mint End Date</Label>
+        <Label htmlFor="mintEndDate">Mint End Date (UTC)</Label>
         <form.Field
           name="mintEndDate"
           validators={{
@@ -177,7 +190,7 @@ export function MintingDetails({
                 value &&
                 DateTime.fromJSDate(value) <= DateTime.fromJSDate(startDate)
               ) {
-                return 'Mint End Date must be after Mint Start Date'
+                return 'Mint End Date must be after Mint Start Date (UTC)'
               }
 
               return undefined
@@ -192,7 +205,11 @@ export function MintingDetails({
                 value={field.state.value?.toISOString().split('T')[0] || ''}
                 onChange={(e) => {
                   field.handleChange(
-                    e.target.value ? new Date(e.target.value) : null,
+                    e.target.value
+                      ? DateTime.fromISO(e.target.value, { zone: 'utc' })
+                          .startOf('day')
+                          .toJSDate()
+                      : null,
                   )
                 }}
                 onBlur={() => field.handleBlur()}

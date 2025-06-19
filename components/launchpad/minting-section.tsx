@@ -38,9 +38,10 @@ import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 interface MintingSectionProps {
   book: Book
+  onMintSuccess?: () => void
 }
 
-export function MintingSection({ book }: MintingSectionProps) {
+export function MintingSection({ book, onMintSuccess }: MintingSectionProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [isMinting, setIsMinting] = useState(false)
   const totalPrice = Number(book.mint?.price)
@@ -143,10 +144,11 @@ export function MintingSection({ book }: MintingSectionProps) {
           }),
         )
 
-      await sendUmiTransaction(umi, rpc, transaction)
+      await sendUmiTransaction(umi, rpc, transaction, 'finalized')
 
       toast.success('Minted successfully!')
       setIsMinting(true)
+      onMintSuccess?.()
     } catch (error: unknown) {
       assertError(error, 'Failed to mint.')
     } finally {
@@ -154,6 +156,7 @@ export function MintingSection({ book }: MintingSectionProps) {
     }
   }, [
     umi,
+    rpc,
     checkWalletsMissmatch,
     book.mint?.mintAddress,
     book.mint?.price,
@@ -161,7 +164,7 @@ export function MintingSection({ book }: MintingSectionProps) {
     book.creator?.wallet?.address,
     book.metrics?.totalSupply,
     paymentAddress,
-    rpc,
+    onMintSuccess,
   ])
 
   const getMintButtonText = useCallback(() => {
