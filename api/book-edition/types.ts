@@ -20,8 +20,14 @@ export type BookEditionOwnership = {
   bookEdition?: BookEdition
 }
 
+export enum UnconfirmedBookEditionType {
+  Mint = 'Mint',
+  Transfer = 'Transfer',
+}
+
 export type UnconfirmedBookEdition = {
   editionAddress: string
   createdAt: Date
   book: Book
+  type: UnconfirmedBookEditionType
 }

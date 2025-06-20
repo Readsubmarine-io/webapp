@@ -1,6 +1,9 @@
 import Image from 'next/image'
 
-import { UnconfirmedBookEdition } from '@/api/book-edition/types'
+import {
+  UnconfirmedBookEdition,
+  UnconfirmedBookEditionType,
+} from '@/api/book-edition/types'
 import { Card } from '@/components/ui/card'
 import { CardContent } from '@/components/ui/card'
 
@@ -11,8 +14,12 @@ export type UnconfirmedBookEditionCardProps = {
 export function UnconfirmedBookEditionCard({
   unconfirmedBookEdition,
 }: UnconfirmedBookEditionCardProps) {
-  const book = unconfirmedBookEdition.book
+  const { book, type } = unconfirmedBookEdition
   const coverImageUrl = book?.coverImage?.metadata.srcUrl
+
+  const isMint = type === UnconfirmedBookEditionType.Mint
+  const title = isMint ? 'New Edition' : 'Incoming book'
+  const status = isMint ? 'Syncing' : 'Transferring'
 
   return (
     <Card
@@ -30,7 +37,7 @@ export function UnconfirmedBookEditionCard({
       <CardContent className="p-4 flex flex-col w-2/3 relative">
         <div className="flex justify-between items-start mb-2">
           <span className="text-sm text-power-pump-button font-semibold">
-            New Edition
+            {title}
           </span>
         </div>
         <h3 className="font-semibold text-lg mb-1 text-power-pump-heading line-clamp-2">
@@ -40,7 +47,7 @@ export function UnconfirmedBookEditionCard({
         <div className="flex flex-col space-y-1 mt-auto">
           <span className="text-sm text-power-pump-text">
             Status:{' '}
-            <span className="font-semibold text-yellow-500">Syncing</span>
+            <span className="font-semibold text-yellow-500">{status}</span>
           </span>
           <span className="text-sm text-power-pump-text">
             Created:{' '}
