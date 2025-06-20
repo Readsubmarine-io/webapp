@@ -1,5 +1,4 @@
 import { useMutation } from '@tanstack/react-query'
-import { toast } from 'sonner'
 
 import { UnconfirmedBookEdition } from '@/api/book-edition/types'
 import { assertError } from '@/lib/assert-error'
@@ -34,9 +33,6 @@ export const useCreateUnconfirmedBookEditionMutation = () => {
     mutationFn: createUnconfirmedBookEditionCall,
     onError: (error) => {
       assertError(error, 'Failed to create unconfirmed book edition.')
-    },
-    onSuccess: () => {
-      toast.success('Unconfirmed book edition created successfully')
     },
   })
 }
