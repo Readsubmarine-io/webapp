@@ -41,8 +41,8 @@ export function BookDetailsDrawer({
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent className="w-screen sm:w-[450px] sm:max-w-[450px] flex flex-col bg-drawer">
-        <div className="flex-grow overflow-y-auto pb-4">
+      <SheetContent className="w-screen sm:w-[450px] sm:max-w-[450px] flex flex-col bg-drawer overflow-y-auto">
+        <div className="flex-grow pb-4">
           <SheetHeader className="mb-4">
             <div className="flex flex-col">
               <div className="flex items-center justify-between">

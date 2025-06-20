@@ -382,7 +382,9 @@ export function ContractsDeploy({
                 {index < currentSubstep || isComplete ? '✓' : index + 1}
               </div>
               <span
-                className={`${index === currentSubstep ? 'font-semibold' : ''}`}
+                className={`${
+                  index === currentSubstep && !isComplete ? 'font-semibold' : ''
+                }`}
               >
                 {step}
               </span>

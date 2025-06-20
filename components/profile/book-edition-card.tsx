@@ -1,3 +1,4 @@
+import { DropdownMenuPortal } from '@radix-ui/react-dropdown-menu'
 import { Download, Eye } from 'lucide-react'
 import { DollarSign, MoreVertical } from 'lucide-react'
 import Image from 'next/image'
@@ -56,32 +57,37 @@ export function BookEditionCard({
               <DropdownMenuTrigger className="focus:outline-none relative z-10">
                 <MoreVertical className="h-4 w-4 sm:h-5 sm:w-5 text-power-pump-text hover:text-power-pump-button transition-colors" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-48 sm:w-56 bg-contextMenu text-contextMenu-foreground">
-                <DropdownMenuItem
-                  className="cursor-pointer flex items-center"
-                  onSelect={() => handleViewBook(bookEdition)}
+              <DropdownMenuPortal>
+                <DropdownMenuContent
+                  className="w-48 sm:w-56 bg-contextMenu text-contextMenu-foreground"
+                  align="end"
                 >
-                  <Eye className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="text-sm">View</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="cursor-pointer flex items-center"
-                  onSelect={() => {
-                    setSelectedBookForSale(bookEdition)
-                    setIsSetPriceDialogOpen(true)
-                  }}
-                >
-                  <DollarSign className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="text-sm">Sale</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  className="cursor-pointer flex items-center"
-                  onSelect={() => window.open(pdfUrl, '_blank')}
-                >
-                  <Download className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                  <span className="text-sm">Download</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
+                  <DropdownMenuItem
+                    className="DropdownMenuItem cursor-pointer flex items-center"
+                    onSelect={() => handleViewBook(bookEdition)}
+                  >
+                    <Eye className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="text-sm">View</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="DropdownMenuItem cursor-pointer flex items-center"
+                    onSelect={() => {
+                      setSelectedBookForSale(bookEdition)
+                      setIsSetPriceDialogOpen(true)
+                    }}
+                  >
+                    <DollarSign className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="text-sm">Sale</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    className="DropdownMenuItem cursor-pointer flex items-center"
+                    onSelect={() => window.open(pdfUrl, '_blank')}
+                  >
+                    <Download className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                    <span className="text-sm">Download</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenuPortal>
             </DropdownMenu>
           )}
         </div>

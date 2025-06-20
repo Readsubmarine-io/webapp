@@ -1,3 +1,4 @@
+import { DropdownMenuPortal } from '@radix-ui/react-dropdown-menu'
 import {
   Check,
   ExternalLink,
@@ -90,95 +91,108 @@ export function CreatedBooks({ userId }: CreatedBooksProps) {
               />
             </div>
             <CardContent className="p-3 sm:p-4 flex flex-col flex-grow relative">
-              <div className="flex flex-wrap items-center mb-2">
-                <h3 className="font-semibold text-base sm:text-lg text-power-pump-heading mr-2 mb-1">
-                  {book.title}
-                </h3>
+              <div className="flex flex-col mb-2">
+                <div className="flex items-center justify-between mb-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <h3 className="font-semibold text-base sm:text-lg text-power-pump-heading truncate max-w-[70%] cursor-help">
+                        {book.title}
+                      </h3>
+                    </TooltipTrigger>
+                    <TooltipContent>{book.title}</TooltipContent>
+                  </Tooltip>
 
-                <Tooltip>
-                  <TooltipTrigger>
-                    {book.isApproved ? (
-                      <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-full flex items-center whitespace-nowrap">
-                        <Check className="w-3 h-3 mr-1" />
-                        Verified
-                      </span>
-                    ) : (
-                      <span className="bg-power-pump-button/10 text-power-pump-button text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap">
-                        In Review
-                      </span>
-                    )}
-                  </TooltipTrigger>
-                  <TooltipContent>Is book approved by the admin</TooltipContent>
-                </Tooltip>
-
-                <Tooltip>
-                  <TooltipTrigger>
-                    {book.isShown ? (
-                      <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full flex items-center whitespace-nowrap ml-1">
-                        <Eye className="w-3 h-3 mr-1" />
-                        Visible
-                      </span>
-                    ) : (
-                      <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-0.5 rounded-full flex items-center whitespace-nowrap ml-1">
-                        <EyeOff className="w-3 h-3 mr-1" />
-                        Hidden
-                      </span>
-                    )}
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    Is book visible in the launchpad and marketpalce
-                  </TooltipContent>
-                </Tooltip>
-
-                {(isCreator || isAdmin) && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="ml-auto">
-                      <MoreVertical className="h-5 w-5 text-power-pump-text" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      {isCreator && (
-                        <DropdownMenuItem
-                          className="cursor-pointer flex items-center bg-white"
-                          onSelect={() =>
-                            handleToggleVisibility(book.id, book.isShown)
-                          }
-                        >
-                          {book.isShown ? (
-                            <>
-                              <EyeOff className="mr-2 h-4 w-4" />
-                              Hide Book
-                            </>
-                          ) : (
-                            <>
-                              <Eye className="mr-2 h-4 w-4" />
-                              Show Book
-                            </>
+                  {(isCreator || isAdmin) && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger className="bg-white flex-shrink-0">
+                        <MoreVertical className="h-5 w-5 text-power-pump-text" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuPortal>
+                        <DropdownMenuContent className="bg-white" align="end">
+                          {isCreator && (
+                            <DropdownMenuItem
+                              className="cursor-pointer flex items-center bg-white DropdownMenuItem"
+                              onSelect={() =>
+                                handleToggleVisibility(book.id, book.isShown)
+                              }
+                            >
+                              {book.isShown ? (
+                                <>
+                                  <EyeOff className="mr-2 h-4 w-4" />
+                                  Hide Book
+                                </>
+                              ) : (
+                                <>
+                                  <Eye className="mr-2 h-4 w-4" />
+                                  Show Book
+                                </>
+                              )}
+                            </DropdownMenuItem>
                           )}
-                        </DropdownMenuItem>
-                      )}
-                      {isAdmin && (
-                        <DropdownMenuItem
-                          className="cursor-pointer flex items-center bg-white"
-                          onSelect={() =>
-                            handleToggleApproval(book.id, book.isApproved)
-                          }
-                        >
-                          {book.isApproved ? (
-                            <>
-                              <ShieldOff className="mr-2 h-4 w-4" />
-                              Unapprove Book
-                            </>
-                          ) : (
-                            <>
-                              <Shield className="mr-2 h-4 w-4" />
-                              Approve Book
-                            </>
+                          {isAdmin && (
+                            <DropdownMenuItem
+                              className="DropdownMenuItem cursor-pointer flex items-center bg-white"
+                              onSelect={() =>
+                                handleToggleApproval(book.id, book.isApproved)
+                              }
+                            >
+                              {book.isApproved ? (
+                                <>
+                                  <ShieldOff className="mr-2 h-4 w-4" />
+                                  Unapprove Book
+                                </>
+                              ) : (
+                                <>
+                                  <Shield className="mr-2 h-4 w-4" />
+                                  Approve Book
+                                </>
+                              )}
+                            </DropdownMenuItem>
                           )}
-                        </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenuPortal>
+                    </DropdownMenu>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center gap-1">
+                  <Tooltip>
+                    <TooltipTrigger>
+                      {book.isApproved ? (
+                        <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-full flex items-center whitespace-nowrap">
+                          <Check className="w-3 h-3 mr-1" />
+                          Verified
+                        </span>
+                      ) : (
+                        <span className="bg-power-pump-button/10 text-power-pump-button text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap">
+                          In Review
+                        </span>
                       )}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Is book approved by the admin
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <Tooltip>
+                    <TooltipTrigger>
+                      {book.isShown ? (
+                        <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full flex items-center whitespace-nowrap">
+                          <Eye className="w-3 h-3 mr-1" />
+                          Visible
+                        </span>
+                      ) : (
+                        <span className="bg-gray-100 text-gray-800 text-xs font-medium px-2 py-0.5 rounded-full flex items-center whitespace-nowrap">
+                          <EyeOff className="w-3 h-3 mr-1" />
+                          Hidden
+                        </span>
+                      )}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      Is book visible in the launchpad and marketpalce
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
               </div>
               <div className="mt-auto">
                 <p className="text-power-pump-text mb-2">
