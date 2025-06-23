@@ -62,7 +62,7 @@ export function CollectedBooks({ userAddress, isOnSale }: CollectedBooksProps) {
             />
           ))
         : 'No books'}
-      {unconfirmedBookEditions?.length
+      {unconfirmedBookEditions?.length && userAddress === user?.wallet?.address
         ? unconfirmedBookEditions?.map((unconfirmedBookEdition) => (
             <UnconfirmedBookEditionCard
               key={unconfirmedBookEdition.editionAddress}
