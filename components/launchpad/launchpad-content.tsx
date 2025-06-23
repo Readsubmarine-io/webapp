@@ -11,7 +11,7 @@ export function LaunchpadContent() {
 
   return (
     <div className="min-h-screen bg-white">
-      {true ? (
+      {!books?.length ? (
         <div className="flex items-center justify-center min-h-[calc(100vh-6rem)]">
           <div className="text-center">
             <div className="max-w-md mx-auto">
