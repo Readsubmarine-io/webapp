@@ -1,6 +1,6 @@
 'use client'
 
-import { useForm } from '@tanstack/react-form'
+import { Updater, useForm } from '@tanstack/react-form'
 import { CheckCircle } from 'lucide-react'
 import type React from 'react'
 import { useCallback, useState } from 'react'
@@ -42,18 +42,62 @@ export function FileUploads({
     onSubmit: async ({ value }) => {
       try {
         await handleMetadataUpload()
-        console.log('Form submitted:', { ...formData, ...value })
         setIsSubmissionSuccessful(true)
+
+        updateFormData({
+          coverImage: value.coverImage,
+          pdf: value.pdf,
+          contactEmail: value.contactEmail,
+        })
+
         onNext()
       } catch (error) {
         console.error('Error submitting form:', error)
       }
     },
+    validators: {
+      onMount: ({ value }) => {
+        if (
+          !value.acceptTerms ||
+          !value.contactEmail ||
+          !value.coverImage ||
+          !value.pdf
+        ) {
+          return 'You must accept the terms to proceed'
+        }
+      },
+      onChange: ({ value }) => {
+        if (
+          !value.acceptTerms ||
+          !value.contactEmail ||
+          !value.coverImage ||
+          !value.pdf
+        ) {
+          return 'You must accept the terms to proceed'
+        }
+      },
+    },
   })
 
+  const handlePrevClick = useCallback(() => {
+    updateFormData({
+      coverImage: form.state.values.coverImage || undefined,
+      pdf: form.state.values.pdf || undefined,
+      contactEmail: form.state.values.contactEmail || undefined,
+    })
+
+    onPrev()
+  }, [
+    form.state.values.coverImage,
+    form.state.values.pdf,
+    form.state.values.contactEmail,
+    onPrev,
+    updateFormData,
+  ])
+
   const handleMetadataUpload = useCallback(async () => {
-    const coverImage = formData.coverImage
-    const pdf = formData.pdf
+    const coverImage = form.state.values.coverImage
+    const pdf = form.state.values.pdf
 
     if (!coverImage || !pdf) {
       throw new Error('Cover image and PDF are required')
@@ -82,11 +126,11 @@ export function FileUploads({
     updateFormData({ metadata: fileInfo })
   }, [
     createFile,
+    form.state.values.coverImage,
+    form.state.values.pdf,
     formData.author,
-    formData.coverImage,
     formData.longDescription,
     formData.pages,
-    formData.pdf,
     formData.title,
     updateFormData,
   ])
@@ -95,6 +139,8 @@ export function FileUploads({
     async (
       e: React.ChangeEvent<HTMLInputElement>,
       field: 'coverImage' | 'pdf',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      handleChange: (updater: Updater<any>) => void,
     ) => {
       if (e.target.files && e.target.files[0]) {
         try {
@@ -106,15 +152,14 @@ export function FileUploads({
                 : FileAssignment.BookPdf,
           })
 
-          updateFormData({ [field]: fileInfo })
-          form.setFieldValue(field, fileInfo)
+          handleChange(fileInfo)
         } catch (error) {
           console.error(error)
           e.target.value = ''
         }
       }
     },
-    [createFile, updateFormData, form],
+    [createFile],
   )
 
   const mintFee = settings?.[SettingKey.PlatformFee]
@@ -160,13 +205,28 @@ export function FileUploads({
             <Label htmlFor="coverImage">
               Upload eBook Cover (JPEG) <span className="text-red-600">*</span>
             </Label>
-            <Input
-              id="coverImage"
-              type="file"
-              accept="image/jpeg, image/png"
-              onChange={(e) => handleFileChange(e, 'coverImage')}
-              className="hover:cursor-pointer file:cursor-pointer"
-            />
+            <div className="flex items-center">
+              <label
+                htmlFor="coverImage"
+                className="flex cursor-pointer h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+              >
+                <span className="text-black">Choose File</span>
+                <span className="ml-2">
+                  {field.state.value?.metadata.srcUrl
+                    ? field.state.value?.metadata.srcUrl.split('/').pop()
+                    : 'No file chosen'}
+                </span>
+              </label>
+              <Input
+                id="coverImage"
+                type="file"
+                accept="image/jpeg, image/png"
+                onChange={(e) =>
+                  handleFileChange(e, 'coverImage', field.handleChange)
+                }
+                className="hover:cursor-pointer file:cursor-pointer hidden"
+              />
+            </div>
             {field.state.meta.errors.length > 0 && (
               <p className="text-red-500 text-sm mt-1">
                 {field.state.meta.errors[0]}
@@ -179,29 +239,44 @@ export function FileUploads({
       <form.Field
         name="pdf"
         validators={{
-          onChange: ({ value }) =>
-            !value ? 'eBook PDF is required' : undefined,
+          onChange: ({ value }) => {
+            console.log('onChange', value)
+            return !value ? 'eBook PDF is required' : undefined
+          },
         }}
       >
-        {(field) => (
-          <div>
-            <Label htmlFor="pdf">
-              Upload eBook PDF <span className="text-red-600">*</span>
-            </Label>
-            <Input
-              id="pdf"
-              type="file"
-              accept="application/pdf"
-              onChange={(e) => handleFileChange(e, 'pdf')}
-              className="hover:cursor-pointer file:cursor-pointer"
-            />
-            {field.state.meta.errors.length > 0 && (
-              <p className="text-red-500 text-sm mt-1">
-                {field.state.meta.errors[0]}
-              </p>
-            )}
-          </div>
-        )}
+        {(field) => {
+          return (
+            <div>
+              <Label htmlFor="pdf">
+                Upload eBook PDF <span className="text-red-600">*</span>
+              </Label>
+              <label
+                htmlFor="pdf"
+                className="flex cursor-pointer h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+              >
+                <span className="text-black">Choose File</span>
+                <span className="ml-2">
+                  {field.state.value?.metadata.srcUrl
+                    ? field.state.value?.metadata.srcUrl.split('/').pop()
+                    : 'No file chosen'}
+                </span>
+              </label>
+              <Input
+                id="pdf"
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => handleFileChange(e, 'pdf', field.handleChange)}
+                className="hover:cursor-pointer file:cursor-pointer hidden"
+              />
+              {field.state.meta.errors.length > 0 && (
+                <p className="text-red-500 text-sm mt-1">
+                  {field.state.meta.errors[0]}
+                </p>
+              )}
+            </div>
+          )
+        }}
       </form.Field>
 
       <form.Field
@@ -221,13 +296,13 @@ export function FileUploads({
             <Label htmlFor="email">
               Email Address <span className="text-red-600">*</span>
             </Label>
+
             <Input
               id="contactEmail"
               type="email"
               value={field.state.value}
               onChange={(e) => {
                 field.handleChange(e.target.value)
-                updateFormData({ contactEmail: e.target.value })
               }}
               placeholder="Enter your email address"
             />
@@ -271,14 +346,12 @@ export function FileUploads({
         )}
       </form.Field>
 
-      <form.Subscribe
-        selector={(state) => [state.canSubmit, state.isSubmitting]}
-      >
-        {([canSubmit, isSubmitting]) => (
+      <form.Subscribe selector={(state) => [state.isSubmitting, state.isValid]}>
+        {([isSubmitting, isValid]) => (
           <div className="flex justify-between items-center mt-6">
             <Button
               type="button"
-              onClick={onPrev}
+              onClick={handlePrevClick}
               variant="outline"
               className="w-[48%]"
             >
@@ -286,7 +359,7 @@ export function FileUploads({
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || !canSubmit}
+              disabled={isSubmitting || !isValid}
               className="w-[48%] bg-power-pump-button text-white hover:bg-power-pump-button/90"
             >
               {isSubmitting ? 'Submitting...' : 'Deploy Contracts'}
