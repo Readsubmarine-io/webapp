@@ -38,17 +38,22 @@ export function FeaturedBooks({ books }: FeaturedBooksProps) {
 
   useEffect(() => {
     const handleScroll = () => {
+      console.log(scrollRef.current)
+
       if (scrollRef.current) {
         const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
+
         setShowLeftArrow(scrollLeft > 0)
         setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 1)
       }
     }
 
+    handleScroll()
+
     const currentRef = scrollRef.current
     currentRef?.addEventListener('scroll', handleScroll)
     return () => currentRef?.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [books])
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
