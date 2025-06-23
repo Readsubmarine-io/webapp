@@ -28,6 +28,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { useAuthentication } from '@/hooks/use-authentication'
 import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 import { useRpc } from '@/hooks/use-rpc'
 import { useUmi } from '@/hooks/use-umi'
@@ -48,6 +49,7 @@ export function MintingSection({ book, onMintSuccess }: MintingSectionProps) {
   const totalPrice = Number(book.mint?.price)
   const { umi } = useUmi()
   const { rpc } = useRpc()
+  const { signIn, isSigningIn } = useAuthentication()
   const { checkWalletsMissmatch } = useCheckWalletsMissmatch()
   const { mutateAsync: createUnconfirmedBookEdition } =
     useCreateUnconfirmedBookEditionMutation()
@@ -205,10 +207,11 @@ export function MintingSection({ book, onMintSuccess }: MintingSectionProps) {
             <TooltipTrigger>
               {' '}
               <Button
-                disabled={true}
+                onClick={signIn}
+                disabled={isSigningIn}
                 className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 rounded-full px-6 py-2 sm:py-3 text-sm sm:text-base font-bold transition-colors w-full sm:w-auto"
               >
-                Mint
+                {isSigningIn ? 'Connecting...' : 'Connect Wallet'}
               </Button>
             </TooltipTrigger>
             <TooltipContent>

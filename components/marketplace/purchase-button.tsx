@@ -16,6 +16,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { AUCTION_HOUSE_ADDRESS } from '@/constants/env'
+import { useAuthentication } from '@/hooks/use-authentication'
 import { useCheckWalletsMissmatch } from '@/hooks/use-check-wallets-missmatch'
 import { useMetaplex } from '@/hooks/use-metaplex'
 import { useRpc } from '@/hooks/use-rpc'
@@ -35,6 +36,7 @@ export function PurchaseButton({ sales }: PurchaseButtonProps) {
   const { metaplex } = useMetaplex()
   const { rpc } = useRpc()
   const { mutateAsync: completeSale } = useCompleteSaleMutation()
+  const { signIn, isSigningIn } = useAuthentication()
   const { user, isAuthenticated } = useUserData()
   const { checkWalletsMissmatch } = useCheckWalletsMissmatch()
 
@@ -174,6 +176,23 @@ export function PurchaseButton({ sales }: PurchaseButtonProps) {
         >
           Go to My Profile
         </Link>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center">
+        <Button
+          disabled={isSigningIn}
+          className="w-full md:w-auto bg-power-pump-button text-white hover:bg-power-pump-button/90 flex items-center justify-center rounded-lg"
+          onClick={signIn}
+        >
+          {isSigningIn ? 'Connecting...' : 'Connect Wallet'}
+        </Button>
+        <p className="text-md text-power-pump-text ml-2">
+          Connect your wallet to purchase eBook
+        </p>
       </div>
     )
   }
