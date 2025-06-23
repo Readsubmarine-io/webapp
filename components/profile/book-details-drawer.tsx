@@ -3,7 +3,7 @@
 import { DollarSign, Download, Edit2Icon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { BookEdition } from '@/api/book-edition/types'
@@ -38,6 +38,10 @@ export function BookDetailsDrawer({
   const [isSetPriceDialogOpen, setIsSetPriceDialogOpen] = useState(false)
 
   const isOnSale = !!bookEdition.sale
+
+  useEffect(() => {
+    console.log('bookEdition.sale', bookEdition.sale)
+  }, [bookEdition.sale])
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>

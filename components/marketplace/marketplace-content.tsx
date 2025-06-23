@@ -3,11 +3,15 @@
 import { ArrowLeft } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useMemo } from 'react'
 
 import { useGetBookByIdQuery } from '@/api/book/get-book-by-id'
+import { useGetBookSalesQuery } from '@/api/book/get-book-sales'
+import { SaleStatus } from '@/api/sale/types'
 import { PurchaseButton } from '@/components/marketplace/purchase-button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { useUserData } from '@/hooks/use-user-data'
 import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 interface MarketplaceContentProps {
@@ -15,7 +19,30 @@ interface MarketplaceContentProps {
 }
 
 export function MarketplaceContent({ bookId }: MarketplaceContentProps) {
+  const { user } = useUserData()
   const { data: book } = useGetBookByIdQuery(bookId)
+  const { data: sales, isLoading: isLoadingSales } = useGetBookSalesQuery({
+    bookId,
+    status: SaleStatus.Active,
+    sortBy: 'price',
+    limit: 100,
+    offset: 0,
+  })
+
+  const isFloorPriceSeller = useMemo(() => {
+    if (!sales || isLoadingSales || !book || !user) {
+      return false
+    }
+
+    const floorPrice = book.metrics?.floorPrice
+    const florrPriceSales = sales.filter(
+      (sale) => sale.price === Number(floorPrice),
+    )
+
+    return (
+      florrPriceSales.length === 1 && florrPriceSales[0].seller?.id === user?.id
+    )
+  }, [sales, isLoadingSales, book, user])
 
   if (!book) {
     return <div>Book not found</div>
@@ -84,7 +111,7 @@ export function MarketplaceContent({ bookId }: MarketplaceContentProps) {
             </header>
 
             <div className="mb-6">
-              <PurchaseButton bookId={bookId} />
+              <PurchaseButton sales={sales} />
               {/* {collection.userCopies > 0 && (
                 <p className="mt-2 text-sm text-power-pump-text">
                   You own {collection.userCopies}{' '}
@@ -106,6 +133,11 @@ export function MarketplaceContent({ bookId }: MarketplaceContentProps) {
                           ? formatSolanaPrice(book.metrics?.floorPrice, true)
                           : '-'}
                       </span>
+                      {isFloorPriceSeller && (
+                        <span className="text-power-pump-text text-xs ml-2">
+                          (You are the floor price seller)
+                        </span>
+                      )}
                       {/* <USDPriceDisplay amount={book.metrics?.floorPrice} /> */}
                     </dd>
                   </div>

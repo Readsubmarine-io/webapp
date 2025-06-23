@@ -341,7 +341,11 @@ export function SetSalePriceDialog({
         <DialogFooter>
           <Button
             onClick={handleConfirmSale}
-            disabled={isLoading || !isSaveTimeOffset}
+            disabled={
+              isLoading ||
+              !isSaveTimeOffset ||
+              bookEdition.sale?.price === userListPrice
+            }
             className="bg-power-pump-button text-white hover:bg-power-pump-button/90 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-sm sm:text-base font-medium transition-colors duration-200"
           >
             {bookEdition.sale ? 'Update Price' : 'Confirm'}

@@ -6,7 +6,7 @@ export function Toaster() {
   return (
     <SonnerToaster
       richColors
-      position="top-right"
+      position="top-left"
       visibleToasts={1}
       closeButton={true}
       duration={3000}

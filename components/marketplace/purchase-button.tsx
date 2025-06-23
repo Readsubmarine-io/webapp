@@ -7,9 +7,8 @@ import Link from 'next/link'
 import { useCallback, useState } from 'react'
 import { toast } from 'sonner'
 
-import { useGetBookSalesQuery } from '@/api/book/get-book-sales'
 import { useCompleteSaleMutation } from '@/api/sale/complete-sale'
-import { SaleStatus } from '@/api/sale/types'
+import { Sale } from '@/api/sale/types'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -26,18 +25,10 @@ import { sendMetaplexTransaction } from '@/lib/send-metaplex-transaction'
 import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 interface PurchaseButtonProps {
-  bookId: string
+  sales?: Sale[] | null
 }
 
-export function PurchaseButton({ bookId }: PurchaseButtonProps) {
-  const { data: sales, isLoading: isLoadingSales } = useGetBookSalesQuery({
-    bookId,
-    status: SaleStatus.Active,
-    sortBy: 'price',
-    limit: 100,
-    offset: 0,
-  })
-
+export function PurchaseButton({ sales }: PurchaseButtonProps) {
   const [purchaseState, setPurchaseState] = useState<
     'idle' | 'processing' | 'success'
   >('idle')
@@ -143,7 +134,7 @@ export function PurchaseButton({ bookId }: PurchaseButtonProps) {
     }
   }, [isAuthenticated, sale, sales?.length])
 
-  if (isLoadingSales) {
+  if (!sales) {
     return (
       <Button
         disabled

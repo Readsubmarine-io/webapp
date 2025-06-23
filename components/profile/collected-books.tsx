@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { useGetBookEditionsQuery } from '@/api/book-edition/get-book-editions'
 import { useGetUnconfirmedBookEditionsQuery } from '@/api/book-edition/get-unconfirmed-book-editions'
@@ -31,13 +31,35 @@ export function CollectedBooks({ userAddress, isOnSale }: CollectedBooksProps) {
     userId: userAddress,
   })
 
-  const [selectedBook, setSelectedBook] = useState<BookEdition | null>(null)
+  const [selectedBookId, setSelectedBookId] = useState<string | null>(null)
   const [isSetPriceDialogOpen, setIsSetPriceDialogOpen] = useState(false)
   const [selectedBookForSale, setSelectedBookForSale] =
     useState<BookEdition | null>(null)
 
-  const handleViewBook = (book: BookEdition) => {
-    setSelectedBook(book)
+  const renderDetailsDrawer = useCallback(() => {
+    if (!selectedBookId) {
+      return null
+    }
+
+    const bookEdition = bookEditions?.find(
+      (bookEdition) => bookEdition.id === selectedBookId,
+    )
+
+    if (!bookEdition) {
+      return null
+    }
+
+    return (
+      <BookDetailsDrawer
+        bookEdition={bookEdition}
+        isOpen={!!bookEdition}
+        setIsOpen={(isOpen) => !isOpen && setSelectedBookId(null)}
+      />
+    )
+  }, [bookEditions, selectedBookId])
+
+  const handleViewBook = (bookEdition: BookEdition) => {
+    setSelectedBookId(bookEdition.id)
   }
 
   const { user } = useUserData()
@@ -61,7 +83,9 @@ export function CollectedBooks({ userAddress, isOnSale }: CollectedBooksProps) {
               setIsSetPriceDialogOpen={setIsSetPriceDialogOpen}
             />
           ))
-        : 'No books'}
+        : unconfirmedBookEditions?.length
+          ? null
+          : 'No books'}
       {unconfirmedBookEditions?.length && userAddress === user?.wallet?.address
         ? unconfirmedBookEditions?.map((unconfirmedBookEdition) => (
             <UnconfirmedBookEditionCard
@@ -70,13 +94,7 @@ export function CollectedBooks({ userAddress, isOnSale }: CollectedBooksProps) {
             />
           ))
         : null}
-      {selectedBook && (
-        <BookDetailsDrawer
-          bookEdition={selectedBook}
-          isOpen={!!selectedBook}
-          setIsOpen={(isOpen) => !isOpen && setSelectedBook(null)}
-        />
-      )}
+      {renderDetailsDrawer()}
       {selectedBookForSale && (
         <SetSalePriceDialog
           bookEdition={selectedBookForSale}
