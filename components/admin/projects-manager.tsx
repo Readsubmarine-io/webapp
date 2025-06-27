@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 import { useGetBooksQuery } from '@/api/book/get-books'
 import { ProjectApprovalCard } from '@/components/admin/project-approval-card'
 
-export function UnapprovedProjects() {
+export function ProjectsManager() {
   const { data: unapprovedBooks, refetch: refetchUnapprovedBooks } =
     useGetBooksQuery({
       isApproved: false,

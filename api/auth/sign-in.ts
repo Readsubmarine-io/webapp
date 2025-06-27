@@ -2,6 +2,8 @@ import { getBase58Decoder } from '@solana/kit'
 import { useMutation } from '@tanstack/react-query'
 import Cookies from 'js-cookie'
 
+import { useGetSettingsQuery } from '@/api/setting/get-settings'
+import { SettingKey } from '@/api/setting/types'
 import { useWallet } from '@/hooks/use-wallet'
 import { assertError } from '@/lib/assert-error'
 import { checkWalletConnection } from '@/lib/check-wallet-connection'
@@ -48,6 +50,7 @@ const signInCompleteCall = async (
 
 export const useSignInMutation = () => {
   const { wallet } = useWallet()
+  const { data: settings } = useGetSettingsQuery()
 
   return useMutation({
     mutationFn: async (checkToken: boolean = false) => {
@@ -69,13 +72,18 @@ export const useSignInMutation = () => {
         return
       }
 
+      if (!settings || !settings[SettingKey.SignInMessage]) {
+        assertError(new Error('No settings found.'), 'No settings found.')
+        return
+      }
+
       const { wallet: connectedWallet } = await checkWalletConnection(wallet)
 
       const { nonce } = await signInStartCall({
         walletAddress: wallet.publicKey?.toString() ?? '',
       })
 
-      const message = `Sign in with Solana. ${nonce}`
+      const message = `${settings[SettingKey.SignInMessage] || 'Sign in with Solana.'} \n\n ${nonce}`
       const signature = await connectedWallet.signMessage(Buffer.from(message))
 
       const { authToken } = await signInCompleteCall({

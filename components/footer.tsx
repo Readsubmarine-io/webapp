@@ -106,6 +106,22 @@ export function Footer() {
                     Contact us
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    href="/terms-of-service"
+                    className="text-sm sm:text-base text-power-pump-text leading-relaxed sm:leading-[30px] font-normal hover:text-white transition-colors font-sans"
+                  >
+                    Terms of Service
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/privacy-policy"
+                    className="text-sm sm:text-base text-power-pump-text leading-relaxed sm:leading-[30px] font-normal hover:text-white transition-colors font-sans"
+                  >
+                    Privacy Policy
+                  </Link>
+                </li>
               </ul>
             </div>
           </div>

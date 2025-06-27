@@ -334,7 +334,15 @@ export function FileUploads({
                 htmlFor="acceptTerms"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
-                I accept the platform's terms and confirm a {mintFee}% mint fee
+                I accept the{' '}
+                <a
+                  href="/terms-of-service"
+                  target="_blank"
+                  className="text-power-pump-text hover:text-power-pump-text/80 underline"
+                >
+                  terms of service
+                </a>{' '}
+                and confirm a {mintFee}% mint fee
               </label>
             </div>
             {field.state.meta.errors.length > 0 && (
