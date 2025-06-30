@@ -52,7 +52,7 @@ export function LaunchpadBookContent({ bookId }: LaunchpadBookContentProps) {
     const createdDate = DateTime.fromJSDate(new Date(book.createdAt))
     const now = DateTime.now()
 
-    return now.diff(createdDate, 'minutes').minutes >= 3
+    return now.diff(createdDate, 'minutes').minutes >= 5
   }, [book.createdAt])
 
   const { umi } = useUmi()

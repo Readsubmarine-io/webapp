@@ -81,7 +81,7 @@ export function SetSalePriceDialog({
     const mintedDate = DateTime.fromJSDate(new Date(bookEdition.mintedAt))
     const now = DateTime.now()
 
-    return now.diff(mintedDate, 'minutes').minutes >= 3
+    return now.diff(mintedDate, 'minutes').minutes >= 5
   }, [bookEdition.mintedAt])
 
   const sellerFee = useMemo(() => {
