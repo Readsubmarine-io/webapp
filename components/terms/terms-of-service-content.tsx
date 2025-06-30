@@ -34,7 +34,7 @@ export function TermsOfServiceContent() {
               settings?.[SettingKey.TermsOfService] ||
               '<p>Terms of Service content not available.</p>',
           }}
-          className="[&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mb-4 [&>h1]:text-power-pump-heading [&>h2]:text-xl [&>h2]:font-semibold [&>h2]:mb-3 [&>h2]:text-power-pump-heading [&>h3]:text-lg [&>h3]:font-medium [&>h3]:mb-2 [&>h3]:text-power-pump-heading [&>p]:mb-4 [&>ul]:mb-4 [&>ul]:pl-6 [&>ol]:mb-4 [&>ol]:pl-6 [&>li]:mb-1"
+          className="[&>h1]:text-2xl [&>h1]:font-bold [&>h1]:mb-4 [&>h1]:text-power-pump-heading [&>h2]:text-xl [&>h2]:font-semibold [&>h2]:mb-3 [&>h2]:text-power-pump-heading [&>h3]:text-lg [&>h3]:font-medium [&>h3]:mb-2 [&>h3]:text-power-pump-heading [&>p]:mb-4 [&>ul]:mb-4 [&>ul]:pl-6 [&>ol]:mb-4 [&>ol]:pl-6 [&>li]:mb-1 [&>ul>li]:list-disc [&>ol>li[data-list=bullet]]:list-disc [&>ol>li[data-list=ordered]]:list-decimal"
         />
       </div>
     </div>
