@@ -36,11 +36,47 @@ export function ProjectApprovalCard({
   const [isApproving, setIsApproving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showApprovalWarningDialog, setShowApprovalWarningDialog] =
+    useState(false)
 
   const { mutate: changeBookApproval } = useChangeBookApprovalMutation()
   const { mutate: deleteBook } = useDeleteBookMutation()
 
+  const checkIfLessThan5Minutes = () => {
+    const createdAt = new Date(book.createdAt)
+    const now = new Date()
+    const diffInMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60)
+    return diffInMinutes < 5
+  }
+
   const handleChangeApprove = () => {
+    if (!book.isApproved && checkIfLessThan5Minutes()) {
+      setShowApprovalWarningDialog(true)
+      return
+    }
+
+    setIsApproving(true)
+    changeBookApproval(
+      {
+        bookId: book.id,
+        isApproved: !book.isApproved,
+      },
+      {
+        onSuccess: () => {
+          setIsApproving(false)
+          if (onApprove) {
+            onApprove()
+          }
+        },
+        onError: () => {
+          setIsApproving(false)
+        },
+      },
+    )
+  }
+
+  const handleConfirmApproval = () => {
+    setShowApprovalWarningDialog(false)
     setIsApproving(true)
     changeBookApproval(
       {
@@ -228,6 +264,32 @@ export function ProjectApprovalCard({
               className="bg-red-600 hover:bg-red-700 text-white"
             >
               {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={showApprovalWarningDialog}
+        onOpenChange={setShowApprovalWarningDialog}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Early Approval Warning</AlertDialogTitle>
+            <AlertDialogDescription>
+              This project was created less than 5 minutes ago. If you approve
+              it now, the Mint button will be hidden until 5 minutes have passed
+              since the project creation. This is required for proper
+              synchronization. Are you sure you want to proceed?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmApproval}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              Approve Anyway
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

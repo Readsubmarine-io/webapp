@@ -9,11 +9,22 @@ import {
   ShieldOff,
 } from 'lucide-react'
 import Image from 'next/image'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { useChangeBookApprovalMutation } from '@/api/book/change-book-approval'
 import { useChangeBookVisibilityMutation } from '@/api/book/change-book-visibility'
 import { useGetBooksQuery } from '@/api/book/get-books'
+import { Book } from '@/api/book/types'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 import { Card, CardContent } from '@/components/ui/card'
 import {
   DropdownMenu,
@@ -35,6 +46,11 @@ export type CreatedBooksProps = {
 }
 
 export function CreatedBooks({ userId }: CreatedBooksProps) {
+  const [showApprovalWarningDialog, setShowApprovalWarningDialog] =
+    useState(false)
+  const [selectedBook, setSelectedBook] = useState<Book | null>(null)
+  const [isApproving, setIsApproving] = useState(false)
+
   const { data: books, refetch: refetchBooks } = useGetBooksQuery({
     creatorId: userId,
     showHidden: true,
@@ -57,15 +73,52 @@ export function CreatedBooks({ userId }: CreatedBooksProps) {
   )
 
   const { mutate: changeBookApproval } = useChangeBookApprovalMutation()
+
+  const checkIfLessThan5Minutes = (book: Book) => {
+    const createdAt = new Date(book.createdAt)
+    const now = new Date()
+    const diffInMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60)
+    return diffInMinutes < 5
+  }
+
   const handleToggleApproval = useCallback(
-    (bookId: string, currentApproved: boolean) => {
+    (book: Book, currentApproved: boolean) => {
+      if (!currentApproved && checkIfLessThan5Minutes(book)) {
+        setSelectedBook(book)
+        setShowApprovalWarningDialog(true)
+        return
+      }
+
       changeBookApproval({
-        bookId,
+        bookId: book.id,
         isApproved: !currentApproved,
       })
     },
     [changeBookApproval],
   )
+
+  const handleConfirmApproval = () => {
+    if (!selectedBook) return
+
+    setShowApprovalWarningDialog(false)
+    setIsApproving(true)
+    changeBookApproval(
+      {
+        bookId: selectedBook.id,
+        isApproved: !selectedBook.isApproved,
+      },
+      {
+        onSuccess: () => {
+          setIsApproving(false)
+          setSelectedBook(null)
+        },
+        onError: () => {
+          setIsApproving(false)
+          setSelectedBook(null)
+        },
+      },
+    )
+  }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 w-full">
@@ -133,7 +186,7 @@ export function CreatedBooks({ userId }: CreatedBooksProps) {
                             <DropdownMenuItem
                               className="DropdownMenuItem cursor-pointer flex items-center bg-white"
                               onSelect={() =>
-                                handleToggleApproval(book.id, book.isApproved)
+                                handleToggleApproval(book, book.isApproved)
                               }
                             >
                               {book.isApproved ? (
@@ -234,6 +287,33 @@ export function CreatedBooks({ userId }: CreatedBooksProps) {
           </Card>
         )
       })}
+
+      <AlertDialog
+        open={showApprovalWarningDialog}
+        onOpenChange={setShowApprovalWarningDialog}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Early Approval Warning</AlertDialogTitle>
+            <AlertDialogDescription>
+              This project was created less than 5 minutes ago. If you approve
+              it now, the Mint button will be hidden until 5 minutes have passed
+              since the project creation. This is required for proper
+              synchronization. Are you sure you want to proceed?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isApproving}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmApproval}
+              disabled={isApproving}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              {isApproving ? 'Approving...' : 'Approve Anyway'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
