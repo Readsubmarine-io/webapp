@@ -206,6 +206,22 @@ export function ProjectApprovalCard({
               {new Date(book.createdAt).toLocaleDateString()}
             </div>
           </div>
+          {book.mint && (
+            <div>
+              <div className="font-medium text-power-pump-heading text-base">
+                Mint Date
+              </div>
+              <div className="text-power-pump-text text-sm">
+                {new Date(book.mint.startDate).toLocaleDateString()}
+                {book.mint.endDate && (
+                  <span>
+                    {' '}
+                    - {new Date(book.mint.endDate).toLocaleDateString()}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-2">
