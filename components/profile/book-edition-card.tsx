@@ -1,7 +1,6 @@
 import { DropdownMenuPortal } from '@radix-ui/react-dropdown-menu'
 import { Download, Eye } from 'lucide-react'
 import { DollarSign, MoreVertical } from 'lucide-react'
-import { DateTime } from 'luxon'
 import Image from 'next/image'
 import { useCallback } from 'react'
 import { toast } from 'sonner'
@@ -22,6 +21,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { formatSolanaPrice } from '@/utils/format-solana-price'
+import { isBookOnMint } from '@/utils/is-book-on-mint'
 
 export type BookEditionCardProps = {
   bookEdition: BookEdition
@@ -50,10 +50,7 @@ export function BookEditionCard({
 
     if (!isMintDataAvailable) return <></>
 
-    const isMintEnded =
-      (book.mint?.endDate &&
-        DateTime.fromJSDate(book.mint?.endDate) <= DateTime.now()) ||
-      book.metrics?.mintedSupply === book.metrics?.totalSupply
+    const isMintEnded = !isBookOnMint(book)
 
     return (
       <DropdownMenuItem

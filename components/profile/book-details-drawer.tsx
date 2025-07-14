@@ -1,7 +1,6 @@
 'use client'
 
 import { DollarSign, Download, Edit2Icon } from 'lucide-react'
-import { DateTime } from 'luxon'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback, useState } from 'react'
@@ -24,6 +23,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { formatSolanaPrice } from '@/utils/format-solana-price'
+import { isBookOnMint } from '@/utils/is-book-on-mint'
 
 import { ListPrice } from './list-price'
 import { SetSalePriceDialog } from './set-sale-price-dialog'
@@ -46,20 +46,7 @@ export function BookDetailsDrawer({
   const isOnSale = !!bookEdition.sale
 
   const isOnMint = useCallback(() => {
-    const book = bookEdition.book
-    const isMintDataAvailable =
-      book?.metrics?.mintedSupply &&
-      book.metrics.totalSupply &&
-      book.mint?.endDate
-
-    if (!isMintDataAvailable) return true
-
-    const isMintEnded =
-      (book.mint?.endDate &&
-        DateTime.fromJSDate(book.mint?.endDate) <= DateTime.now()) ||
-      book.metrics?.mintedSupply === book.metrics?.totalSupply
-
-    return !isMintEnded
+    return isBookOnMint(bookEdition.book)
   }, [bookEdition.book])
 
   const handleSaleClick = () => {

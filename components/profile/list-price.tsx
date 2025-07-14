@@ -1,7 +1,6 @@
 'use client'
 
 import { Edit } from 'lucide-react'
-import { DateTime } from 'luxon'
 import { useCallback, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -12,6 +11,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { formatSolanaPrice } from '@/utils/format-solana-price'
+import { isBookOnMint } from '@/utils/is-book-on-mint'
 
 import { SetSalePriceDialog } from './set-sale-price-dialog'
 
@@ -28,20 +28,7 @@ export function ListPrice({ bookEdition, isOwner }: ListPriceProps) {
     : '-'
 
   const isOnMint = useCallback(() => {
-    const book = bookEdition.book
-    const isMintDataAvailable =
-      book?.metrics?.mintedSupply &&
-      book.metrics.totalSupply &&
-      book.mint?.endDate
-
-    if (!isMintDataAvailable) return true
-
-    const isMintEnded =
-      (book.mint?.endDate &&
-        DateTime.fromJSDate(book.mint?.endDate) <= DateTime.now()) ||
-      book.metrics?.mintedSupply === book.metrics?.totalSupply
-
-    return !isMintEnded
+    return isBookOnMint(bookEdition.book)
   }, [bookEdition.book])
 
   const handleEditClick = () => {
