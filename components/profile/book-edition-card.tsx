@@ -1,7 +1,10 @@
 import { DropdownMenuPortal } from '@radix-ui/react-dropdown-menu'
 import { Download, Eye } from 'lucide-react'
 import { DollarSign, MoreVertical } from 'lucide-react'
+import { DateTime } from 'luxon'
 import Image from 'next/image'
+import { useCallback } from 'react'
+import { toast } from 'sonner'
 
 import { BookEdition } from '@/api/book-edition/types'
 import { ListPrice } from '@/components/profile/list-price'
@@ -13,6 +16,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 export type BookEditionCardProps = {
@@ -33,6 +41,58 @@ export function BookEditionCard({
   const book = bookEdition.book
   const coverImageUrl = book?.coverImage?.metadata.srcUrl
   const pdfUrl = book?.pdf?.metadata.srcUrl
+
+  const drawSaleButton = useCallback(() => {
+    const isMintDataAvailable =
+      book?.metrics?.mintedSupply &&
+      book.metrics.totalSupply &&
+      book.mint?.endDate
+
+    if (!isMintDataAvailable) return <></>
+
+    const isMintEnded =
+      (book.mint?.endDate &&
+        DateTime.fromJSDate(book.mint?.endDate) <= DateTime.now()) ||
+      book.metrics?.mintedSupply === book.metrics?.totalSupply
+
+    return (
+      <DropdownMenuItem
+        className={`DropdownMenuItem cursor-pointer flex items-center`}
+        onSelect={() => {
+          if (!isMintEnded) {
+            toast.warning('Could not sell when mint is not ended.')
+            return
+          }
+
+          setSelectedBookForSale(bookEdition)
+          setIsSetPriceDialogOpen(true)
+        }}
+      >
+        <Tooltip>
+          <TooltipTrigger className="w-full">
+            <div
+              className={`gap-2 cursor-pointer flex items-center ${!isMintEnded ? 'opacity-50' : ''}`}
+            >
+              <DollarSign className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+              <span className="text-sm">Sale</span>
+            </div>
+          </TooltipTrigger>
+          {!isMintEnded && (
+            <TooltipContent>
+              <p>Could not sell when mint is not ended.</p>
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </DropdownMenuItem>
+    )
+  }, [
+    book?.metrics?.mintedSupply,
+    book?.metrics?.totalSupply,
+    book?.mint?.endDate,
+    setSelectedBookForSale,
+    bookEdition,
+    setIsSetPriceDialogOpen,
+  ])
 
   return (
     <Card
@@ -69,16 +129,7 @@ export function BookEditionCard({
                     <Eye className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
                     <span className="text-sm">View</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="DropdownMenuItem cursor-pointer flex items-center"
-                    onSelect={() => {
-                      setSelectedBookForSale(bookEdition)
-                      setIsSetPriceDialogOpen(true)
-                    }}
-                  >
-                    <DollarSign className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                    <span className="text-sm">Sale</span>
-                  </DropdownMenuItem>
+                  {drawSaleButton()}
                   <DropdownMenuItem
                     className="DropdownMenuItem cursor-pointer flex items-center"
                     onSelect={() => window.open(pdfUrl, '_blank')}

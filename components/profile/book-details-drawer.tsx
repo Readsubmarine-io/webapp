@@ -1,9 +1,10 @@
 'use client'
 
 import { DollarSign, Download, Edit2Icon } from 'lucide-react'
+import { DateTime } from 'luxon'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { toast } from 'sonner'
 
 import { BookEdition } from '@/api/book-edition/types'
@@ -17,6 +18,11 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 import { formatSolanaPrice } from '@/utils/format-solana-price'
 
 import { ListPrice } from './list-price'
@@ -39,9 +45,31 @@ export function BookDetailsDrawer({
 
   const isOnSale = !!bookEdition.sale
 
-  useEffect(() => {
-    console.log('bookEdition.sale', bookEdition.sale)
-  }, [bookEdition.sale])
+  const isOnMint = useCallback(() => {
+    const book = bookEdition.book
+    const isMintDataAvailable =
+      book?.metrics?.mintedSupply &&
+      book.metrics.totalSupply &&
+      book.mint?.endDate
+
+    if (!isMintDataAvailable) return true
+
+    const isMintEnded =
+      (book.mint?.endDate &&
+        DateTime.fromJSDate(book.mint?.endDate) <= DateTime.now()) ||
+      book.metrics?.mintedSupply === book.metrics?.totalSupply
+
+    return !isMintEnded
+  }, [bookEdition.book])
+
+  const handleSaleClick = () => {
+    if (isOnMint()) {
+      toast.warning('Could not sell when mint is not ended.')
+      return
+    }
+
+    setIsSetPriceDialogOpen(true)
+  }
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -208,24 +236,33 @@ export function BookDetailsDrawer({
               <Download className="w-4 h-4 mr-2" />
               Download
             </Button>
-            <Button
-              className={`flex-1 bg-green-600 hover:bg-green-700 text-white`}
-              onClick={() => {
-                setIsSetPriceDialogOpen(true)
-              }}
-            >
-              {isOnSale ? (
-                <>
-                  <Edit2Icon className="w-4 h-4 mr-2" />
-                  Update Sale
-                </>
-              ) : (
-                <>
-                  <DollarSign className="w-4 h-4 mr-2" />
-                  Sale
-                </>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  className={`flex-1 bg-green-600 hover:bg-green-700 text-white ${
+                    isOnMint() ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                  onClick={handleSaleClick}
+                >
+                  {isOnSale ? (
+                    <>
+                      <Edit2Icon className="w-4 h-4 mr-2" />
+                      Update Sale
+                    </>
+                  ) : (
+                    <>
+                      <DollarSign className="w-4 h-4 mr-2" />
+                      Sale
+                    </>
+                  )}
+                </Button>
+              </TooltipTrigger>
+              {isOnMint() && (
+                <TooltipContent>
+                  <p>Could not sell when mint is not ended.</p>
+                </TooltipContent>
               )}
-            </Button>
+            </Tooltip>
           </div>
         </div>
       </SheetContent>
