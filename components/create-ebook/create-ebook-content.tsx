@@ -24,7 +24,7 @@ export type CreateEbookFormData = Partial<
 >
 
 export function CreateEbookContent() {
-  const [currentStep, setCurrentStep] = useState(0)
+  const [currentStep, setCurrentStep] = useState(2)
   const [formData, setFormData] = useState<Partial<CreateEbookFormData>>({
     title: undefined,
     collectionName: undefined,

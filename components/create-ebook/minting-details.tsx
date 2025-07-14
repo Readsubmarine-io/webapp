@@ -26,8 +26,7 @@ export function MintingDetails({
     defaultValues: {
       mintPrice: formData.mintPrice ?? 0,
       totalCopies: formData.totalCopies ?? 0,
-      mintStartDate:
-        formData.mintStartDate || DateTime.utc().startOf('day').toJSDate(),
+      mintStartDate: formData.mintStartDate || DateTime.utc().toJSDate(),
       mintEndDate: formData.mintEndDate || null,
     },
     onSubmit: async ({ value }) => {
@@ -131,7 +130,7 @@ export function MintingDetails({
       </div>
       <div>
         <Label htmlFor="mintStartDate">
-          Mint Start Date (UTC) <span className="text-red-600">*</span>
+          Mint Start Date & Time (UTC) <span className="text-red-600">*</span>
         </Label>
         <form.Field
           name="mintStartDate"
@@ -139,13 +138,16 @@ export function MintingDetails({
             onChange: ({ value }) => {
               if (!value) return 'Mint Date is required'
 
-              const today = DateTime.utc().startOf('day')
+              const now = DateTime.utc()
               const selectedDate = DateTime.fromJSDate(value, {
                 zone: 'utc',
-              }).startOf('day')
+              })
 
-              if (selectedDate < today) {
-                return 'Mint Start Date must be today or later (UTC)'
+              const diffHours =
+                (selectedDate.valueOf() - now.valueOf()) / 3600 / 1000
+
+              if (diffHours < -1) {
+                return 'Mint start date could not be in the past more than 1 hour. (UTC)'
               }
 
               return undefined
@@ -156,13 +158,13 @@ export function MintingDetails({
             <>
               <Input
                 id="mintStartDate"
-                type="date"
-                value={field.state.value?.toISOString().split('T')[0]}
+                type="datetime-local"
+                value={field.state.value?.toISOString().slice(0, 16)}
                 onChange={(e) => {
                   field.handleChange(
-                    DateTime.fromISO(e.target.value, { zone: 'utc' })
-                      .startOf('day')
-                      .toJSDate(),
+                    DateTime.fromISO(e.target.value, {
+                      zone: 'utc',
+                    }).toJSDate(),
                   )
                 }}
                 onBlur={() => field.handleBlur()}
@@ -178,7 +180,7 @@ export function MintingDetails({
         </form.Field>
       </div>
       <div>
-        <Label htmlFor="mintEndDate">Mint End Date (UTC)</Label>
+        <Label htmlFor="mintEndDate">Mint End Date & Time (UTC)</Label>
         <form.Field
           name="mintEndDate"
           validators={{
@@ -190,7 +192,7 @@ export function MintingDetails({
                 value &&
                 DateTime.fromJSDate(value) <= DateTime.fromJSDate(startDate)
               ) {
-                return 'Mint End Date must be after Mint Start Date (UTC)'
+                return 'Mint End Date must be after Mint Start Date & Time (UTC)'
               }
 
               return undefined
@@ -201,14 +203,14 @@ export function MintingDetails({
             <>
               <Input
                 id="mintEndDate"
-                type="date"
-                value={field.state.value?.toISOString().split('T')[0] || ''}
+                type="datetime-local"
+                value={field.state.value?.toISOString().slice(0, 16) || ''}
                 onChange={(e) => {
                   field.handleChange(
                     e.target.value
-                      ? DateTime.fromISO(e.target.value, { zone: 'utc' })
-                          .startOf('day')
-                          .toJSDate()
+                      ? DateTime.fromISO(e.target.value, {
+                          zone: 'utc',
+                        }).toJSDate()
                       : null,
                   )
                 }}
@@ -221,8 +223,8 @@ export function MintingDetails({
                   </p>
                 )}
               <p className="text-sm text-gray-500 mt-1">
-                Mint remains open until end date or until all NFTs are minted.
-                Default is 7 days after the start date.
+                Mint remains open until end date & time or until all NFTs are
+                minted. Default is 7 days after the start date & time.
               </p>
             </>
           )}
