@@ -33,7 +33,7 @@ export function ListPrice({ bookEdition, isOwner }: ListPriceProps) {
 
   const handleEditClick = () => {
     if (isOnMint()) {
-      toast.warning('Could not sell when mint is not ended.')
+      toast.warning('Selling is disabled until the minting is over')
       return
     }
     setIsDialogOpen(true)
@@ -59,7 +59,7 @@ export function ListPrice({ bookEdition, isOwner }: ListPriceProps) {
           </TooltipTrigger>
           {isOnMint() && (
             <TooltipContent>
-              <p>Could not sell when mint is not ended.</p>
+              <p>Selling is disabled until the minting is over</p>
             </TooltipContent>
           )}
         </Tooltip>

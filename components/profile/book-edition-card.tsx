@@ -57,7 +57,7 @@ export function BookEditionCard({
         className={`DropdownMenuItem cursor-pointer flex items-center`}
         onSelect={() => {
           if (!isMintEnded) {
-            toast.warning('Could not sell when mint is not ended.')
+            toast.warning('Selling is disabled until the minting is over')
             return
           }
 
@@ -76,7 +76,7 @@ export function BookEditionCard({
           </TooltipTrigger>
           {!isMintEnded && (
             <TooltipContent>
-              <p>Could not sell when mint is not ended.</p>
+              <p>Selling is disabled until the minting is over</p>
             </TooltipContent>
           )}
         </Tooltip>
