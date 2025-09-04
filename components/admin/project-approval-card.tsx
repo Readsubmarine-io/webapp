@@ -27,6 +27,20 @@ interface ProjectApprovalCardProps {
   onDelete?: () => void
 }
 
+const formatDate = (date: Date) => {
+  return (
+    date.toLocaleString('en-US', {
+      timeZone: 'UTC',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: 'numeric',
+      hour12: false,
+    }) + ' UTC'
+  )
+}
+
 export function ProjectApprovalCard({
   book,
   onApprove,
@@ -203,7 +217,7 @@ export function ProjectApprovalCard({
               Date Submitted
             </div>
             <div className="text-power-pump-text text-sm">
-              {new Date(book.createdAt).toLocaleDateString()}
+              {formatDate(new Date(book.createdAt))}
             </div>
           </div>
           {book.mint && (
@@ -212,12 +226,9 @@ export function ProjectApprovalCard({
                 Mint Date
               </div>
               <div className="text-power-pump-text text-sm">
-                {new Date(book.mint.startDate).toLocaleDateString()}
+                {formatDate(new Date(book.mint.startDate))} - <br />
                 {book.mint.endDate && (
-                  <span>
-                    {' '}
-                    - {new Date(book.mint.endDate).toLocaleDateString()}
-                  </span>
+                  <span> {formatDate(new Date(book.mint.endDate))}</span>
                 )}
               </div>
             </div>
