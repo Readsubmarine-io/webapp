@@ -228,18 +228,31 @@ export function MintingSection({ book, onMintSuccess }: MintingSectionProps) {
   const price = formatSolanaPrice(totalPrice, true)
 
   return (
-    <div className="mb-6 bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg shadow-md">
-      <div className="flex justify-start flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
-        <Button
-          onClick={handleMint}
-          disabled={isLoading}
-          className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 rounded-full px-6 py-2 sm:py-3 text-sm sm:text-base font-bold transition-colors w-full sm:w-auto"
-        >
-          {/* {isLoading ? <Loader2 /> : <></>} */}
-          {isLoading ? 'Minting...' : `Mint new copy for ${price}`}
-        </Button>
-        {getMintButtonText()}
+    <>
+      <div className="mb-2 bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-lg shadow-md">
+        <div className="flex justify-start flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
+          <Button
+            onClick={handleMint}
+            disabled={isLoading}
+            className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 rounded-full px-6 py-2 sm:py-3 text-sm sm:text-base font-bold transition-colors w-full sm:w-auto"
+          >
+            {/* {isLoading ? <Loader2 /> : <></>} */}
+            {isLoading ? 'Minting...' : `Mint new copy for ${price}`}
+          </Button>
+          {getMintButtonText()}
+        </div>
       </div>
-    </div>
+      <p className="text-xs mb-6 text-power-pump-text mt-0 ml-3">
+        We cannot guarantee the accuracy of the minting fees because Metaplex
+        may change them. You can view their current fees here:
+        <a
+          href="https://developers.metaplex.com/protocol-fees"
+          target="_blank"
+          className="text-power-pump-text hover:text-power-pump-text/80 underline ml-1"
+        >
+          Metaplex Fees
+        </a>
+      </p>
+    </>
   )
 }
