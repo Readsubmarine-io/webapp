@@ -101,8 +101,8 @@ export function Header({ homeRedirect }: HeaderProps) {
                   <NavLink href="/launchpad" onClick={() => setIsOpen(false)}>
                     Launchpad
                   </NavLink>
-                  <NavLink href="/about" onClick={() => setIsOpen(false)}>
-                    About Us
+                  <NavLink href="/faq" onClick={() => setIsOpen(false)}>
+                    FAQ
                   </NavLink>
                   {user?.isAdmin && (
                     <NavLink href="/admin" onClick={() => setIsOpen(false)}>
@@ -121,7 +121,7 @@ export function Header({ homeRedirect }: HeaderProps) {
             <nav className="hidden md:flex items-center space-x-2 mr-2 sm:mr-4">
               <NavLink href="/">Marketplace</NavLink>
               <NavLink href="/launchpad">Launchpad</NavLink>
-              <NavLink href="/about">About Us</NavLink>
+              <NavLink href="/faq">FAQ</NavLink>
             </nav>
 
             {isSignedIn ? (
