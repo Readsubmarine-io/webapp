@@ -128,18 +128,15 @@ export function BookDetailsDrawer({
                   Pages: <span className="font-semibold">{book?.pages}</span>
                 </p>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  <Badge
-                    variant="secondary"
-                    className="bg-blue-100 text-blue-800"
-                  >
-                    Science Fiction
-                  </Badge>
-                  <Badge
-                    variant="secondary"
-                    className="bg-purple-100 text-purple-800"
-                  >
-                    Fantasy
-                  </Badge>
+                  {book?.genres.map((genre) => (
+                    <Badge
+                      key={genre}
+                      variant="secondary"
+                      className="bg-blue-100 text-blue-800"
+                    >
+                      {genre}
+                    </Badge>
+                  ))}
                 </div>
                 <p className="text-power-pump-text">
                   Published:{' '}
