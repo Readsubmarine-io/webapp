@@ -92,14 +92,6 @@ export function Footer() {
               <ul className="space-y-2 sm:space-y-3">
                 <li>
                   <Link
-                    href="/how-it-works"
-                    className="text-sm sm:text-base text-power-pump-text leading-relaxed sm:leading-[30px] font-normal hover:text-white transition-colors font-sans"
-                  >
-                    How it works?
-                  </Link>
-                </li>
-                <li>
-                  <Link
                     href="/contact"
                     className="text-sm sm:text-base text-power-pump-text leading-relaxed sm:leading-[30px] font-normal hover:text-white transition-colors font-sans"
                   >
